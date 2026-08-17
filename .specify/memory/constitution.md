@@ -1,29 +1,46 @@
 <!--
 SYNC IMPACT REPORT
-Version change: (none) → 1.0.0
-Rationale: Initial ratification. MAJOR set to 1 because this is the first binding
-governance document for the project; no prior principles existed to break.
+Version change: 1.0.0 → 2.0.0
 
-Principles defined (7, expanded from the 5 template slots):
-  I.   Privacy First (NON-NEGOTIABLE)   [new]
-  II.  Client-Side Computation          [new]
-  III. Explainability Is First-Class    [new]
-  IV.  Learner-Accessible by Default    [new]
-  V.   Technovation Design System       [new]
-  VI.  Test-First for the ML Core       [new]
-  VII. Simplicity (YAGNI)               [new]
+Rationale for MAJOR: Principle I originally required that minors "never supply
+personal data directly", mandating educator-provisioned accounts. The project
+owner has decided that account creation is open self sign-up with an email
+address for all users, including minors. That redefines a stated obligation in a
+backward-incompatible way, which is a MAJOR bump under this document's own
+versioning policy — even though the protective intent is preserved by the
+replacement obligations below.
 
-Added sections:
-  - Additional Constraints (technology + data-protection constraints)
-  - Development Workflow & Quality Gates
-  - Governance
+What changed in Principle I:
+  - REMOVED: the requirement that learner accounts be provisionable by an
+    educator so that minors never supply personal data directly.
+  - NARROWED: the non-negotiable core is now stated precisely as the data
+    locality guarantee for images and models, which is unchanged and remains
+    absolute.
+  - ADDED (compensating controls, now binding):
+      * An email address is the only personal datum the application may collect,
+        and only for authentication and password recovery.
+      * Aliases remain mandatory for every display surface.
+      * An age declaration at sign-up is mandatory.
+      * Verifiable parental or guardian consent is mandatory before an account
+        below the applicable digital-consent age becomes usable.
 
-Removed sections: none.
+Modified sections:
+  - Principle I. Privacy First (scope of the non-negotiable clause narrowed;
+    account-creation obligations replaced)
+  - Additional Constraints → Data-protection constraints (consent and age-gate
+    obligations added)
+
+Principles unchanged: II, III, IV, V, VI, VII.
+Added sections: none. Removed sections: none.
 
 Follow-up TODOs:
   - TODO(TECHNOVATION_TRADEMARK): Written confirmation from the Technovation
     program is required before shipping the Technovation logo or wordmark
     publicly. Colour tokens and Google-Fonts typefaces are unaffected.
+  - TODO(CONSENT_MECHANISM): The concrete verifiable-consent mechanism, and the
+    per-jurisdiction digital-consent age used to trigger it, require a legal
+    review before release. The specification records the requirement; the
+    implementation of verification is not yet designed.
 -->
 
 # ML4G · Explainable AI Lab Constitution
@@ -37,15 +54,25 @@ storage. The application MUST NOT transmit image data, video frames, or model we
 server, including the project's own BaaS provider, except through an action the learner
 explicitly initiates and that names the destination.
 
-Remote storage is limited to identity, classroom membership, project metadata, aggregate
-metrics, lesson progress, and learner-authored reflection text. Learner accounts MUST use
-aliases rather than real names, and MUST be provisionable by an educator so that minors never
-supply personal data directly.
+The non-negotiable core of this principle is that locality guarantee. It may be clarified or
+strengthened but MUST NOT be weakened.
 
-*Rationale*: The primary users are 12–18 year olds pointing a webcam at their own faces and
-homes. Under GDPR this is special-category processing of minors' data, and the only defensible
-design is one where the sensitive data never leaves the device. This constraint also removes
-an entire class of breach risk from the threat model.
+Remote storage is limited to identity, classroom membership, project metadata, aggregate
+metrics, lesson progress, and learner-authored reflection text. Beyond that:
+
+- An email address is the only item of personal data the application may collect, and it MUST be
+  used only for authentication and password recovery. It MUST NOT be displayed to other users,
+  used for marketing, or shared with a third party.
+- Every display surface — rosters, exports, leaderboards, shared views — MUST identify a learner
+  by a self-chosen alias and MUST NOT reveal a real name or an email address.
+- Sign-up MUST require an age declaration, and an account below the applicable digital-consent
+  age MUST NOT become usable until verifiable parental or guardian consent is recorded.
+
+*Rationale*: The primary users are 12–18 year olds pointing a camera at their own faces and
+homes. Under GDPR the images are the sensitive part, and the only defensible design is one where
+they never leave the device — hence the absolute locality rule. Open self sign-up is a deliberate
+product decision to let a participant start without waiting for an educator; the age gate and
+consent requirement are the price of that decision, not optional extras.
 
 ### II. Client-Side Computation
 
@@ -149,8 +176,15 @@ hard barrier here.
 
 **Data-protection constraints**
 
+- Sign-up MUST capture a declared date of birth or age band before an account is created, and the
+  declaration MUST be stored so that the consent state of every account is auditable.
+- An account belonging to a person below the applicable digital-consent age MUST remain in a
+  pending state — able to use the local lab, unable to persist anything remotely — until
+  verifiable parental or guardian consent is recorded against it.
+- A parent or guardian MUST be able to withdraw consent, and withdrawal MUST delete the account's
+  remote data.
 - Educator access is scoped to their own classroom, and MUST expose progress, metrics, and
-  reflections only — never images.
+  reflections only — never images, real names, or email addresses.
 - Row-level security policies MUST be treated as contracts and MUST have tests proving that a
   learner cannot read another learner's rows and that an educator cannot read another
   classroom's rows.
@@ -188,9 +222,10 @@ principle wins.
 
 **Amendment procedure**: Amendments MUST be proposed as a pull request that modifies this file,
 states the rationale, and identifies every downstream artifact requiring an update. An amendment
-MUST NOT be merged without an explicit approval from the project owner. Principle I is
-non-negotiable: it may be clarified or strengthened, but any proposal to weaken it MUST be
-rejected.
+MUST NOT be merged without an explicit approval from the project owner. The non-negotiable core
+of Principle I — that captured images and trained models never leave the learner's device other
+than through an explicit, destination-named learner action — may be clarified or strengthened, but
+any proposal to weaken it MUST be rejected.
 
 **Versioning policy**: This document uses semantic versioning. MAJOR for removing or redefining a
 principle in a backward-incompatible way, MINOR for adding a principle or materially expanding
@@ -202,4 +237,4 @@ release via a checklist run over the primary learner journey. Violations found a
 be logged as defects and either remediated or recorded in the plan's Complexity Tracking table
 with the simpler alternative that was rejected and why.
 
-**Version**: 1.0.0 | **Ratified**: 2026-08-17 | **Last Amended**: 2026-08-17
+**Version**: 2.0.0 | **Ratified**: 2026-08-17 | **Last Amended**: 2026-08-17
