@@ -1,1 +1,82 @@
-{}
+{
+  "panelTitle": "1. Enséñale ejemplos",
+  "panelIntro": "Crea una clase para cada cosa que quieras que el ordenador distinga y luego haz fotos de cada una.",
+  "classes": {
+    "heading": "Clases",
+    "add": "Añadir una clase",
+    "namePlaceholder": "Nombre de esta clase",
+    "nameLabel": "Nombre de la clase",
+    "renameLabel": "Cambiar el nombre de {{name}}",
+    "moveUp": "Subir {{name}}",
+    "moveDown": "Bajar {{name}}",
+    "delete": "Eliminar {{name}}",
+    "deleteTitle": "¿Eliminar la clase «{{name}}»?",
+    "deleteBody": "Sus {{count}} fotos se borran también. Las demás clases no se ven afectadas.",
+    "count": "{{count}} fotos",
+    "countZero": "Todavía sin fotos",
+    "empty": "Todavía no hay clases. Añade dos para empezar: un clasificador necesita al menos dos cosas que distinguir.",
+    "needTwo": "Añade una clase más. El ordenador solo puede aprender a distinguir cosas si hay al menos dos.",
+    "duplicate": "Ya tienes una clase que se llama «{{name}}». Las mayúsculas no la hacen distinta.",
+    "tooLong": "Ese nombre es demasiado largo: 40 caracteres como máximo.",
+    "tooShort": "Ponle un nombre a la clase.",
+    "selected": "Capturando en {{name}}",
+    "selectFirst": "Elige primero una clase, para que el ordenador sepa qué está mirando."
+  },
+  "camera": {
+    "heading": "Cámara",
+    "start": "Encender la cámara",
+    "stop": "Apagar la cámara",
+    "preview": "Vista previa de la cámara",
+    "capture": "Hacer una foto",
+    "burst": "Mantén pulsado para hacer muchas",
+    "burstHint": "Mantén pulsado para hacer una foto cada quinto de segundo. Mueve un poco el objeto: un modelo que solo ha visto un ángulo solo reconoce ese ángulo.",
+    "switch": "Cambiar de cámara",
+    "switching": "Cambiando de cámara…",
+    "chooseDevice": "Qué cámara",
+    "deviceFallback": "Cámara {{index}}",
+    "capturing": "Haciendo fotos… {{count}} hasta ahora",
+    "captured": "Se han guardado {{count}} fotos en {{name}}.",
+    "starting": "Encendiendo la cámara…"
+  },
+  "permission": {
+    "deniedTitle": "La cámara está bloqueada",
+    "deniedBody": "Esta página no tiene permiso para usar la cámara. Puedes darle permiso en los ajustes del navegador o subir fotos de este dispositivo: el laboratorio funciona exactamente igual de las dos formas.",
+    "noDeviceTitle": "No se ha encontrado ninguna cámara",
+    "noDeviceBody": "Parece que este dispositivo no tiene cámara. Sube fotos en su lugar.",
+    "inUseTitle": "La cámara está ocupada",
+    "inUseBody": "Otra cosa está usando la cámara: otra pestaña o una videollamada. Ciérrala e inténtalo de nuevo, o sube fotos en su lugar.",
+    "insecureTitle": "La cámara necesita una conexión segura",
+    "insecureBody": "Las cámaras solo funcionan con https. Pregunta a quien lo haya configurado o sube fotos en su lugar.",
+    "unsupportedTitle": "Este navegador no puede usar la cámara",
+    "unsupportedBody": "Sube fotos en su lugar o prueba con otro navegador.",
+    "useUpload": "Subir fotos en su lugar",
+    "tryAgain": "Volver a probar la cámara"
+  },
+  "upload": {
+    "heading": "O sube fotos",
+    "choose": "Elegir fotos",
+    "hint": "Puedes usar fotos que ya estén en este dispositivo. Se leen aquí y no se suben a ningún sitio.",
+    "dropHere": "Suelta las fotos aquí",
+    "reading": "Leyendo {{done}} de {{total}}…",
+    "added": "Se han añadido {{count}} fotos a {{name}}.",
+    "rejected": "Se han omitido {{count}} archivos porque no son imágenes.",
+    "failed": "No se han podido leer {{count}} fotos."
+  },
+  "samples": {
+    "heading": "Fotos en {{name}}",
+    "empty": "Todavía no hay fotos en esta clase.",
+    "thumbnailAlt": "Foto {{index}} en {{name}}",
+    "delete": "Eliminar la foto {{index}}",
+    "deleted": "Se ha eliminado una foto.",
+    "showAll": "Ver todas ({{count}})",
+    "showFewer": "Ver menos",
+    "source": {
+      "camera": "De la cámara",
+      "upload": "Subida"
+    }
+  },
+  "quota": {
+    "burstStopped": "No quedaba espacio, así que las fotos se han detenido en {{count}}. Esas {{count}} están guardadas. Elimina un proyecto que ya hayas terminado para hacer sitio.",
+    "refused": "No queda espacio en este dispositivo para más fotos. Elimina primero un proyecto que ya hayas terminado."
+  }
+}

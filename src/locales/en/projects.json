@@ -1,1 +1,25 @@
-{}
+{
+  "title": "My projects",
+  "intro": "A project is one thing you are teaching the computer to recognise. Each one keeps its own classes, photos and trained model.",
+  "empty": "You have no projects yet. Make one and start teaching.",
+  "create": "New project",
+  "createTitle": "Name your project",
+  "nameLabel": "Project name",
+  "namePlaceholder": "For example: fruit or not fruit",
+  "nameTooShort": "Give your project a name.",
+  "nameTooLong": "That name is too long — 60 characters at most.",
+  "open": "Open",
+  "openLab": "Open in the lab",
+  "deleteTitle": "Delete \"{{name}}\"?",
+  "deleteBody": "This removes the project, its classes, all {{count}} photos and its trained model from this device. Nothing was uploaded anywhere, so this cannot be undone.",
+  "deleteConfirm": "Delete for good",
+  "deleted": "Deleted \"{{name}}\".",
+  "summary": "{{classes}} classes · {{samples}} photos",
+  "noClasses": "No classes yet",
+  "createdOn": "Started {{date}}",
+  "anonymousTitle": "You are not signed in",
+  "anonymousBody": "Everything works, and nothing will be saved to an account. Your projects stay in this browser on this device — clearing your browser data removes them.",
+  "restoreTitle": "Made on another device",
+  "restoreBody": "\"{{name}}\" was made on a different device. Your photos and trained model stay on the device that captured them, so they are not here. You can start a fresh copy with the same classes.",
+  "restoreAction": "Start a fresh copy"
+}

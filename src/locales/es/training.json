@@ -1,1 +1,54 @@
-{}
+{
+  "panelTitle": "2. Entrénalo",
+  "panelIntro": "El entrenamiento ocurre en este dispositivo, en este navegador. Tus fotos no se envían a ningún sitio para hacerlo.",
+  "train": "Entrenar",
+  "retrain": "Entrenar otra vez",
+  "training": "Entrenando…",
+  "cancel": "Detener el entrenamiento",
+  "cancelled": "Entrenamiento detenido. Todas tus fotos siguen aquí.",
+  "epoch": "Ronda {{epoch}} de {{total}}",
+  "preparing": "Preparando…",
+  "done": "Entrenado. Pruébalo a la derecha.",
+  "doneMobile": "Entrenado. Pruébalo más abajo.",
+  "elapsed": "Ha tardado {{seconds}} segundos",
+  "refuse": {
+    "needTwoClasses": "Necesitas al menos dos clases antes de entrenar. El ordenador aprende a distinguir cosas, así que necesita al menos dos.",
+    "emptyClass": "La clase «{{name}}» todavía no tiene fotos. Haz algunas, o elimina la clase, y entrena después.",
+    "emptyClasses": "Estas clases todavía no tienen fotos: {{names}}. Haz algunas para cada una, o elimínalas, y entrena después.",
+    "fewSamples": "Solo tienes {{count}} fotos en «{{name}}». Entrenará, pero acertará más con más fotos: prueba con unas diez."
+  },
+  "settings": {
+    "heading": "Ajustes",
+    "show": "Cambiar los ajustes",
+    "hide": "Ocultar los ajustes",
+    "intro": "Los valores por defecto funcionan bien. Cambiarlos es una buena forma de ver qué hacen.",
+    "epochs": {
+      "label": "Rondas de práctica",
+      "help": "Cuántas veces repasa el ordenador tus fotos. Más rondas suele significar que se ajusta mejor a las fotos que le diste y, pasado un punto, peor a cualquier otra."
+    },
+    "batchSize": {
+      "label": "Fotos por paso",
+      "help": "Cuántas fotos mira antes de ajustarse. Los pasos pequeños son más lentos pero a menudo más estables."
+    },
+    "backbone": {
+      "label": "Nivel de detalle",
+      "help": "La opción grande mira más detalle y normalmente lo hace mejor; la pequeña es más rápida en un móvil antiguo.",
+      "small": "Más rápido (menos preciso)",
+      "large": "Mejor (por defecto)",
+      "changeWarning": "Cambiar esto obliga a volver a mirar todas las fotos. No se pierde nada: solo tarda un momento."
+    },
+    "reset": "Volver a los valores por defecto"
+  },
+  "recompute": {
+    "heading": "Preparando tus fotos",
+    "body": "El nivel de detalle ha cambiado, así que cada foto se está mirando otra vez. Tus fotos están a salvo.",
+    "progress": "{{done}} de {{total}}"
+  },
+  "interrupted": {
+    "heading": "Un entrenamiento no llegó a terminar",
+    "body": "El entrenamiento de «{{name}}» se interrumpió: probablemente se cerró la pestaña. Un modelo sin terminar no se usa para adivinar, porque parecería seguro y se equivocaría. Entrena otra vez cuando quieras.",
+    "restart": "Entrenar otra vez",
+    "dismiss": "Dejarlo por ahora"
+  },
+  "backendWarning": "Este dispositivo no tiene aceleración gráfica, así que el entrenamiento y los mapas de calor tardarán más. Todo sigue funcionando."
+}

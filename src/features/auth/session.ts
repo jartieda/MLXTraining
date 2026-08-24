@@ -29,9 +29,9 @@ export type SessionStatus = 'loading' | 'anonymous' | 'signed-in'
 interface SessionState {
   readonly status: SessionStatus
   readonly account: Account | null
-  setAccount(account: Account | null): void
-  setLoading(): void
-  signOut(): void
+  readonly setAccount: (account: Account | null) => void
+  readonly setLoading: () => void
+  readonly signOut: () => void
 }
 
 export const useSession = create<SessionState>((set) => ({

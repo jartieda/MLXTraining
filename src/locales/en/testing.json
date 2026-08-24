@@ -1,1 +1,24 @@
-{}
+{
+  "panelTitle": "3. Try it out",
+  "panelIntro": "Hold something up to the camera. The bars show how sure the computer is about each class.",
+  "notTrained": "Train the model first, then come back here.",
+  "start": "Start guessing",
+  "stop": "Stop guessing",
+  "live": "Guessing live",
+  "paused": "Paused",
+  "leading": "It thinks: {{name}}",
+  "leadingConfidence": "{{name}}, {{percent}}% sure",
+  "noCamera": "Turn on the camera above to try it live, or freeze a photo you uploaded.",
+  "confidence": {
+    "heading": "How sure it is",
+    "sumNote": "These always add up to 100%. The computer never says \"I don't know\" — it always picks the closest class it was given, even for something it has never seen."
+  },
+  "freeze": {
+    "action": "Freeze this frame",
+    "unfreeze": "Back to live",
+    "frozen": "Frame frozen",
+    "hint": "Freeze a frame to look at why it decided that.",
+    "alt": "The frozen frame being explained"
+  },
+  "close": "It is close between {{first}} and {{second}}. When two are nearly level, the model is not really distinguishing them."
+}

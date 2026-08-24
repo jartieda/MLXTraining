@@ -1,1 +1,25 @@
-{}
+{
+  "title": "Mis proyectos",
+  "intro": "Un proyecto es una cosa que estás enseñando al ordenador a reconocer. Cada uno guarda sus propias clases, fotos y su modelo entrenado.",
+  "empty": "Todavía no tienes proyectos. Crea uno y empieza a enseñar.",
+  "create": "Nuevo proyecto",
+  "createTitle": "Ponle nombre a tu proyecto",
+  "nameLabel": "Nombre del proyecto",
+  "namePlaceholder": "Por ejemplo: fruta o no fruta",
+  "nameTooShort": "Ponle un nombre a tu proyecto.",
+  "nameTooLong": "Ese nombre es demasiado largo: 60 caracteres como máximo.",
+  "open": "Abrir",
+  "openLab": "Abrir en el laboratorio",
+  "deleteTitle": "¿Eliminar «{{name}}»?",
+  "deleteBody": "Esto borra de este dispositivo el proyecto, sus clases, las {{count}} fotos y su modelo entrenado. Nada se había subido a ningún sitio, así que no se puede deshacer.",
+  "deleteConfirm": "Eliminar definitivamente",
+  "deleted": "Se ha eliminado «{{name}}».",
+  "summary": "{{classes}} clases · {{samples}} fotos",
+  "noClasses": "Todavía sin clases",
+  "createdOn": "Empezado el {{date}}",
+  "anonymousTitle": "No has iniciado sesión",
+  "anonymousBody": "Todo funciona y no se guardará nada en ninguna cuenta. Tus proyectos se quedan en este navegador y en este dispositivo: si borras los datos del navegador, desaparecen.",
+  "restoreTitle": "Creado en otro dispositivo",
+  "restoreBody": "«{{name}}» se creó en otro dispositivo. Tus fotos y tu modelo entrenado se quedan en el dispositivo que los capturó, así que aquí no están. Puedes empezar una copia nueva con las mismas clases.",
+  "restoreAction": "Empezar una copia nueva"
+}

@@ -1,1 +1,24 @@
-{}
+{
+  "panelTitle": "3. Pruébalo",
+  "panelIntro": "Pon algo delante de la cámara. Las barras muestran lo segura que está la máquina de cada clase.",
+  "notTrained": "Entrena primero el modelo y vuelve aquí después.",
+  "start": "Empezar a adivinar",
+  "stop": "Dejar de adivinar",
+  "live": "Adivinando en directo",
+  "paused": "En pausa",
+  "leading": "Cree que es: {{name}}",
+  "leadingConfidence": "{{name}}, {{percent}}% de seguridad",
+  "noCamera": "Enciende la cámara de arriba para probarlo en directo, o congela una foto que hayas subido.",
+  "confidence": {
+    "heading": "Lo segura que está",
+    "sumNote": "Esto siempre suma 100%. La máquina nunca dice «no lo sé»: siempre elige la clase más parecida de las que le diste, incluso ante algo que no ha visto nunca."
+  },
+  "freeze": {
+    "action": "Congelar esta imagen",
+    "unfreeze": "Volver al directo",
+    "frozen": "Imagen congelada",
+    "hint": "Congela una imagen para ver por qué ha decidido eso.",
+    "alt": "La imagen congelada que se está explicando"
+  },
+  "close": "Está muy igualado entre {{first}} y {{second}}. Cuando dos van casi a la par, el modelo no las está distinguiendo de verdad."
+}

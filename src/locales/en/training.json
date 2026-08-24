@@ -1,1 +1,54 @@
-{}
+{
+  "panelTitle": "2. Train it",
+  "panelIntro": "Training happens on this device, in this browser. Your photos are not sent anywhere to do it.",
+  "train": "Train",
+  "retrain": "Train again",
+  "training": "Training…",
+  "cancel": "Stop training",
+  "cancelled": "Training stopped. Your photos are all still here.",
+  "epoch": "Round {{epoch}} of {{total}}",
+  "preparing": "Getting ready…",
+  "done": "Trained. Try it out on the right.",
+  "doneMobile": "Trained. Try it out below.",
+  "elapsed": "Took {{seconds}} seconds",
+  "refuse": {
+    "needTwoClasses": "You need at least two classes before you can train. The computer learns to tell things apart, so it needs at least two things.",
+    "emptyClass": "The class \"{{name}}\" has no photos yet. Take a few, or delete the class, and then train.",
+    "emptyClasses": "These classes have no photos yet: {{names}}. Take a few for each, or delete them, and then train.",
+    "fewSamples": "You only have {{count}} photos in \"{{name}}\". It will train, but it will guess better with more — try ten or so."
+  },
+  "settings": {
+    "heading": "Settings",
+    "show": "Change the settings",
+    "hide": "Hide the settings",
+    "intro": "The defaults work well. Changing them is a good way to see what they do.",
+    "epochs": {
+      "label": "Rounds of practice",
+      "help": "How many times the computer goes over your photos. More rounds usually means a better fit to the photos you gave it — and, past a point, worse at anything else."
+    },
+    "batchSize": {
+      "label": "Photos per step",
+      "help": "How many photos it looks at before adjusting. Smaller steps are slower but often steadier."
+    },
+    "backbone": {
+      "label": "Detail level",
+      "help": "The bigger option looks at more detail and usually does better; the smaller one is faster on an older phone.",
+      "small": "Faster (less accurate)",
+      "large": "Better (default)",
+      "changeWarning": "Changing this means every photo has to be looked at again. Nothing is lost — it just takes a moment."
+    },
+    "reset": "Back to the defaults"
+  },
+  "recompute": {
+    "heading": "Getting your photos ready",
+    "body": "The detail level changed, so each photo is being looked at again. Your photos are safe.",
+    "progress": "{{done}} of {{total}}"
+  },
+  "interrupted": {
+    "heading": "A training run did not finish",
+    "body": "Training \"{{name}}\" was interrupted — the tab probably closed. An unfinished model is not used for guessing, because it would look confident and be wrong. Train again when you are ready.",
+    "restart": "Train again",
+    "dismiss": "Leave it for now"
+  },
+  "backendWarning": "This device has no graphics acceleration, so training and heat maps will take longer. Everything still works."
+}

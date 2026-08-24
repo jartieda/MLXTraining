@@ -1,1 +1,82 @@
-{}
+{
+  "panelTitle": "1. Show it examples",
+  "panelIntro": "Make a class for each thing you want the computer to tell apart, then take photos of each one.",
+  "classes": {
+    "heading": "Classes",
+    "add": "Add a class",
+    "namePlaceholder": "Name this class",
+    "nameLabel": "Class name",
+    "renameLabel": "Rename {{name}}",
+    "moveUp": "Move {{name}} up",
+    "moveDown": "Move {{name}} down",
+    "delete": "Delete {{name}}",
+    "deleteTitle": "Delete the class \"{{name}}\"?",
+    "deleteBody": "Its {{count}} photos go too. The other classes are not affected.",
+    "count": "{{count}} photos",
+    "countZero": "No photos yet",
+    "empty": "No classes yet. Add two to get started — a classifier needs at least two things to tell apart.",
+    "needTwo": "Add one more class. The computer can only learn to tell things apart if there are at least two.",
+    "duplicate": "You already have a class called \"{{name}}\". Capital letters do not make it different.",
+    "tooLong": "That name is too long — 40 characters at most.",
+    "tooShort": "Give the class a name.",
+    "selected": "Capturing into {{name}}",
+    "selectFirst": "Choose a class first, so the computer knows what it is looking at."
+  },
+  "camera": {
+    "heading": "Camera",
+    "start": "Turn on the camera",
+    "stop": "Turn off the camera",
+    "preview": "Camera preview",
+    "capture": "Take one photo",
+    "burst": "Hold to take lots",
+    "burstHint": "Press and hold to take a photo every fifth of a second. Move the object around a bit — a model that only ever saw one angle only recognises that angle.",
+    "switch": "Switch camera",
+    "switching": "Switching camera…",
+    "chooseDevice": "Which camera",
+    "deviceFallback": "Camera {{index}}",
+    "capturing": "Taking photos… {{count}} so far",
+    "captured": "Saved {{count}} photos to {{name}}.",
+    "starting": "Turning on the camera…"
+  },
+  "permission": {
+    "deniedTitle": "The camera is blocked",
+    "deniedBody": "This page is not allowed to use the camera. You can allow it in your browser settings, or upload photos from this device instead — the lab works exactly the same either way.",
+    "noDeviceTitle": "No camera found",
+    "noDeviceBody": "This device does not seem to have a camera. Upload photos instead.",
+    "inUseTitle": "The camera is busy",
+    "inUseBody": "Something else is using the camera — another tab, or a video call. Close it and try again, or upload photos instead.",
+    "insecureTitle": "The camera needs a secure connection",
+    "insecureBody": "Cameras only work over https. Ask whoever set this up, or upload photos instead.",
+    "unsupportedTitle": "This browser cannot use the camera",
+    "unsupportedBody": "Upload photos instead, or try a different browser.",
+    "useUpload": "Upload photos instead",
+    "tryAgain": "Try the camera again"
+  },
+  "upload": {
+    "heading": "Or upload photos",
+    "choose": "Choose photos",
+    "hint": "You can use photos already on this device. They are read here and never uploaded anywhere.",
+    "dropHere": "Drop photos here",
+    "reading": "Reading {{done}} of {{total}}…",
+    "added": "Added {{count}} photos to {{name}}.",
+    "rejected": "{{count}} files were skipped because they are not images.",
+    "failed": "{{count}} photos could not be read."
+  },
+  "samples": {
+    "heading": "Photos in {{name}}",
+    "empty": "No photos in this class yet.",
+    "thumbnailAlt": "Photo {{index}} in {{name}}",
+    "delete": "Delete photo {{index}}",
+    "deleted": "Deleted one photo.",
+    "showAll": "Show all {{count}}",
+    "showFewer": "Show fewer",
+    "source": {
+      "camera": "From the camera",
+      "upload": "Uploaded"
+    }
+  },
+  "quota": {
+    "burstStopped": "There was no room left, so the photos stopped at {{count}}. Those {{count}} are saved. Delete a project you have finished with to make room for more.",
+    "refused": "There is no room left on this device for more photos. Delete a project you have finished with first."
+  }
+}

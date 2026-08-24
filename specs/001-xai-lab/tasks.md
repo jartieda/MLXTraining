@@ -107,22 +107,22 @@ right class lead — with no account, no lessons, no explanations.
 
 ### Tests
 
-- [ ] T037 [P] [US1] `tests/integration/capture.test.tsx` — class create/rename/reorder/delete, duplicate name refused case-insensitively, live per-class counts, single sample delete (FR-001, FR-004)
-- [ ] T038 [P] [US1] `tests/integration/training.test.tsx` — Train refused with an empty class **naming that class**; progress reported; cancellation works (Scenario 1.3, FR-007)
-- [ ] T039 [P] [US1] `tests/e2e/us1-capture-train-predict.spec.ts` — full journey on the fake camera at both viewports; asserts confidences sum to 100% (Scenario 1.1, SC-002)
+- [X] T037 [P] [US1] `tests/integration/capture.test.tsx` — class create/rename/reorder/delete, duplicate name refused case-insensitively, live per-class counts, single sample delete (FR-001, FR-004)
+- [X] T038 [P] [US1] `tests/integration/training.test.tsx` — Train refused with an empty class **naming that class**; progress reported; cancellation works (Scenario 1.3, FR-007)
+- [X] T039 [P] [US1] `tests/e2e/us1-capture-train-predict.spec.ts` — full journey on the fake camera at both viewports; asserts confidences sum to 100% (Scenario 1.1, SC-002)
 
 ### Implementation
 
-- [ ] T040 [P] [US1] `src/features/projects/` — project list, create, open, delete with cascade (D1); storage-budget indicator (FR-049)
-- [ ] T041 [US1] `src/features/capture/ClassList.tsx` — create, rename, reorder, delete; duplicate-name validation (FR-001)
-- [ ] T042 [US1] `src/features/capture/CameraCapture.tsx` — live preview, single and press-and-hold burst capture, device switcher; **computes and stores the pooled embedding per sample at capture time** (FR-002, D4, R2)
-- [ ] T043 [P] [US1] `src/features/capture/UploadSamples.tsx` — file-upload sample source so the lab works without a camera; converts to `ImageSource` at this boundary, never inside `src/ml/` (FR-003)
-- [ ] T044 [P] [US1] `src/features/capture/SampleGrid.tsx` — review and delete individual samples (FR-004)
-- [ ] T045 [US1] `src/features/training/TrainPanel.tsx` — Train control, epoch progress, cancel; **at most three** learner-comprehensible settings each with a default and a plain-language explanation (FR-008)
-- [ ] T046 [US1] `src/features/testing/LivePrediction.tsx` — throttled 10 fps loop, predicted class, per-class confidence bars, single reused input buffer (R8, FR-011)
-- [ ] T047 [US1] Permission and hardware states in `src/features/capture/` — denied, no device, camera busy — each explaining the cause and offering upload (Scenario 1.4)
-- [ ] T048 [US1] Interrupted-training recovery in `src/features/training/` — surface `listStaleTrainingModels`, offer restart, never load an unfinished model for inference (D5, FR-050)
-- [ ] T049 [P] [US1] `en` and `es` strings in `src/locales/{en,es}/` for capture, training, and testing (FR-044, SC-005)
+- [X] T040 [P] [US1] `src/features/projects/` — project list, create, open, delete with cascade (D1); storage-budget indicator (FR-049)
+- [X] T041 [US1] `src/features/capture/ClassList.tsx` — create, rename, reorder, delete; duplicate-name validation (FR-001)
+- [X] T042 [US1] `src/features/capture/CameraCapture.tsx` — live preview, single and press-and-hold burst capture, device switcher; **computes and stores the pooled embedding per sample at capture time** (FR-002, D4, R2)
+- [X] T043 [P] [US1] `src/features/capture/UploadSamples.tsx` — file-upload sample source so the lab works without a camera; converts to `ImageSource` at this boundary, never inside `src/ml/` (FR-003)
+- [X] T044 [P] [US1] `src/features/capture/SampleGrid.tsx` — review and delete individual samples (FR-004)
+- [X] T045 [US1] `src/features/training/TrainPanel.tsx` — Train control, epoch progress, cancel; **at most three** learner-comprehensible settings each with a default and a plain-language explanation (FR-008)
+- [X] T046 [US1] `src/features/testing/LivePrediction.tsx` — throttled 10 fps loop, predicted class, per-class confidence bars, single reused input buffer (R8, FR-011)
+- [X] T047 [US1] Permission and hardware states in `src/features/capture/` — denied, no device, camera busy — each explaining the cause and offering upload (Scenario 1.4)
+- [X] T048 [US1] Interrupted-training recovery in `src/features/training/` — surface `listStaleTrainingModels`, offer restart, never load an unfinished model for inference (D5, FR-050)
+- [X] T049 [P] [US1] `en` and `es` strings in `src/locales/{en,es}/` for capture, training, and testing (FR-044, SC-005)
 
 **Checkpoint**: US1 is a complete, demonstrable product on its own. Validate against W1 in
 quickstart.md, including the SC-002 30 s budget on the reference laptop.

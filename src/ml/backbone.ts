@@ -102,12 +102,23 @@ function truncateTo(full: tf.LayersModel, layer: TargetLayer): tf.LayersModel {
  * an internal one about an undefined layer configuration.
  */
 export async function loadBackbone(url: string, alpha: Alpha): Promise<LoadedBackbone> {
-  const handlers = tf.io.getLoadHandlers(url)
-  const handler = handlers[0]
-  if (!handler?.load) {
+  // The artifacts are fetched through the IO layer and inspected before being
+  // handed to `loadLayersModel`, which is what turns a graph model into a clear
+  // refusal instead of an internal error about an undefined layer config.
+  //
+  // The HTTP fallback matters and is not defensive padding: `getLoadHandlers`
+  // matches `http://`, `https://`, `indexeddb://` and registered schemes, but NOT
+  // a root-relative path — and `/models/mobilenet_v1_0.50_224/model.json` is
+  // exactly what a statically-hosted build asks for. `tf.loadLayersModel` applies
+  // this same fallback internally; calling `getLoadHandlers` directly meant
+  // reimplementing its resolution and getting it wrong, which left the lab with a
+  // disabled capture button in the browser while every node test passed against a
+  // `file://` router.
+  const handler = tf.io.getLoadHandlers(url)[0] ?? tf.io.browserHTTPRequest(url)
+  if (!handler.load) {
     throw new MlError(
       'MODEL_NOT_FOUND',
-      `Nothing can load "${url}". Expected an http(s) URL, an indexeddb:// key, or a registered scheme.`,
+      `Nothing can load "${url}". Expected an http(s) URL, a path, an indexeddb:// key, or a registered scheme.`,
       { url },
     )
   }
