@@ -1,0 +1,113 @@
+/**
+ * T011 / R12 — the Technovation tokens mapped into the Tailwind theme.
+ *
+ * Note on file placement: tasks.md names `tailwind.config.ts`, which is the Tailwind 3
+ * mechanism. plan.md pins **Tailwind CSS 4**, whose documented configuration surface is
+ * the CSS-first `@theme` block; a JS config file in v4 requires an explicit
+ * `@config` opt-in and exists only for migration. Mapping the tokens here is therefore
+ * the same task done the way this version of the dependency supports, and it keeps the
+ * token declaration and its theme mapping in one place rather than two.
+ *
+ * Every value below is a `var()` reference, never a literal. That is what makes
+ * tokens.css the single source of truth: a Tailwind utility and a hand-written rule
+ * resolve to the same custom property, so `data-surface="dark"` reflows both.
+ */
+
+@import 'tailwindcss';
+
+/* Self-hosted typefaces (R12). No runtime request to Google Fonts, so the critical path
+   stays same-origin and the CSP in R14 needs no third-party allowance. */
+@import '@fontsource/poppins/400.css';
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/700.css';
+@import '@fontsource/rubik/500.css';
+@import '@fontsource/rubik/700.css';
+
+@import './tokens.css';
+
+@theme {
+  /* Brand palette. The `--color-*` namespace is what generates bg-*, text-*,
+     border-*, ring-* and friends. */
+  --color-navy: var(--tv-navy);
+  --color-blue: var(--tv-blue);
+  --color-orange: var(--tv-orange);
+  --color-amber: var(--tv-amber);
+  --color-magenta: var(--tv-magenta);
+  --color-green: var(--tv-green);
+  --color-sky-500: var(--tv-sky-500);
+  --color-sky-300: var(--tv-sky-300);
+  --color-sky-100: var(--tv-sky-100);
+
+  /* Semantic surface and ink. Components should prefer these: they are the ones that
+     respond to `data-surface="dark"`. */
+  --color-surface: var(--tv-surface);
+  --color-surface-sunken: var(--tv-surface-sunken);
+  --color-border-subtle: var(--tv-border);
+  --color-ink: var(--tv-ink);
+  --color-ink-muted: var(--tv-ink-muted);
+  --color-ink-inverse: var(--tv-ink-inverse);
+
+  --font-body: var(--tv-font-body);
+  --font-display: var(--tv-font-display);
+
+  --radius-sm: var(--tv-radius-sm);
+  --radius-DEFAULT: var(--tv-radius);
+  --radius-lg: var(--tv-radius-lg);
+
+  --shadow-sm: var(--tv-shadow-sm);
+  --shadow-DEFAULT: var(--tv-shadow);
+  --shadow-lg: var(--tv-shadow-lg);
+
+  /* FR-046: `min-h-touch` / `min-w-touch` for the 44 px floor. */
+  --spacing-touch: var(--tv-touch-min);
+
+  /* SC-004: 360 px is the constitutional floor, so the mobile-first default layer IS
+     the 360 px layout and `md` is the first place a multi-column arrangement appears.
+     Naming the floor as a breakpoint gives tests something to reference. */
+  --breakpoint-xs: 22.5rem; /* 360 px */
+}
+
+@layer base {
+  html {
+    /* A learner zooming to 200% (WCAG 1.4.4) must not trip a horizontal scrollbar. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--tv-font-body);
+    background-color: var(--tv-surface);
+    color: var(--tv-ink);
+    /* SC-004 / FR-045: nothing in the lab may cause a horizontal scroll at 360 px.
+       Enforced in tests/e2e/us8-mobile.spec.ts; this is the layout intent. */
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--tv-font-display);
+    color: var(--tv-ink);
+  }
+
+  /* One focus treatment for the whole application. A keyboard-only learner has nothing
+     else to orient by (SC-009, FR-046), so this is never removed per-component. */
+  :focus-visible {
+    outline: var(--tv-focus-ring) solid var(--tv-blue);
+    outline-offset: var(--tv-focus-offset);
+  }
+
+  /* Skip link target and generic screen-reader-only helper. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}

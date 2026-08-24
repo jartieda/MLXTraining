@@ -7,8 +7,9 @@ than an optimisation:
 
 - **Local (IndexedDB, on the learner's device)** — everything derived from a camera: samples,
   embeddings, trained weights, and generated explanations. Never transmitted (FR-048).
-- **Remote (Postgres via Supabase)** — identity, consent, classroom membership, and the *numbers and
-  words* a learner produces: metrics, progress, reflections. No table can hold an image or a weight.
+- **Remote (Postgres via Supabase)** — identity, invitations, classroom membership, and the *numbers
+  and words* a learner produces: metrics, progress, reflections. No table can hold an image or a
+  weight, and none can hold a learner's email address, date of birth, or real name.
 
 A `Project` therefore exists in both stores, joined by a shared UUID generated on the client. If the
 remote row exists and the local record does not — a learner logging in on a second device — that is
@@ -27,7 +28,7 @@ a normal, expected state that the interface explains (FR-032), not an inconsiste
 | `ownerId` | UUID \| `null` | `null` for an anonymous session (FR-023) |
 | `createdAt` / `updatedAt` | ISO 8601 | |
 | `activeRunId` | UUID \| `null` | The run whose model is currently loaded |
-| `backboneAlpha` | `0.25` \| `0.50` | Fixed at first training; changing it invalidates cached embeddings |
+| `backboneAlpha` | `0.25` \| `0.5` | Fixed at first training; changing it invalidates cached embeddings. Written `0.5`, not `0.50`, to match the `Alpha` type in [contracts/ml-core.md](./contracts/ml-core.md) — `0.50` is not a distinct TypeScript literal |
 
 ### `classes`
 
@@ -50,7 +51,7 @@ renamed after training keeps its figures correctly attributed (Edge Cases).
 | `projectId` / `classId` | UUID | Both indexed; a sample belongs to exactly one class |
 | `image` | Blob | JPEG, 224×224, quality 0.8, ~15 KB (R10) |
 | `embedding` | Float32Array | Pooled backbone vector, 512 floats at alpha 0.50, ~2 KB (R2) |
-| `embeddingAlpha` | `0.25` \| `0.50` | Which backbone produced `embedding`; stale entries are recomputed |
+| `embeddingAlpha` | `0.25` \| `0.5` | Which backbone produced `embedding`; stale entries are recomputed |
 | `source` | `camera` \| `upload` | |
 | `capturedAt` | ISO 8601 | |
 
@@ -82,7 +83,7 @@ classes after a reorder or rename.
 | `classId` | UUID | The class being explained — not necessarily the predicted one (FR-016) |
 | `method` | `gradcam` \| `occlusion` | |
 | `map` | Float32Array | Normalised to [0,1] |
-| `width` / `height` | integer | Native map resolution before upsampling (7 or 14) |
+| `width` / `height` | integer | Native map resolution before upsampling, and it differs by method: 7 or 14 for `gradcam` depending on the target layer, and the occlusion grid size (12 by default) for `occlusion`. A single "7 or 14" rule would silently corrupt every cached occlusion map |
 | `params` | object | `{ targetLayer }` or `{ gridSize, patchSize, stride }` |
 | `computedAt` | ISO 8601 | |
 
@@ -109,69 +110,95 @@ Every table has row-level security enabled. Policy contracts are specified in
 | Field | Type | Rules |
 |---|---|---|
 | `id` | UUID (primary key) | References `auth.users.id` |
-| `alias` | text | 2–24 chars, required. **The only identifier shown to any other user** (FR-025) |
-| `role` | `learner` \| `educator` | Chosen at sign-up |
-| `date_of_birth` | date | Required; refused if impossible (Edge Cases). Never displayed |
-| `consent_state` | `active` \| `pending` \| `withdrawn` | Derived at sign-up from `date_of_birth`; `active` immediately if at or above the configured threshold |
+| `username` | text | 3–24 chars, **unique system-wide**, case-insensitive. Assigned by the issuer, never shown to another learner (FR-025, FR-051) |
+| `alias` | text | 2–24 chars, required. **Unique within a classroom** (FR-051). The only identifier shown to another learner (FR-025) |
+| `role` | `learner` \| `educator` \| `administrator` | Set by the invitation that created the account; never client-writable |
+| `display_name` | text \| `null` | Educators and administrators only — how an educator appears to her learners. `null` for a learner, who uses `alias` |
+| `is_active` | boolean | `false` blocks sign-in. An administrator deactivates an educator here (FR-054); the last administrator cannot be deactivated (FR-056) |
 | `locale` | `en` \| `es` | Persisted interface language (FR-044) |
 | `created_at` | timestamptz | |
 
-Email lives in `auth.users` and is never exposed through `profiles` — this is the mechanism behind
-FR-025 and SC-016.
+There is **no** `date_of_birth` and **no** `consent_state`, and there is no learner email address or
+real name anywhere in this table or any other. That absence is the project's whole data-protection
+position, so it is asserted by a schema-inspection test rather than left to review (SC-017).
 
-### `consent_records`
+An educator's email lives in `auth.users` and is never exposed through `profiles`. A learner has no
+real email at all: her `auth.users` row carries an identifier derived from `username` in a
+non-resolvable domain (R16), which is why no query can leak a contact detail she never gave.
+
+### `invitations`
+
+The only way an account comes into existence (FR-024).
 
 | Field | Type | Rules |
 |---|---|---|
 | `id` | UUID (primary key) | |
-| `profile_id` | UUID | Unique — one live consent record per profile |
-| `guardian_email` | text | Write-only from the client's perspective; never returned to any select |
-| `token_hash` | text | Hash of the single-use confirmation token |
-| `requested_at` | timestamptz | |
-| `confirmed_at` | timestamptz \| `null` | |
-| `withdrawn_at` | timestamptz \| `null` | |
-| `resend_count` | integer | Rate-limits resends after a bouncing address (Edge Cases) |
+| `issuer_id` | UUID | References `profiles.id`. An administrator issues to an educator; an educator issues to a learner |
+| `kind` | `educator` \| `learner` | Determines what `target` means and what role the redeemed account gets |
+| `purpose` | `initial` \| `password_reset` | A reset is a fresh invitation of the same shape against an account that already exists (FR-030) |
+| `target` | text | The assigned `username` when `kind = 'learner'`; the educator's email address when `kind = 'educator'` |
+| `classroom_id` | UUID \| `null` | Required when `kind = 'learner'` — the classroom the redeemed account is enrolled into. `null` for an educator |
+| `code_hash` | text | Hash of the single-use code. The code itself is **6 characters** over a 32-symbol alphabet excluding `O`/`0` and `I`/`1`/`l`, returned to the issuer **once** at issue time, and never stored or selectable (R15, FR-028) |
+| `expires_at` | timestamptz | Required, set to 72 hours after issue. A code past this instant is refused (FR-028) |
+| `failed_attempts` | integer | Redemption is refused after 5 failures per hour per origin. At 30 bits of code entropy this limit is the primary defence, not a secondary one (FR-028, SC-020) |
+| `redeemed_at` | timestamptz \| `null` | |
+| `revoked_at` | timestamptz \| `null` | |
+| `created_at` | timestamptz | |
 
-**State machine** — the whole of User Story 4's consent behaviour:
+**State machine** — the whole of the account lifecycle:
 
 ```
-                    at/above age threshold
-  sign-up ──────────────────────────────────────────────▶ active
+  issued ──── holder redeems with a valid code ────▶ redeemed
+     │                                               (account exists and is usable)
+     ├──── expires_at passes ──────────────────────▶ expired
      │
-     │ below threshold
-     ▼
-  pending ──── guardian confirms ────▶ active ──── guardian withdraws ────▶ withdrawn
-     │  ▲                                                                      │
-     │  └── resend (rate-limited) ──┘                                          │
-     │                                                          deletes all remote rows
-     └── never confirmed: stays pending indefinitely,
-         local lab fully usable, no remote writes (FR-027, SC-014)
+     └──── issuer revokes ─────────────────────────▶ revoked
+
+  All three terminal states refuse redemption, and the refusal MUST say which one
+  applies so a learner knows whether to wait or to ask for a new code (FR-028).
+  A refusal MUST NOT reveal whether the target username exists (Edge Cases).
 ```
 
-`withdrawn` deletes every remote row owned by the profile (FR-029, SC-015). It cannot reach local
-samples, which is the intended consequence of keeping images on the device.
+Redemption is the only transition that creates a `profiles` row, and it happens inside
+`redeem_invitation` — see [contracts/database.md](./contracts/database.md). The holder chooses her own
+password during redemption, which is why no educator can ever read a learner's credential (FR-027).
+
+Deleting a learner's account removes every remote row belonging to it (FR-052, SC-015). It cannot
+reach her local samples and models, which is the intended consequence of keeping images on the
+device.
 
 ### `classrooms`
 
 | Field | Type | Rules |
 |---|---|---|
 | `id` | UUID (primary key) | |
-| `educator_id` | UUID | References `profiles.id`; the row's owner |
+| `educator_id` | UUID | References `profiles.id`; the row's owner. **Reassignable** by an administrator, so that deactivating an educator never strands a group of learners (FR-057) |
 | `name` | text | 1–60 chars |
-| `code_prefix` | text | Short non-secret lookup key |
-| `code_hash` | text | Hash of the full join code (R9) |
-| `code_active` | boolean | `false` retires the code without deleting the classroom (FR-038) |
+| `archived_at` | timestamptz \| `null` | Archiving hides a finished classroom without deleting it or its learners' work (FR-038) |
 | `created_at` | timestamptz | |
+
+`educator_id` is the only column an administrator may write, and `id`, `name`, `educator_id` are the
+only ones she may read. That narrow window is what lets FR-057 exist without giving her any route into
+a classroom's contents.
+
+There is **no join code**. A learner does not join a classroom; she is created inside one by the
+invitation her educator issued, so `invitations.classroom_id` carries what a join code used to. This
+removes an entire mechanism — code generation, rotation, retirement, and the RPC that validated it —
+along with the class of bug where a leaked code lets a stranger into a classroom.
 
 ### `enrolments`
 
 | Field | Type | Rules |
 |---|---|---|
 | `classroom_id` / `learner_id` | UUID | Composite primary key |
-| `joined_at` | timestamptz | |
+| `enrolled_at` | timestamptz | |
 
-A learner may hold **at most one** enrolment at a time (Assumptions), enforced by a unique
-constraint on `learner_id`. A pending profile may not be enrolled at all (Edge Cases).
+Created by `redeem_invitation`, never by a client insert. A learner may hold **at most one**
+enrolment at a time (Assumptions), enforced by a unique constraint on `learner_id`.
+
+An educator removing a learner deletes only this row: the learner keeps her account, her projects,
+her progress, and her reflections, and only the educator's visibility ends (FR-039, Edge Cases).
+Deleting the account is the separate, heavier action of FR-052.
 
 ### `projects`
 
@@ -227,6 +254,27 @@ Assumptions) and can be revised without a migration.
 Readable by the learner and by the educator of the classroom she is enrolled in, and by nobody else
 (FR-040, FR-042).
 
+### `audit_log`
+
+Append-only, unreadable through the application, and the answer to "who removed my daughter's work?"
+
+| Field | Type | Rules |
+|---|---|---|
+| `id` | bigint (primary key) | Monotonic, so ordering survives clock adjustment |
+| `actor_id` | UUID | The profile that performed the action |
+| `action` | `learner_deleted` \| `educator_deactivated` \| `classroom_reassigned` | Only the three irreversible actions. Issuing or revoking an invitation destroys nothing and is not recorded (FR-058) |
+| `subject_id` | UUID | The learner, educator, or classroom affected |
+| `detail` | jsonb \| `null` | Opaque identifiers only — for a reassignment, the previous and new `educator_id` |
+| `occurred_at` | timestamptz | |
+
+No column may hold an alias, a username, an email address, a date of birth, or a real name. A log
+built to be readable by a human is a log that has become personal data, and this one is read by
+querying identifiers during an incident, not by browsing.
+
+Each row is written **inside the same transaction** as the action it records, by the
+`SECURITY DEFINER` function performing it. Writing it afterwards would allow the deletion to succeed
+while the record is lost, which is precisely the failure the log exists to rule out.
+
 ### Remote store invariants
 
 These are the assertions the row-level-security test suite must prove:
@@ -234,14 +282,30 @@ These are the assertions the row-level-security test suite must prove:
 1. **No image or weight column exists in any table.** Enforced by schema review and a test that
    fails if any column's type is `bytea` or if a text column's name matches an image or weight
    pattern (Principle I, SC-010).
-2. **Every write policy on `projects`, `training_runs`, `lesson_progress`, `reflections`, and
-   `enrolments` requires the caller's `consent_state = 'active'`.** This makes SC-014 hold against a
-   tampered client, not merely against the shipped interface.
-3. **`guardian_email` is never selectable by any role.** Write-only from the client.
-4. **An educator reads only rows belonging to learners enrolled in a classroom she owns**, resolved
+2. **No column anywhere holds a learner's email address, date of birth, or real name.** Enforced by
+   the same schema-inspection test. This is the assertion the entire data-protection position rests
+   on, so it is checked structurally rather than by inspecting contents (SC-017).
+3. **`invitations.code_hash` is never selectable by anyone**, including the issuer. The code is
+   returned once by the issuing RPC and thereafter exists only as a hash (R15).
+4. **An account exists only as the result of a redeemed invitation.** No client-side insert into
+   `profiles` succeeds; `redeem_invitation` is the only writer (FR-024).
+5. **An educator reads only rows belonging to learners enrolled in a classroom she owns**, resolved
    through a `SECURITY DEFINER` function to avoid recursive policy evaluation (R9, FR-042).
-5. **A learner reads and writes only her own rows.** No learner can reach another learner's
+6. **A learner reads and writes only her own rows.** No learner can reach another learner's
    projects, runs, progress, or reflections (FR-042).
-6. **`classrooms.code_hash` is not selectable by learners**; a code is validated through an RPC
-   (R9).
-7. **Withdrawing consent leaves no residual row** for that profile in any table (SC-015).
+7. **An administrator reads exactly three things**: `profiles` rows whose `role = 'educator'`, the
+   `invitations` she issued, and the `id`, `name`, and `educator_id` of a classroom — the last solely
+   so she can reassign it (FR-057). Enrolments, projects, training runs, lesson progress, and
+   reflections all return zero rows to her (FR-055, SC-018). She is the only role in the system
+   defined primarily by what it cannot see.
+8. **`audit_log` is selectable by nobody and mutable by nobody.** Append-only, written only from
+   inside the three irreversible definer functions, and read only by direct database inspection. An
+   audit screen for administrators would name learner accounts and so recreate the role FR-055
+   forbids (FR-058).
+9. **Deleting a learner leaves no residual row** referencing that profile in any table (FR-052,
+   SC-015).
+10. **`username` is unique system-wide and `alias` is unique within a classroom**, enforced by
+    constraint rather than by application check, so a roster or export can never be ambiguous
+    (FR-051).
+11. **The last administrator cannot be deactivated.** Enforced inside `deactivate_educator` and by a
+    partial constraint, so the program cannot be locked out of its own administration (FR-056).

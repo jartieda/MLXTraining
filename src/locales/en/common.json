@@ -1,0 +1,73 @@
+{
+  "app": {
+    "name": "Explainable AI Lab",
+    "tagline": "Teach a computer to see — then find out how it decided.",
+    "skipToContent": "Skip to main content"
+  },
+  "nav": {
+    "label": "Main navigation",
+    "home": "Home",
+    "projects": "My projects",
+    "lab": "Lab",
+    "lessons": "Learning path",
+    "classroom": "Classroom",
+    "admin": "Administration",
+    "login": "Sign in",
+    "logout": "Sign out",
+    "menu": "Menu",
+    "closeMenu": "Close menu"
+  },
+  "action": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "continue": "Continue",
+    "back": "Back",
+    "next": "Next",
+    "save": "Save",
+    "delete": "Delete",
+    "rename": "Rename",
+    "retry": "Try again",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyFailed": "Copy did not work — select the text and copy it by hand.",
+    "loading": "Loading…"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "es": "Español",
+    "changed": "Language changed to {{language}}."
+  },
+  "backend": {
+    "unaccelerated": "Graphics acceleration is not available on this device, so training and explanations will be slower. Everything still works.",
+    "active": "Running on {{backend}}.",
+    "checking": "Checking what this device can do…"
+  },
+  "storage": {
+    "label": "Space used on this device",
+    "used": "{{used}} of {{total}} used",
+    "unknown": "This browser will not say how much space is left. Keep an eye on how many projects you hold.",
+    "warn": "You have used {{percent}}% of the space this browser gives the lab. Delete a project you have finished with to make room.",
+    "refuse": "There is not enough space left to capture more. Delete a project you have finished with, then try again.",
+    "persistRequested": "Asked the browser to keep your work rather than clearing it automatically."
+  },
+  "error": {
+    "title": "Something went wrong",
+    "generic": "That did not work. Nothing was lost — try again.",
+    "offline": "You are offline. Projects already on this device still work; anything that needs the network will wait.",
+    "notFound": "That page does not exist.",
+    "notFoundBody": "Check the address, or go back to your projects.",
+    "forbidden": "This part of the lab is not for your account."
+  },
+  "privacy": {
+    "onDevice": "Your photos, your trained model and your heat maps stay on this device. They are never uploaded.",
+    "shortOnDevice": "Stays on this device"
+  },
+  "a11y": {
+    "loading": "Loading",
+    "required": "required",
+    "dialogTitle": "Dialogue",
+    "progress": "Progress: {{percent}}%"
+  }
+}

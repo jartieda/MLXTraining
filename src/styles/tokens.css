@@ -1,0 +1,116 @@
+/**
+ * T010 / R12 — the Technovation design tokens, declared exactly once.
+ *
+ * Principle V: every colour and typeface a learner can see comes from this file. A lint
+ * rule (ml4g/no-raw-hex-or-font-family) fails the build on a hex literal anywhere in
+ * src/components, src/features or src/routes, so this is the only place raw values live.
+ *
+ * Two tokens carry a contrast restriction that is a correctness constraint, not a
+ * stylistic preference:
+ *
+ *   --tv-amber (#ffbb1c) contrast on white ≈ 1.7:1
+ *   --tv-green (#43b02a) contrast on white ≈ 3.1:1
+ *
+ * Both fail WCAG 2.1 AA (4.5:1) for body text, so both are FILL / BORDER / BACKGROUND
+ * ONLY, and only ever behind dark text. Using either as a text colour on a light surface
+ * is an accessibility defect, which is why the restriction is recorded here next to the
+ * value rather than in a document someone has to find.
+ *
+ * The heat-map ramp is deliberately NOT here. Principle V exempts heat maps so they can
+ * use a perceptually uniform scale (inferno, R6); it lives in src/ml/explain/colormap.ts.
+ */
+
+:root {
+  /* ── 1. Brand core ─────────────────────────────────────────────────────────
+     Navy is the body-text and dark-surface colour. Blue is every action. */
+  --tv-navy: #041e42;
+  --tv-blue: #0076cf;
+
+  /* ── 2. Warm accents ──────────────────────────────────────────────────────
+     Orange passes AA on white for large text and is safe for icons and borders;
+     amber is fill-only (see the header note). */
+  --tv-orange: #ff7500;
+  --tv-amber: #ffbb1c; /* FILL / BORDER / BACKGROUND ONLY — 1.7:1 on white */
+
+  /* ── 3. Vivid accent ──────────────────────────────────────────────────────── */
+  --tv-magenta: #ec0089;
+
+  /* ── 4. Status ────────────────────────────────────────────────────────────
+     Green is fill-only. Where "success" needs a text colour, use --tv-navy on a
+     --tv-green background, never green on white. */
+  --tv-green: #43b02a; /* FILL / BORDER / BACKGROUND ONLY — 3.1:1 on white */
+
+  /* ── 5. Light support surfaces ────────────────────────────────────────────
+     Three sky steps, darkest first. All are background-only by nature. */
+  --tv-sky-500: #5bc2e7;
+  --tv-sky-300: #7fbae7;
+  --tv-sky-100: #ade0f3;
+
+  /* ── 6. Neutrals ──────────────────────────────────────────────────────────
+     Derived from navy rather than pure grey so surfaces sit in the same family.
+     --tv-ink-muted is the lightest text colour that still clears AA on white. */
+  --tv-white: #ffffff;
+  --tv-surface: #f7f9fc;
+  --tv-surface-sunken: #eef2f8;
+  --tv-border: #d3dceb;
+  --tv-ink: #041e42;
+  --tv-ink-muted: #4a5b73; /* 7.0:1 on white */
+  --tv-ink-inverse: #ffffff;
+
+  /* ── 7. Typography ────────────────────────────────────────────────────────
+     Self-hosted via @fontsource (R12): no runtime request to Google Fonts, which
+     keeps the critical path same-origin and removes a data-protection question.
+     Rubik Mono One is display-only — it has no italic and no weight range. */
+  --tv-font-body: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --tv-font-display: 'Rubik', 'Poppins', ui-sans-serif, system-ui, sans-serif;
+
+  /* Spacing, radii and elevation. Present so components never invent a value. */
+  --tv-radius-sm: 0.375rem;
+  --tv-radius: 0.625rem;
+  --tv-radius-lg: 1rem;
+  --tv-radius-full: 9999px;
+
+  --tv-shadow-sm: 0 1px 2px rgb(4 30 66 / 8%);
+  --tv-shadow: 0 4px 12px rgb(4 30 66 / 10%);
+  --tv-shadow-lg: 0 12px 32px rgb(4 30 66 / 14%);
+
+  /**
+   * FR-046: a touch target is never smaller than 44 px. Declared as a token so the
+   * value is asserted in one place and used by every control.
+   */
+  --tv-touch-min: 2.75rem;
+
+  /* Focus ring. Deliberately thick and offset: a keyboard-only learner (SC-009) has
+     nothing else to orient by. */
+  --tv-focus-ring: 3px;
+  --tv-focus-offset: 2px;
+}
+
+/**
+ * Dark surfaces. Applied by adding `data-surface="dark"`, which flips the ink tokens so
+ * a component written once reads correctly on navy without knowing where it sits.
+ */
+[data-surface='dark'] {
+  --tv-surface: #041e42;
+  --tv-surface-sunken: #01142d;
+  --tv-border: #1d3a63;
+  --tv-ink: #ffffff;
+  --tv-ink-muted: #b8c7dd;
+  --tv-ink-inverse: #041e42;
+}
+
+/**
+ * Respect a learner who has asked for less motion. The live-prediction loop and the
+ * training progress bar both animate; neither is load-bearing.
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --tv-motion-duration: 0ms;
+  }
+}
+
+@media not (prefers-reduced-motion: reduce) {
+  :root {
+    --tv-motion-duration: 160ms;
+  }
+}

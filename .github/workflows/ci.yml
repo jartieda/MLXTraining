@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Constitution -> Development Workflow & Quality Gates names the required gates:
+# type checking, linting, ML-core unit tests, end-to-end tests at mobile and desktop
+# viewports, a locale-completeness check, and an accessibility check of the primary
+# journey. Every one of them is merge-blocking here. A gate that only warns is not a gate.
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: Types, lint and locales
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Locale completeness (SC-005)
+        run: npm run test:i18n
+
+  ml-core:
+    name: ML core (deterministic, DOM-free)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Principle VI: these run in a node environment against committed fixtures with a
+      # fixed seed. No camera, no DOM, no network, no backbone download needed.
+      - run: npm run test:ml
+
+  database:
+    name: Row-level-security contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase start
+      - run: supabase db reset
+      # RLS is the entire authorisation model (contracts/database.md), so these 22
+      # scenarios are contracts rather than extras.
+      - run: npm run test:db
+
+  e2e:
+    name: End-to-end, accessibility and no-egress
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run fetch:backbone
+      - run: npm run test:e2e
+      - name: Accessibility, zero violations (SC-009)
+        run: npm run test:a11y
+      - name: No image or model bytes leave the device (SC-010, Principle I)
+        run: npm run test:network
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  degraded:
+    name: No-WebGL fallback (SC-012)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run fetch:backbone
+      # Principle IV requires the WASM fallback to be exercised, not merely configured.
+      - run: npm run test:e2e:nowebgl

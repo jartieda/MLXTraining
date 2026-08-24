@@ -1,0 +1,73 @@
+{
+  "app": {
+    "name": "Laboratorio de IA explicable",
+    "tagline": "Enseña a ver a un ordenador y descubre después cómo ha decidido.",
+    "skipToContent": "Saltar al contenido principal"
+  },
+  "nav": {
+    "label": "Navegación principal",
+    "home": "Inicio",
+    "projects": "Mis proyectos",
+    "lab": "Laboratorio",
+    "lessons": "Ruta de aprendizaje",
+    "classroom": "Clase",
+    "admin": "Administración",
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "menu": "Menú",
+    "closeMenu": "Cerrar el menú"
+  },
+  "action": {
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "continue": "Continuar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "rename": "Cambiar el nombre",
+    "retry": "Inténtalo de nuevo",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "copyFailed": "No se ha podido copiar: selecciona el texto y cópialo a mano.",
+    "loading": "Cargando…"
+  },
+  "language": {
+    "label": "Idioma",
+    "en": "English",
+    "es": "Español",
+    "changed": "Idioma cambiado a {{language}}."
+  },
+  "backend": {
+    "unaccelerated": "Este dispositivo no dispone de aceleración gráfica, así que el entrenamiento y las explicaciones tardarán más. Todo sigue funcionando.",
+    "active": "Funcionando con {{backend}}.",
+    "checking": "Comprobando de qué es capaz este dispositivo…"
+  },
+  "storage": {
+    "label": "Espacio usado en este dispositivo",
+    "used": "{{used}} de {{total}} en uso",
+    "unknown": "Este navegador no indica cuánto espacio queda. Vigila cuántos proyectos guardas.",
+    "warn": "Has usado el {{percent}}% del espacio que este navegador da al laboratorio. Elimina un proyecto que ya hayas terminado para hacer sitio.",
+    "refuse": "No queda espacio suficiente para capturar más. Elimina un proyecto que ya hayas terminado y vuelve a intentarlo.",
+    "persistRequested": "Se ha pedido al navegador que conserve tu trabajo en lugar de borrarlo automáticamente."
+  },
+  "error": {
+    "title": "Algo ha ido mal",
+    "generic": "Eso no ha funcionado. No se ha perdido nada: inténtalo de nuevo.",
+    "offline": "Estás sin conexión. Los proyectos que ya están en este dispositivo siguen funcionando; lo que necesite la red esperará.",
+    "notFound": "Esa página no existe.",
+    "notFoundBody": "Comprueba la dirección o vuelve a tus proyectos.",
+    "forbidden": "Esta parte del laboratorio no es para tu cuenta."
+  },
+  "privacy": {
+    "onDevice": "Tus fotos, tu modelo entrenado y tus mapas de calor se quedan en este dispositivo. Nunca se suben a ningún sitio.",
+    "shortOnDevice": "Se queda en este dispositivo"
+  },
+  "a11y": {
+    "loading": "Cargando",
+    "required": "obligatorio",
+    "dialogTitle": "Diálogo",
+    "progress": "Progreso: {{percent}}%"
+  }
+}

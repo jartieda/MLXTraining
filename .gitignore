@@ -8,6 +8,7 @@ dist/
 dist-ssr/
 build/
 *.local
+*.tsbuildinfo
 
 # Environment
 .env
@@ -50,6 +51,9 @@ supabase/.branches/
 *.bin
 datasets/
 captures/
+
+# Backbone weights fetched by `npm run fetch:backbone` (T006) - large, reproducible, not source
+public/models/
 
 # Claude Code local settings (may contain credentials)
 .claude/settings.local.json

@@ -19,9 +19,16 @@ takes seconds rather than minutes. The gradient-based explanation is Grad-CAM co
 truncated backbone's last convolutional activations; the perturbation-based explanation is batched
 occlusion sensitivity, ported from the project's existing prototype and made an order of magnitude
 faster by evaluating all occluded variants in a single batched forward pass. Images and models live
-in IndexedDB and never leave the device. Supabase provides authentication, the consent state
+in IndexedDB and never leave the device. Supabase provides authentication, the invitation state
 machine, and row-level-security-protected tables for classroom membership, progress, reflections,
 and training-run metrics — never image data.
+
+Accounts exist only by invitation, and nobody can register unbidden: an administrator invites
+educators, an educator invites her learners into a classroom she owns, and each invitation is a
+single-use expiring code redeemed by its holder, who sets her own password. A learner supplies no
+personal data at all — her authentication identifier is derived from her educator-assigned username
+in a domain that cannot receive mail. There are three roles, administrator, educator, and learner,
+plus an unauthenticated visitor who gets the complete local lab and no persistence.
 
 ## Technical Context
 
@@ -30,12 +37,14 @@ and training-run metrics — never image data.
 **Primary Dependencies**: React 19 · Vite 7 · React Router 7 · Zustand 5 (client state) ·
 TanStack Query 5 (remote state) · Tailwind CSS 4 · react-i18next 16 · `@tensorflow/tfjs` 4 with
 `@tensorflow/tfjs-backend-wasm` fallback · Dexie 4 (IndexedDB) · `@supabase/supabase-js` 2 ·
-Zod 4 (boundary validation) · `@fontsource-variable/poppins` and `@fontsource/rubik`
+Zod 4 (boundary validation) · `@fontsource/poppins` and `@fontsource/rubik`
 
 **Storage**: IndexedDB via Dexie for samples, cached embeddings, and saved models
-(`indexeddb://` model store). Supabase Postgres for profiles, consent records, classrooms,
-enrolments, project metadata, training-run metrics, lesson progress, and reflections — all tables
-with row-level security enabled.
+(`indexeddb://` model store). Supabase Postgres for profiles, invitations, classrooms,
+enrolments, project metadata, training-run metrics, lesson progress, reflections, and an append-only
+audit log — all tables with row-level security enabled. No column anywhere holds a learner email
+address, date of birth, or real name; invitation codes are stored only as hashes; and the audit log
+is selectable by nobody through the application.
 
 **Testing**: Vitest with React Testing Library for units and components; Vitest node environment
 for the ML core against committed fixture images with a fixed seed; Playwright for end-to-end at
@@ -62,20 +71,20 @@ automated violations on the primary journey (SC-009). Functional without WebGL a
 the accelerated training time (SC-012). Every user-facing string externalised, English and
 Spanish complete (SC-005).
 
-**Scale/Scope**: Tens of classrooms, low thousands of accounts. 8 user stories, 50 functional
-requirements, 7 learning modules, roughly 12 screens. Concurrency is not a design driver because
-computation is client-side.
+**Scale/Scope**: Tens of classrooms, low thousands of accounts. 9 user stories, 58 functional
+requirements, 21 success criteria, 7 learning modules, roughly 14 screens. Concurrency is not a
+design driver because computation is client-side.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Evaluated against constitution **v2.0.0**.
+Evaluated against constitution **v3.1.0**.
 
 | Principle | Gate | Verdict |
 |---|---|---|
-| I. Privacy First | Samples, embeddings, and models are written only to IndexedDB. No Supabase table has a column that can hold image or weight data. A Playwright network assertion fails the build if any request body carries image or model bytes. Age declaration and pending-account gate are in the auth flow. | **PASS** |
-| II. Client-Side Computation | Training, inference, Grad-CAM, and occlusion all run in the browser. Supabase is used only for auth and non-image persistence. No first-party server exists to route a prediction through. | **PASS** |
+| I. Privacy First | Samples, embeddings, and models are written only to IndexedDB. No Supabase table has a column that can hold image or weight data, and none holds a learner email address, date of birth, or real name — a schema-inspection test fails the build if one appears. A Playwright network assertion fails the build if any request body carries image or model bytes. Every account originates from a single-use invitation; the holder sets her own password, so no educator can read a learner's. An administrator's reachable surface is educator profiles, her own invitations, and a classroom's name and owner — enough to reassign it, and nothing that a learner produced. The audit log records the three irreversible actions and is selectable by nobody, so it cannot become a back door into the classroom contents FR-055 closes. | **PASS** |
+| II. Client-Side Computation | Training, inference, Grad-CAM, and occlusion all run in the browser. Supabase is used only for auth and non-image persistence. No first-party server exists to route a prediction through. Provisioning one account from another needs elevated privilege, and that privilege lives in `SECURITY DEFINER` Postgres functions inside the managed BaaS — not in an Edge Function, and not in a `service_role` key shipped to the client. See R15. | **PASS** |
 | III. Explainability Is First-Class | Two independent methods, one gradient-based and one perturbation-based, both reachable from any prediction. The comparison view reports an agreement score and states disagreement explicitly rather than reconciling it. | **PASS** |
 | IV. Learner-Accessible | `en` default, `es` selectable, all strings in locale files, a test fails on a missing key. Mobile-first layout verified at 360 px in end-to-end tests. `axe` gate in CI. WASM fallback exercised in a dedicated test run, not merely configured. | **PASS** |
 | V. Technovation Design System | Tokens declared once as CSS custom properties and mapped into the Tailwind theme; a lint rule forbids raw hex values and `font-family` in component files. Heat maps deliberately exempt and use a perceptually uniform ramp with a legend. | **PASS** |
@@ -83,11 +92,23 @@ Evaluated against constitution **v2.0.0**.
 | VII. Simplicity | One `package.json`, no workspaces, one deployable static site. Supabase is called through its own client with no wrapper abstraction. | **PASS** |
 
 **Post-design re-check (after Phase 1)**: Still **PASS**. No violation required justification, so
-the Complexity Tracking table below is empty by design. Two items are recorded as deferred
-obligations rather than violations: the concrete verifiable-consent mechanism and the applicable
-digital-consent age both await legal review (`TODO(CONSENT_MECHANISM)` in the constitution), and
-Technovation logo usage awaits program confirmation (`TODO(TECHNOVATION_TRADEMARK)`). Neither
-blocks implementation of anything in this plan; both block public launch.
+the Complexity Tracking table below is empty by design.
+
+The one gate worth stating explicitly is Principle II, because account provisioning is where a
+zero-server design is most tempting to abandon. Creating an account on someone else's behalf
+requires privilege the caller does not have, and the obvious solution — a serverless function
+holding a `service_role` key — is project-operated server code that Principle II forbids. The
+design instead issues and redeems invitations through `SECURITY DEFINER` functions that run inside
+the database the BaaS already provides, so no new channel exists through which anything could leave.
+That is a genuine constraint satisfied, not a violation absorbed, which is why Complexity Tracking
+stays empty.
+
+Two items remain deferred obligations rather than violations: the division of data-controller
+responsibility between the project and participating schools awaits legal review
+(`TODO(CONTROLLER_AGREEMENT)`), and Technovation logo usage awaits program confirmation
+(`TODO(TECHNOVATION_TRADEMARK)`). Neither blocks implementation of anything in this plan; both block
+public launch. `TODO(CONSENT_MECHANISM)` is closed — the application collects no learner personal
+data, so there is no consent to verify and no digital-consent age to resolve.
 
 ## Project Structure
 
@@ -127,7 +148,8 @@ src/
 │   ├── backend.ts               # WebGL/WASM selection + capability report
 │   └── types.ts
 ├── features/
-│   ├── auth/                    # sign-up, login, age gate, consent state
+│   ├── auth/                    # login, invitation redemption, code entry, password set
+│   ├── admin/                   # educator invitations, educator list, deactivation (US9)
 │   ├── capture/                 # camera, class list, sample grid
 │   ├── training/                # train controls, progress, run history
 │   ├── testing/                 # live prediction, freeze frame
@@ -135,7 +157,7 @@ src/
 │   ├── results/                 # confusion matrix, per-class accuracy, imbalance
 │   ├── lessons/                 # learning path, modules, challenges, reflections
 │   ├── projects/                # project list, create, delete, storage budget
-│   └── classroom/               # educator dashboard, join codes, roster, export
+│   └── classroom/               # educator dashboard, learner invitations, roster, export
 ├── components/                  # shared primitives (Button, Meter, HeatmapCanvas, …)
 ├── lib/
 │   ├── supabase.ts              # client + typed database definitions

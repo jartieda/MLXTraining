@@ -31,9 +31,15 @@ npm run fetch:backbone              # downloads MobileNet v1 alpha 0.50 into pub
 npm run dev                         # http://localhost:5173
 ```
 
-`.env.local` needs `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and
-`VITE_DIGITAL_CONSENT_AGE` (default `16`; see the deferred legal question in
-[research.md](./research.md)).
+`.env.local` needs `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_INVITATION_TTL_HOURS`
+(default `72` — how long an invitation or reset code stays redeemable, per FR-028).
+
+`supabase db reset` seeds the fixtures every walkthrough below assumes: administrator **A1**;
+educator **E1** owning classroom **K1** with learners **L1** and **L1b**; educator **E2** owning
+classroom **K2** with learner **L2**; and one unredeemed invitation of each kind. There is no
+self-service registration, so without this seed there is no way into the authenticated part of the
+application — which is the point of the design, and worth knowing before you wonder why there is no
+sign-up link.
 
 `npm run fetch:backbone` self-hosts the model rather than fetching from Google at runtime (R1). It is
 a prerequisite for anything in the lab working.
@@ -75,23 +81,35 @@ a prerequisite for anything in the lab working.
    The view must **state** that the methods disagree and that neither is guaranteed correct (FR-018).
 5. Cancel a running occlusion mid-way. The interface stays responsive and no partial map is shown.
 
-### W4 — Accounts and the consent gate (User Story 4, SC-014, SC-015, SC-016)
+### W4 — Invitations and accounts (User Story 4, SC-014, SC-015, SC-016)
 
-1. Sign up with a date of birth **above** the configured threshold. Expect an active account and an
-   empty project list.
-2. Sign up with a date of birth **below** it. Expect a pending account, a plain non-shaming
-   explanation, and an option to email a guardian (FR-028, FR-030).
-3. As the pending account, complete all of W1–W3. Then query the local Supabase: **zero rows** must
-   exist for that account in `projects`, `training_runs`, `lesson_progress`, and `reflections`
-   (SC-014).
-4. Confirm consent via the token. The account becomes active and subsequent work is saved.
-5. Withdraw consent. Re-query: **no residual row** anywhere for that profile (SC-015).
-6. Log in on a second browser profile and open a project. Expect the explanation that samples and
-   models stay on the device where they were captured (FR-032) — not an error.
+1. Confirm there is **no** sign-up link anywhere in the interface, and that no URL reaches a
+   completable registration form without a code (FR-024).
+2. As E1, issue a learner invitation with a username. Expect a single-use code shown **once**, and
+   the pending invitation listed with its state (Scenario 6.2).
+3. Redeem it in a fresh browser profile: set a password, choose an alias. Expect an immediately
+   usable account and an empty project list (Scenario 4.1).
+4. Try to redeem the same code again. Expect a refusal that says it has already been used
+   (FR-028).
+5. Issue a second invitation, revoke it as E1, then attempt redemption. Expect a refusal that says it
+   was revoked. Then set an invitation's `expires_at` into the past in the database and attempt
+   redemption: expect a refusal that says it expired. All three refusals must be distinguishable, and
+   none may reveal whether the username exists.
+6. As E1, use the interface and the database to look for the learner's password. It must be
+   unreachable in both (Scenario 4.4, FR-027).
+7. As the learner, forget the password. Expect a plain statement that only her educator can issue a
+   new code, and no dead "forgot password" link. As E1, issue a reset code; the learner sets a new
+   password and regains access, with **no email sent to anyone** (Scenario 4.3, FR-030).
+8. Without any account at all, complete W1–W3 as an anonymous visitor. Then query the local Supabase:
+   **zero rows** written on that visitor's behalf anywhere (SC-014).
+9. As E1, delete the learner's account. Re-query: **no residual row** for that profile in any table
+   (SC-015). Confirm the learner is told her local samples and models are still hers to delete.
+10. Log in as L1 on a second browser profile and open a project. Expect the explanation that samples
+    and models stay on the device where they were captured (FR-032) — not an error.
 
 ### W5 — Learning path and the imbalance experiment (User Stories 5 & 7, SC-006)
 
-1. Open the learning path as an active account. Work module 1 end to end; progress saves without an
+1. Open the learning path as L1. Work module 1 end to end; progress saves without an
    explicit action.
 2. Open the fairness module. Follow it to train deliberately with roughly 40 samples in one class and
    5 in another.
@@ -104,15 +122,23 @@ a prerequisite for anything in the lab working.
 
 ### W6 — Classroom (User Story 6, SC-011, SC-013)
 
-1. Sign up as an educator; create a classroom. A join code appears in **under 3 minutes** of total
-   effort.
-2. Join as an active learner account. She appears on the roster **by alias**.
+1. As E1, create a classroom and issue your first learner invitation. Both together in **under 3
+   minutes** of total effort (SC-013).
+2. Redeem the invitation as a learner. She appears on the roster **by alias**.
 3. Complete a module as that learner. It appears on the educator's view with her accuracy figures and
    reflections.
-4. Search the entire educator view and the exported file for an image, a real name, or an email
-   address. There must be none (FR-041, SC-016).
-5. As a second educator, attempt to open the first classroom. Access is refused (SC-011).
-6. Retire the join code; a new join attempt fails while existing enrolments persist (FR-038).
+4. Search the entire educator view and the exported file for an image, a real name, an email address,
+   or another learner's username. There must be none (FR-041, SC-016).
+4b. Before exporting, answer a reflection with text containing a comma, a double quote, a line break,
+   and a leading `=`. Export, then open the CSV in a spreadsheet application: every character must
+   survive, one row per learner and module, and **no cell may be interpreted as a formula** (SC-021).
+   This is the only export path where the input is written by a child and read by an adult's
+   spreadsheet, so it is the only one where the input is hostile by default.
+5. As E2, attempt to open classroom K1. Access is refused (SC-011).
+6. Remove L1b from K1. She disappears from the roster, and logging in as her confirms her account,
+   projects, and reflections are all intact (FR-039).
+7. Archive the classroom. It leaves the active list while its enrolments and its learners' work
+   survive (FR-038).
 
 ### W7 — Mobile (User Story 8, SC-004)
 
@@ -132,6 +158,35 @@ Run at 360×740 on a real touch device:
 3. Reload the page mid-training. On return the lab reports training did not finish and offers a
    restart — it must never present the half-trained model as ready (FR-050).
 4. Go offline with an expired session. Local projects stay fully usable.
+
+### W9 — Administration (User Story 9, SC-018)
+
+1. Sign in as A1. Expect an administration area and nothing else — no classroom, no learner, no
+   project, no lesson.
+2. Invite an educator by email address. Expect a single-use code shown once and a pending invitation
+   in the list (Scenario 9.1).
+3. Redeem it in a fresh browser profile: the educator sets her own password and display name, and the
+   invitation shows as redeemed (Scenario 9.2).
+4. Invite a second educator and revoke before redemption. Redemption is then refused and says so
+   (Scenario 9.3).
+5. Deactivate an educator. She can no longer sign in, while her classrooms and her learners' work are
+   untouched (Scenario 9.4).
+6. Reassign her classroom to another active educator. The new educator sees the full roster and its
+   progress; the deactivated one sees nothing. Attempt to rename, archive, or delete that classroom as
+   A1 — all refused (FR-057, Scenario 9.5).
+7. Query the database as A1's role and attempt to select from `enrolments`, `projects`,
+   `training_runs`, `lesson_progress`, and `reflections`. **Zero rows in every case**; from
+   `classrooms` expect exactly `id`, `name`, and `educator_id` and nothing more (SC-018). Do this
+   against the database rather than through the interface: a too-broad administrator policy is the
+   easiest way to create the one role that can read every minor's work in the system, and the
+   interface would hide it.
+8. Attempt to select from `audit_log` as every role in turn, including A1. **Zero rows every time**
+   (FR-058). Then inspect it with database-owner privileges: steps 5 and 6 must each have left exactly
+   one row, and no row may contain an alias, a username, or an email address (SC-019).
+9. Make six failed redemption attempts in an hour with a script rather than the interface. The sixth
+   must be refused on rate-limit grounds, and a refusal for a username that does not exist must be
+   indistinguishable from one for a wrong code against a real username (SC-020).
+10. As the only administrator, attempt to deactivate yourself. Refused with an explanation (FR-056).
 
 ---
 
@@ -158,8 +213,9 @@ npm run build && npm run preview
    heat map, so nothing else catches it (R13, and the reason Principle VI exists).
 2. **`test:ml` — Grad-CAM class sensitivity.** Different `classIndex` values on the same image must
    produce different maps.
-3. **`test:db` — the pending-account denials.** Proves SC-014 against a tampered client rather than
-   against the shipped interface.
+3. **`test:db` — the administrator denials and the invitation refusals.** Proves SC-018 and FR-028
+   against a tampered client rather than against the shipped interface. Row-level security is the
+   entire authorisation model, so these are not tests of a feature — they are the feature.
 4. **`test:network` — no image ever leaves.** Proves SC-010, the constitution's non-negotiable core.
 
 ---
@@ -168,9 +224,10 @@ npm run build && npm run preview
 
 | Gate | Check |
 |---|---|
-| Story coverage | W1–W8 pass on a real laptop **and** a real phone |
-| Success criteria | Every SC-001…SC-016 has a passing manual walkthrough or automated test |
-| Constitution | All seven principles pass; `test:network`, `test:db`, `test:a11y`, `test:i18n` green |
-| Performance | SC-002, SC-003, SC-008, SC-012 measured on real mid-range hardware, not simulated |
+| Story coverage | W1–W9 pass on a real laptop **and** a real phone |
+| Success criteria | Every SC-001…SC-021 has a passing manual walkthrough or automated test |
+| Constitution | All seven principles pass against v3.1.0; `test:network`, `test:db`, `test:a11y`, `test:i18n` green |
+| Performance | SC-002, SC-003, SC-008 and SC-012 measured on the three reference devices named in [spec.md](./spec.md) Assumptions — the reference laptop, the reference Chromebook, and the reference phone — on real hardware, not simulated |
+| Privacy | `test:db` proves G3: no column anywhere can hold a learner email address, date of birth, or real name (SC-017) |
 | Content | The seven modules reviewed by someone with classroom experience |
-| Deferred | `TODO(CONSENT_MECHANISM)` and `TODO(TECHNOVATION_TRADEMARK)` resolved **before public launch** — neither blocks development |
+| Deferred | `TODO(CONTROLLER_AGREEMENT)` and `TODO(TECHNOVATION_TRADEMARK)` resolved **before public launch** — neither blocks development. `TODO(CONSENT_MECHANISM)` is closed |

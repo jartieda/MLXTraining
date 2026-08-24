@@ -113,8 +113,17 @@ perturbed becomes the learner's classifier probability for the chosen class inst
 confidence, and **all occluded variants are stacked into a single batched forward pass** instead of
 being predicted one at a time in a loop.
 
-Grid 12×12 by default (144 variants), grey patch at the dataset mean, patch size equal to one cell
-with 50% stride overlap. Emit progress per batch chunk of 24, and honour an `AbortSignal`.
+Grid 12×12 by default, grey patch at the dataset mean, patch size equal to one cell, and **stride
+equal to one full cell — no overlap**, so the grid yields exactly 144 variants and a 12×12 map. Emit
+progress per batch chunk of 24, and honour an `AbortSignal`.
+
+**Correction (2026-08-17)**: an earlier version of this decision specified both "144 variants" and
+"50% stride overlap", which cannot both be true — a half-cell stride over a 12×12 grid produces
+23×23 = 529 positions, 3.7× the work, and a 23×23 map rather than a 12×12 one. The five-second
+budget below was reasoned on 144. Overlap is therefore dropped rather than the budget raised: it buys
+a smoother-looking map, which is cosmetic, at a cost that would put SC-003 out of reach on the
+reference phone. If a smoother map is ever wanted, the cheap route is bilinear upsampling of the
+144-cell map, not more forward passes.
 
 **Rationale**: The prototype's sequential loop is the single reason occlusion feels slow; 144
 separate `predict` calls pay the per-call overhead 144 times. One `tf.stack` of 144 tensors through
@@ -222,33 +231,44 @@ context transfer across workers adds complexity that Principle VII does not just
 
 ## R9. Supabase schema and row-level security
 
-**Decision**: Postgres tables `profiles`, `consent_records`, `classrooms`, `enrolments`,
+**Decision**: Postgres tables `profiles`, `invitations`, `classrooms`, `enrolments`,
 `projects`, `training_runs`, `lesson_progress`, `reflections`. Row-level security enabled on every
-table, with no table left policy-less. **No table has a column capable of holding image or weight
-data** — this is the schema-level enforcement of Principle I.
+table, with no table left policy-less. Two schema-level guarantees enforce Principle I structurally
+rather than by policy: **no table has a column capable of holding image or weight data**, and **no
+table has a column capable of holding a learner's email address, date of birth, or real name**. Both
+are asserted by inspecting `information_schema.columns`, so neither can be quietly reintroduced.
 
 Educator access is resolved through a `SECURITY DEFINER` function
 `is_educator_of(learner_id uuid) returns boolean` rather than a policy subquery that reads
 `enrolments` directly, because a policy on `enrolments` that queries `enrolments` recurses.
 
-Join codes are short, human-typable, and stored hashed with a lookup by a separate non-secret
-prefix; a code is validated by an `RPC` function, never by letting a client `select` from
-`classrooms`.
+There are no join codes. A learner is created inside her classroom by the invitation her educator
+issued (R15), so `invitations.classroom_id` carries what a join code used to, and an entire mechanism
+— generation, rotation, retirement, and the RPC that validated it — does not exist. Invitation codes
+are short and human-typable, stored only as hashes, and never selectable by anyone including the
+issuer.
 
-Pending accounts are enforced in the database, not only in the interface: every write policy on
-`projects`, `training_runs`, `lesson_progress`, `reflections`, and `enrolments` requires
-`consent_state = 'active'` on the caller's profile. This is what makes SC-014 true even against a
-client that has been tampered with.
+The three roles are separated by what they can read, not by a flag the client could set. `role` and
+`is_active` are not client-writable, so no account can promote itself. An administrator's read surface
+is deliberately two tables wide — educator profiles and her own invitations — and returns zero rows
+everywhere else.
 
 **Rationale**: Row-level security is the only enforcement point a client-side application can rely
 on, so the policies are the security model — hence their treatment as contracts with their own test
 suite in `tests/db/`. Recursive-policy failure is the standard way multi-tenant Supabase schemas
-break, and the definer function is the standard remedy. Gating writes on consent state in the
-database rather than in React is what turns FR-027 from a UI courtesy into a guarantee.
+break, and the definer function is the standard remedy.
 
-**Alternatives considered**: Enforcing consent in the client only — trivially bypassable, and
-SC-014 would be unverifiable. Plaintext join codes readable by any authenticated user — leaks the
-classroom list. A single `user_data` JSONB table — loses per-column policy granularity.
+Preferring a structural guarantee to a policy guarantee is the lesson of the previous revision of
+this design, which gated every write on a consent state. That worked, but it required remembering to
+add the gate to each new write policy — one forgotten table and the guarantee was silently gone. A
+column that cannot exist needs nothing remembered.
+
+**Alternatives considered**: *A `consent_state` write gate on every table* — the previous design;
+correct but fragile in exactly the way described above, and now unnecessary since no learner personal
+data is collected. *Plaintext invitation codes readable by the issuer* — convenient for showing a
+code again later, but a readable table of live codes is a set of bearer credentials for entering
+classrooms. *A single `user_data` JSONB table* — loses per-column policy granularity, which is what
+P2, P3 and P6 depend on.
 
 ---
 
@@ -366,16 +386,81 @@ affecting anything else in this plan.
 
 ---
 
+## R15. Provisioning an account on someone else's behalf
+
+**Decision**: Every account is created by redeeming a single-use invitation. A `SECURITY DEFINER`
+function issues the invitation, returning the code once to the issuer and storing only its hash. The
+holder redeems it through the auth provider's ordinary registration call, which a second
+`SECURITY DEFINER` function gates on a code that is valid, unexpired, unredeemed, and unrevoked. All
+privileged logic lives in Postgres functions with an explicit `search_path`, inside the database the
+BaaS already operates.
+
+**Rationale**: Creating an account for another person requires privilege the caller does not have,
+and there are only three places that privilege can live: a server the project runs, the auth
+provider's internal tables, or the database's own definer functions. The third is the only one
+compatible with Principle II — it introduces no new channel, no new deployable, and no secret that
+has to reach the client. It is also the pattern this schema already uses for `is_educator_of`, so it
+adds no new concept for a student contributor to learn.
+
+Storing only the hash matters for the same reason password hashes matter: an invitation code is a
+bearer credential for creating an account inside a named classroom. A leaked table of live codes
+would let an outsider occupy a classroom.
+
+**Alternatives considered**: *Writing directly into the auth provider's internal user table* from a
+definer function — fewest moving parts, and it would allow an educator to set a learner's password
+outright, but it depends on undocumented internal schema that the provider explicitly discourages
+touching and may change in any upgrade, breaking account creation with no warning and no test to
+catch it beforehand. *An Edge Function holding a `service_role` key* — the officially supported route
+and the most robust of the three, but it is server-side code the project writes, deploys, and
+operates, which Principle II forbids; adopting it would have required either a Complexity Tracking
+justification or a further constitution amendment. *A shared classroom password* — trivial to
+distribute and impossible to attribute work to a person, so it defeats the educator dashboard.
+
+---
+
+## R16. Learner identity without an email address
+
+**Decision**: A learner is identified by an educator-assigned username, unique system-wide, plus a
+self-chosen alias, unique within her classroom. Because the auth provider requires an
+address-shaped identifier, one is derived deterministically from the username in a domain reserved
+by RFC 2606 as permanently non-resolvable. Email confirmation is disabled for these accounts. The
+derived identifier is never displayed, never sent to, and is not a means of contact.
+
+**Rationale**: This is what makes "the application holds no personal data about a minor" literally
+true rather than a policy claim, and it is the whole basis of the project's data-protection position.
+A reserved non-resolvable domain is chosen over a plausible-looking one precisely so that no
+misconfiguration can ever cause mail to be delivered somewhere real.
+
+**Consequence, accepted deliberately**: a learner has no self-service password recovery. There is no
+address to send a reset to, so recovery runs through her educator, who issues a fresh single-use
+code. This is a real cost — a learner locked out between sessions depends on an adult being
+available — and it is the price of holding no contact detail. The interface must state it plainly
+rather than letting her hunt for a "forgot password" link that cannot exist, and she keeps the
+unauthenticated local lab in the meantime.
+
+**Alternatives considered**: *Optional learner email* — restores self-service recovery but
+reintroduces personal data for a minor and, with it, the consent question this design exists to
+avoid. *Educator sets the password directly* — no lockout risk at all, but the educator then knows a
+credential belonging to a child, which is worse than the inconvenience it removes. *Username with no
+auth-provider account, authenticated by a custom function* — avoids the synthetic identifier
+entirely, but means implementing session issuance by hand, which is far more dangerous than a
+cosmetic workaround.
+
+---
+
 ## Deferred to legal review
 
-Recorded here so they are not mistaken for solved problems:
+Recorded here so it is not mistaken for a solved problem:
 
-1. **Applicable digital-consent age.** Treated in this release as a single configured value. The
-   GDPR permits member states to set it anywhere between 13 and 16, so a multi-country program needs
-   either the most conservative value or per-jurisdiction resolution.
-2. **Strength of the consent mechanism.** An email confirmation from a guardian address is the
-   planned mechanism. Whether it constitutes *verifiable* parental consent in the relevant
-   jurisdictions is a legal question this plan does not answer.
+1. **Data-controller split.** The school or program that provisions learner accounts is the data
+   controller for those learners; this project provides the processor. What the project must disclose
+   to a school before that school creates accounts for its minors, and how the responsibility is
+   documented between them, is a legal question this plan does not answer. Recorded as
+   `TODO(CONTROLLER_AGREEMENT)` in the constitution.
 
-Both are `TODO(CONSENT_MECHANISM)` in the constitution. Neither blocks building anything in this
-plan; both block public launch.
+It blocks public launch and blocks nothing in this plan.
+
+**Closed**: the two consent items previously recorded here — the applicable digital-consent age and
+the strength of the guardian-consent mechanism — no longer exist. The application collects no learner
+personal data, so there is nothing to consent to inside it and no age threshold to resolve.
+`TODO(CONSENT_MECHANISM)` is closed in the constitution.

@@ -2,6 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-08-17
+**Last validated**: 2026-08-17 (after the `/speckit-clarify` session below, constitution v3.1.0)
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -29,56 +30,54 @@
 - [x] Feature meets measurable outcomes defined in Success Criteria
 - [x] No implementation details leak into specification
 
-## Validation Notes
+## Notes
 
-**Iteration 1 findings and resolutions**
+- Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`
 
-1. *No implementation details* — initially failed. The draft named the two explanation techniques
-   by their canonical algorithm names. Both were rewritten as capability descriptions ("derived
-   from the model's internal evidence", "by covering parts of the image and measuring the
-   resulting change in confidence") in FR-013 and FR-014. Algorithm selection now lives in the
-   plan, not here.
-2. *Success criteria are technology-agnostic* — initially failed. Draft criteria referenced
-   browser storage quotas and specific model architectures. Restated as user-observable outcomes
-   (SC-002, SC-003, SC-008, SC-012) expressed in elapsed time on named device classes.
-3. *Requirements are testable* — initially failed on the training-settings requirement, which
-   said settings should be "simple". FR-008 now bounds it: a small number of settings, each with
-   a working default and a plain-language explanation.
-4. *Scope is clearly bounded* — passes. Cross-device sync, learner-to-learner sharing,
-   educator-authored lessons, and languages beyond English and Spanish are excluded explicitly in
-   Assumptions rather than left open.
+### Resolved in this revision
 
-**Iteration 2 — clarification resolved**
+Three defects raised by `/speckit-analyze` were closed while the document was open:
 
-The single `[NEEDS CLARIFICATION]` marker at FR-025 was resolved by the project owner: **account
-creation is open self sign-up with an email address for everyone, including minors.** Consequences
-worked through the spec:
+- **Unfalsifiable performance targets.** SC-002, SC-003, SC-008 and SC-012 referred to a "mid-range
+  laptop" and a "mid-range phone" that no artifact defined. Assumptions now names three reference
+  devices — laptop, Chromebook, phone — and the criteria refer to them.
+- **Unquantified FR-008.** "At most a small number" of training settings is now "at most three".
+- **Ambiguous identity.** FR-051 makes a username unique system-wide and an alias unique within a
+  classroom, so no roster or export can be ambiguous. Two matching edge cases were added.
 
-- FR-024 to FR-030 now cover self sign-up, a mandatory date-of-birth declaration, a pending
-  account state for under-age holders, the guardian consent exchange, consent withdrawal with
-  remote deletion, and the requirement to explain the pending state without shaming the learner.
-- User Story 4 gained six acceptance scenarios covering the pending state, consent confirmation,
-  withdrawal, and the prohibition on exposing real names or email addresses.
-- Six edge cases added: consent that never arrives, a bouncing guardian address, withdrawal while
-  enrolled, an implausible date of birth, and a pending account attempting to join a classroom.
-- SC-014 to SC-016 added to make the pending state, deletion, and alias-only exposure verifiable.
-- Remaining FRs renumbered; the set now runs FR-001 to FR-050.
+### Judgement calls recorded
 
-This decision contradicted a clause of constitution v1.0.0, which required that minors never
-supply personal data directly. The constitution was amended to **v2.0.0** rather than the spec
-being bent around it: the non-negotiable core of Principle I was narrowed to the image and model
-locality guarantee, and the removed clause was replaced with binding age-gate and
-verifiable-consent obligations. The version bump is MAJOR because a stated obligation was
-redefined, per the document's own versioning policy.
+- **Classroom join codes were removed, not kept.** With an educator creating a learner directly
+  inside her classroom, a separate "join the classroom with a code" step is the same mechanism
+  reached by a second route. FR-038 and FR-039 now cover create/rename/archive and membership
+  management; SC-013 measures time to a first learner invitation rather than to a join code. This
+  also closes the previously unspecified case of an educator removing a learner.
+- **Six requirements were appended rather than renumbered.** FR-024 and FR-026…FR-030 were rewritten
+  in place because the surviving requirement in each slot changed meaning. The genuinely new
+  obligations — identity uniqueness, educator revoke/delete, and the four administration
+  requirements — took FR-051…FR-056 so that every pre-existing identifier keeps pointing at the same
+  obligation for traceability.
+- **Reference-device names are hardware, not implementation.** Naming a Celeron N4020 and a
+  Snapdragon 695 in a specification is a deliberate exception to the no-implementation-detail rule:
+  a performance budget that cannot be attributed to a device cannot be proved or disproved.
 
-**Deferred to legal review, recorded not solved**
+### Clarification session, 2026-08-17
 
-- The digital-consent age is treated as one configured value rather than resolved per
-  jurisdiction, and the strength of the consent verification mechanism is undecided. Both are
-  flagged as `TODO(CONSENT_MECHANISM)` in the constitution and stated in the spec's Assumptions.
-  This is a documented gap, not a passing item.
+Five questions asked and answered; no checkbox changed state (16/16 before and after), because the
+session closed gaps the checklist does not measure — unbacked requirements and unquantified
+adjectives — rather than structural defects. Added FR-057 and FR-058, SC-019 through SC-021, and two
+edge cases.
 
-**Notes**
+One item moved closer to its line and is worth watching: **no implementation details**. FR-028 now
+names a code length and alphabet, FR-043 names CSV and formula-prefix neutralisation, and FR-053
+names a mail client and the clipboard. Each is user-observable — a learner types the code, an educator
+opens the file, an administrator sends the message — so each is judged specification rather than
+implementation, on the same reasoning already recorded for the reference devices. If a future revision
+adds a library name or an API to this list, that judgement no longer holds.
 
-- All checklist items now pass. Items marked incomplete would require spec updates before
-  `/speckit-clarify` or `/speckit-plan`.
+### Open items owned elsewhere
+
+- `TODO(CONTROLLER_AGREEMENT)` — the split of data-controller responsibility between the project and
+  participating schools needs legal review before public launch. Recorded in the constitution;
+  reflected here in the Data controller assumption. Blocks launch, blocks no development.
+- `TODO(TECHNOVATION_TRADEMARK)` — logo and wordmark usage awaits program confirmation.

@@ -20,10 +20,35 @@ export type Alpha = 0.25 | 0.5
 export type TargetLayer = 'conv_pw_13_relu' | 'conv_pw_11_relu'
 export type BackendKind = 'webgl' | 'wasm' | 'cpu'
 
+/**
+ * A raw image, expressed without any DOM type so that `src/ml/` stays importable
+ * in a node test environment (Principle VI, and the import-boundary lint rule).
+ */
+export interface ImageSource {
+  readonly data: Uint8ClampedArray   // RGBA, length === width * height * 4
+  readonly width: number
+  readonly height: number
+}
+
+/** Spatial activations of one convolutional layer, channels-last. */
+export interface SpatialActivation {
+  readonly values: Float32Array   // length === width * height * channels, row-major
+  readonly width: number          // 7 for conv_pw_13_relu, 14 for conv_pw_11_relu
+  readonly height: number
+  readonly channels: number       // 512 at alpha 0.50, 256 at 0.25
+  readonly layer: TargetLayer
+}
+
 /** A heat map at its native resolution, values normalised to [0,1]. */
 export interface HeatMap {
   readonly values: Float32Array   // length === width * height, row-major
-  readonly width: number          // 7 for conv_pw_13_relu, 14 for conv_pw_11_relu
+  /**
+   * Native resolution, which depends on the method:
+   *   gradcam   → 7 for conv_pw_13_relu, 14 for conv_pw_11_relu
+   *   occlusion → the occlusion grid size, 12 by default
+   * Callers must not assume 7 or 14; upsampling to the display size is the caller's job.
+   */
+  readonly width: number
   readonly height: number
   readonly method: 'gradcam' | 'occlusion'
   readonly classIndex: number
@@ -71,8 +96,6 @@ export interface LoadedBackbone {
   dispose(): void
 }
 
-export type ImageSource = ImageData | Uint8ClampedArray  // no DOM types: Principle VI
-
 export function loadBackbone(url: string, alpha: Alpha): Promise<LoadedBackbone>
 export function warmUp(backbone: LoadedBackbone): Promise<void>
 ```
@@ -84,6 +107,9 @@ export function warmUp(backbone: LoadedBackbone): Promise<void>
 - `warmUp` runs one throwaway pass so the first learner-visible inference is not the one paying
   shader-compilation cost.
 - `dispose()` must return `tf.memory().numTensors` to its pre-load value.
+- Converting a canvas, a video frame, or a decoded file into an `ImageSource` is the **feature
+  layer's** job. `src/ml/` accepts the plain structure and never touches a DOM type, which is what
+  lets the whole module be tested in a node environment (Principle VI).
 
 ---
 
@@ -165,9 +191,9 @@ export function gradCam(
 export interface OcclusionRequest {
   readonly image: ImageSource
   readonly classIndex: number
-  readonly gridSize?: number             // default 12
+  readonly gridSize?: number             // default 12 ⇒ a 12×12 map of 144 variants
   readonly patchScale?: number           // default 1.0 (patch = one cell)
-  readonly strideScale?: number          // default 0.5 (50% overlap)
+  readonly strideScale?: number          // default 1.0 (no overlap) — see the R4 correction
   readonly chunkSize?: number            // default 24 variants per batch (R4)
   readonly onProgress?: (done: number, total: number) => void
   readonly signal?: AbortSignal
@@ -183,6 +209,9 @@ export function occlusionSensitivity(
 **Contract**:
 - Each cell's value is the **drop** in the chosen class's probability when that cell is covered,
   clamped at 0, then normalised by the largest drop.
+- The returned map is `gridSize × gridSize` — 12×12 by default, **not** 7 or 14. With the default
+  `strideScale` of 1.0 the variant count is exactly `gridSize²` = 144; a fractional stride would
+  multiply both the count and the map size and is not the default for that reason (R4).
 - All variants in a chunk go through the backbone in **one batched pass** — not one call per variant
   (R4). This is the performance requirement, and it is testable by call count.
 - `onProgress` fires at least once per chunk; `signal` cancels promptly, leaving no tensors
