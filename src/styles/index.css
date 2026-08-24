@@ -16,13 +16,19 @@
 @import 'tailwindcss';
 
 /* Self-hosted typefaces (R12). No runtime request to Google Fonts, so the critical path
-   stays same-origin and the CSP in R14 needs no third-party allowance. */
-@import '@fontsource/poppins/400.css';
-@import '@fontsource/poppins/500.css';
-@import '@fontsource/poppins/600.css';
-@import '@fontsource/poppins/700.css';
-@import '@fontsource/rubik/500.css';
-@import '@fontsource/rubik/700.css';
+   stays same-origin and the CSP in R14 needs no third-party allowance.
+
+   The `latin-` prefixed entry points, not the bare ones: the bare files declare every
+   subset Poppins ships, which drags Devanagari and Arabic woff2 files into the build for
+   two locales that use neither. That is ~350 KB of fonts against SC-008's 3 s budget on a
+   mid-range phone. Adding a locale that needs another script means adding its subset
+   here, deliberately. */
+@import '@fontsource/poppins/latin-400.css';
+@import '@fontsource/poppins/latin-500.css';
+@import '@fontsource/poppins/latin-600.css';
+@import '@fontsource/poppins/latin-700.css';
+@import '@fontsource/rubik/latin-500.css';
+@import '@fontsource/rubik/latin-700.css';
 
 @import './tokens.css';
 
