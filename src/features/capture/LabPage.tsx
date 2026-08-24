@@ -10,6 +10,7 @@ import { TrainPanel } from '@/features/training/TrainPanel'
 import { LivePrediction } from '@/features/testing/LivePrediction'
 import { FreezeFrame, type FrozenFrame } from '@/features/testing/FreezeFrame'
 import { HeatmapView } from '@/features/explaining/HeatmapView'
+import { CompareView } from '@/features/explaining/CompareView'
 import { useLab } from '@/features/lab/labStore'
 import { useBackbone } from '@/features/lab/useBackbone'
 import { useOwnerId } from '@/features/auth/session'
@@ -175,6 +176,11 @@ export function LabPage() {
               onFreeze={setFrozen}
             />
             <HeatmapView frozen={frozen} />
+
+            {/* US3. Below the single map on purpose: a learner meets one
+                explanation before being asked to compare two. */}
+            <hr className="border-border-subtle" />
+            <CompareView frozen={frozen} />
           </div>
         }
       />

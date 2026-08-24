@@ -166,15 +166,15 @@ disagreement is stated rather than hidden.
 
 ### Tests
 
-- [ ] T060 [US3] `tests/unit/occlusion-reference.test.ts` — **the highest-value test in the project**: the batched implementation must agree within tolerance with a naive one-variant-at-a-time reference, and must be asserted to use batched calls by call count. Fixed at 144 variants for a 12×12 grid (R4, R13)
-- [ ] T061 [P] [US3] `tests/unit/occlusion.test.ts` — cell value is the clamped probability drop; output map is `gridSize × gridSize`, not 7 or 14; `onProgress` fires per chunk; `AbortSignal` cancels leaving no tensors (FR-014, R4)
-- [ ] T062 [P] [US3] `tests/unit/agreement.test.ts` — Spearman and top-20% IoU on constructed maps; band thresholds at 0.6 and 0.2; differing native resolutions are resampled, not rejected (FR-015, R5)
-- [ ] T063 [P] [US3] `tests/e2e/us3-compare.spec.ts` — both maps render, agreement band shown, occlusion cancellable, SC-003 5 s budget on the reference laptop
-- [ ] T064 [US3] `src/ml/explain/occlusion.ts` — port `computeOcclusionHeatmap`, `normalizeHeatmap` from `docs/prototype/occlusion-prototype.js` (vendored in T009b) to TypeScript, replacing the detector confidence with the classifier's class probability and **stacking all variants in a batched forward pass**, chunked at 24. Stride is one full cell — **no overlap** — so a 12×12 grid is exactly 144 variants (FR-014, R4)
-- [ ] T065 [P] [US3] `src/ml/explain/agreement.ts` — resample both maps to 14×14, Spearman correlation, top-k IoU, three-band classification (FR-015, R5)
-- [ ] T066 [US3] `src/features/explaining/CompareView.tsx` — both maps for the same class side by side below `md`, columns above, with the agreement figure (FR-015); per-method progress; cancel control
-- [ ] T067 [US3] Agreement presentation in `src/features/explaining/` — the plain-language band sentence, and an **explicit statement on disagreement that neither map is guaranteed correct**; must not blend the two maps (FR-018)
-- [ ] T068 [P] [US3] `en` and `es` strings in `src/locales/{en,es}/` for the comparison view and the three bands (FR-044, SC-005)
+- [X] T060 [US3] `tests/unit/occlusion-reference.test.ts` — **the highest-value test in the project**: the batched implementation must agree within tolerance with a naive one-variant-at-a-time reference, and must be asserted to use batched calls by call count. Fixed at 144 variants for a 12×12 grid (R4, R13)
+- [X] T061 [P] [US3] `tests/unit/occlusion.test.ts` — cell value is the clamped probability drop; output map is `gridSize × gridSize`, not 7 or 14; `onProgress` fires per chunk; `AbortSignal` cancels leaving no tensors (FR-014, R4)
+- [X] T062 [P] [US3] `tests/unit/agreement.test.ts` — Spearman and top-20% IoU on constructed maps; band thresholds at 0.6 and 0.2; differing native resolutions are resampled, not rejected (FR-015, R5)
+- [X] T063 [P] [US3] `tests/e2e/us3-compare.spec.ts` — both maps render, agreement band shown, occlusion cancellable, SC-003 5 s budget on the reference laptop
+- [X] T064 [US3] `src/ml/explain/occlusion.ts` — port `computeOcclusionHeatmap`, `normalizeHeatmap` from `docs/prototype/occlusion-prototype.js` (vendored in T009b) to TypeScript, replacing the detector confidence with the classifier's class probability and **stacking all variants in a batched forward pass**, chunked at 24. Stride is one full cell — **no overlap** — so a 12×12 grid is exactly 144 variants (FR-014, R4)
+- [X] T065 [P] [US3] `src/ml/explain/agreement.ts` — resample both maps to 14×14, Spearman correlation, top-k IoU, three-band classification (FR-015, R5)
+- [X] T066 [US3] `src/features/explaining/CompareView.tsx` — both maps for the same class side by side below `md`, columns above, with the agreement figure (FR-015); per-method progress; cancel control
+- [X] T067 [US3] Agreement presentation in `src/features/explaining/` — the plain-language band sentence, and an **explicit statement on disagreement that neither map is guaranteed correct**; must not blend the two maps (FR-018)
+- [X] T068 [P] [US3] `en` and `es` strings in `src/locales/{en,es}/` for the comparison view and the three bands (FR-044, SC-005)
 
 **Checkpoint**: The full XAI experience works without an account. Validate against W3, including the
 induced-disagreement case.

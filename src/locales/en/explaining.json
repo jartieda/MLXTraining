@@ -50,5 +50,30 @@
     "coverage": "About {{percent}}% of the picture carries at least half the strongest evidence."
   },
   "cached": "Shown from what was worked out a moment ago.",
-  "onDevice": "The heat map was worked out on this device and is not uploaded anywhere."
+  "onDevice": "The heat map was worked out on this device and is not uploaded anywhere.",
+  "compare": {
+    "heading": "Compare two explanations",
+    "intro": "Two completely different methods, on the same frozen frame, for the same class. Where they agree you can be a bit more confident. Where they disagree, that is worth knowing too.",
+    "run": "Work out both",
+    "rerun": "Work them out again",
+    "cancel": "Stop",
+    "cancelled": "Stopped. Nothing was lost.",
+    "gradcamTitle": "Method 1: gradients",
+    "gradcamHow": "Asks the model which parts of the picture, if nudged, would change its score the most. Fast, but it works on a coarse grid.",
+    "occlusionTitle": "Method 2: covering things up",
+    "occlusionHow": "Covers one square at a time and measures how much the score drops. Slower, but it makes no assumptions about how the model works — it just asks it {{count}} times.",
+    "progressGradcam": "Working out the gradient map…",
+    "progressOcclusion": "Covering square {{done}} of {{total}}…",
+    "agreement": {
+      "heading": "Do they agree?",
+      "score": "Agreement: {{percent}}%",
+      "overlap": "They pick the same hottest areas {{percent}}% of the time.",
+      "strong": "These two methods mostly agree. Two different ways of asking gave a similar answer, which is a reason to take it a bit more seriously.",
+      "partial": "These two methods partly agree. They overlap, but each is also looking somewhere the other is not.",
+      "disagreement": "These two methods disagree.",
+      "disagreementWarning": "When two methods disagree, NEITHER of them is guaranteed to be right. The lab is not going to pick one for you or average them together — the disagreement is the finding. It usually means the model is relying on something fragile, and that is worth investigating rather than smoothing over.",
+      "noBlend": "The two maps are shown separately, side by side, on purpose. Averaging them would hide exactly the thing you should be looking at."
+    },
+    "budget": "Covering up takes a few seconds because it asks the model {{count}} separate questions. You can stop it at any time."
+  }
 }
