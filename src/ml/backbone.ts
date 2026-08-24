@@ -42,6 +42,17 @@ export interface LoadedBackbone {
    * which needs the activation tensor itself rather than a copied `Float32Array`.
    */
   readonly truncated: tf.LayersModel
+  /**
+   * A model from `layer`'s activation forward to the truncation point, or `null`
+   * when `layer` IS the truncation point.
+   *
+   * Grad-CAM against the finer 14×14 layer needs this. `conv_pw_11_relu` has 256
+   * channels while the trained head takes 512, so a gradient with respect to that
+   * activation has to travel through the remaining backbone blocks before it
+   * reaches the head — there is no way to feed the head directly from there
+   * (R3's "finer detail" option is the reason this exists at all).
+   */
+  tailFrom(layer: TargetLayer): tf.LayersModel | null
   dispose(): void
 }
 
@@ -92,6 +103,46 @@ function truncateTo(full: tf.LayersModel, layer: TargetLayer): tf.LayersModel {
     )
   }
   return tf.model({ inputs: full.inputs, outputs: output })
+}
+
+/**
+ * Builds a model from one named layer's activation forward to another's, by
+ * re-applying the layers in between to a fresh input.
+ *
+ * `tf.model({inputs, outputs})` cannot express this: its `inputs` must be an
+ * actual `InputLayer` of the source model, not an arbitrary intermediate tensor.
+ * Re-application is the standard Keras answer.
+ *
+ * It is safe here for one specific reason: **MobileNet v1 is strictly sequential**
+ * between these layers — no residual connections, no branches — so applying each
+ * layer to the previous output reproduces the original graph exactly. The same
+ * trick against MobileNet v2 or a ResNet would silently drop the skip connections
+ * and produce confident nonsense, which is worth knowing before anyone reuses it.
+ */
+function buildTail(full: tf.LayersModel, from: TargetLayer, to: TargetLayer): tf.LayersModel {
+  const layers = full.layers
+  const fromIndex = layers.findIndex((layer) => layer.name === from)
+  const toIndex = layers.findIndex((layer) => layer.name === to)
+
+  if (fromIndex < 0 || toIndex < 0 || toIndex <= fromIndex) {
+    throw new MlError(
+      'BACKBONE_LAYER_MISSING',
+      `Cannot build a path from "${from}" to "${to}" in this backbone.`,
+      { from, to },
+    )
+  }
+
+  const shape = (layers[fromIndex]?.outputShape as number[]).slice(1)
+  const input = tf.input({ shape })
+
+  let current: tf.SymbolicTensor = input
+  for (let i = fromIndex + 1; i <= toIndex; i++) {
+    const layer = layers[i]
+    if (!layer) break
+    current = layer.apply(current) as tf.SymbolicTensor
+  }
+
+  return tf.model({ inputs: input, outputs: current })
 }
 
 /**
@@ -176,6 +227,7 @@ export async function loadBackbone(url: string, alpha: Alpha): Promise<LoadedBac
   // Cached per target layer so a learner toggling "finer detail" does not rebuild the
   // sub-model on every frame. `conv_pw_13_relu` reuses `truncated` rather than a second copy.
   const subModels = new Map<TargetLayer, tf.LayersModel>([[TRUNCATE_AT, truncated]])
+  const tails = new Map<TargetLayer, tf.LayersModel>()
   let disposed = false
 
   function assertLive(): void {
@@ -246,9 +298,32 @@ export async function loadBackbone(url: string, alpha: Alpha): Promise<LoadedBac
       }
     },
 
+    tailFrom: (layer) => {
+      assertLive()
+      if (layer === TRUNCATE_AT) return null
+
+      const existing = tails.get(layer)
+      if (existing) return existing
+
+      const created = buildTail(full, layer, TRUNCATE_AT)
+      created.trainable = false
+      tails.set(layer, created)
+      return created
+    },
+
     dispose: () => {
       if (disposed) return
       disposed = true
+
+      // Tail models MUST be disposed and sub-models must NOT be, and the asymmetry
+      // is not arbitrary. `buildTail` re-applies each layer, which increments its
+      // reference count, so the tail holds a count that has to be given back.
+      // `truncateTo` uses `tf.model({inputs, outputs})`, which reuses existing
+      // nodes without applying anything and so takes no count at all — disposing
+      // one of those would free weights the others still need and the next dispose
+      // would throw "already disposed".
+      for (const tail of tails.values()) tail.dispose()
+      tails.clear()
       // Only `full` is disposed, and that is not an oversight. A model built with
       // `tf.model({inputs, outputs})` reuses the *same layer objects*, and
       // `LayersModel.dispose()` disposes each of its layers — so disposing a sub-model

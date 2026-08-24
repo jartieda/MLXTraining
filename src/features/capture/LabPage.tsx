@@ -8,6 +8,8 @@ import { UploadSamples } from './UploadSamples'
 import { SampleGrid } from './SampleGrid'
 import { TrainPanel } from '@/features/training/TrainPanel'
 import { LivePrediction } from '@/features/testing/LivePrediction'
+import { FreezeFrame, type FrozenFrame } from '@/features/testing/FreezeFrame'
+import { HeatmapView } from '@/features/explaining/HeatmapView'
 import { useLab } from '@/features/lab/labStore'
 import { useBackbone } from '@/features/lab/useBackbone'
 import { useOwnerId } from '@/features/auth/session'
@@ -28,7 +30,7 @@ import * as db from '@/lib/db'
  */
 export function LabPage() {
   const { projectId } = useParams<{ projectId?: string }>()
-  const { t } = useTranslation(['capture', 'training', 'testing'])
+  const { t } = useTranslation(['capture', 'training', 'testing', 'explaining'])
   const ownerId = useOwnerId()
 
   const {
@@ -43,6 +45,7 @@ export function LabPage() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [cameraActive, setCameraActive] = useState(false)
   const [denied, setDenied] = useState(false)
+  const [frozen, setFrozen] = useState<FrozenFrame | null>(null)
 
   useBackbone(settings.backboneAlpha)
 
@@ -156,9 +159,22 @@ export function LabPage() {
               {t('testing:panelTitle', { ns: 'testing' })}
             </h2>
             <p className="text-sm text-ink-muted">{t('testing:panelIntro', { ns: 'testing' })}</p>
-            {/* The heat map joins this panel with US2 (T056). Live prediction is
-                US1's end state and is a complete, demonstrable product on its own. */}
             <LivePrediction video={cameraActive ? videoRef.current : null} />
+
+            {/* US2. Freezing comes before explaining because an explanation of a
+                live frame would describe a picture that no longer exists by the
+                time it renders. */}
+            <hr className="border-border-subtle" />
+            <h3 className="font-display text-base">{t('explaining:panelTitle', { ns: 'explaining' })}</h3>
+            <p className="text-sm text-ink-muted">
+              {t('explaining:panelIntro', { ns: 'explaining' })}
+            </p>
+            <FreezeFrame
+              video={cameraActive ? videoRef.current : null}
+              frozen={frozen}
+              onFreeze={setFrozen}
+            />
+            <HeatmapView frozen={frozen} />
           </div>
         }
       />

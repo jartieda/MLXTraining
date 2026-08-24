@@ -138,19 +138,19 @@ switch class and the map changes.
 
 ### Tests
 
-- [ ] T050 [US2] `tests/unit/gradcam.test.ts` — **fails first**: asserts against a stored reference map within tolerance; asserts **different `classIndex` ⇒ different map** (the classic silent Grad-CAM bug); asserts all-zero-gradient safety instead of divide-by-zero; asserts 7 vs 14 output width per target layer (FR-013, FR-016, R3)
-- [ ] T051 [P] [US2] `tests/unit/colormap.test.ts` — inferno ramp is monotonic in lightness; opacity maps to alpha; legend stop count (R6, FR-019)
-- [ ] T052 [P] [US2] `tests/e2e/us2-gradcam.spec.ts` — freeze, explain, switch class, adjust opacity; asserts the SC-003 1 s budget on the reference laptop
+- [X] T050 [US2] `tests/unit/gradcam.test.ts` — **fails first**: asserts against a stored reference map within tolerance; asserts **different `classIndex` ⇒ different map** (the classic silent Grad-CAM bug); asserts all-zero-gradient safety instead of divide-by-zero; asserts 7 vs 14 output width per target layer (FR-013, FR-016, R3)
+- [X] T051 [P] [US2] `tests/unit/colormap.test.ts` — inferno ramp is monotonic in lightness; opacity maps to alpha; legend stop count (R6, FR-019)
+- [X] T052 [P] [US2] `tests/e2e/us2-gradcam.spec.ts` — freeze, explain, switch class, adjust opacity; asserts the SC-003 1 s budget on the reference laptop
 
 ### Implementation
 
-- [ ] T053 [US2] `src/ml/explain/gradcam.ts` per contracts/ml-core.md: `A = truncated.predict(x)`, `tf.grad` over the head, spatial-mean channel weights, ReLU of the weighted sum, bilinear resize, normalise by own maximum, all inside `tf.tidy` (FR-013, R3)
-- [ ] T054 [P] [US2] `src/ml/explain/colormap.ts` — build-time inferno lookup table, `applyColormap`, `legendStops` (R6, FR-017)
-- [ ] T055 [US2] `src/features/testing/FreezeFrame.tsx` — freeze, retain, and hash the frame for explanation caching (FR-012, D8)
-- [ ] T056 [US2] `src/features/explaining/HeatmapView.tsx` — overlay on `HeatmapCanvas`, legend, class selector for **any** class (FR-016), opacity slider (FR-019), "finer detail" target-layer toggle (R3)
-- [ ] T057 [US2] Text alternative in `src/features/explaining/` describing where the strongest evidence falls, in plain positional language (FR-017, SC-009)
-- [ ] T058 [US2] Explanation caching in `src/lib/db.ts` via `cacheExplanation` / `findExplanation`, storing the map at its **method-specific** native resolution (D8, data-model.md → explanations)
-- [ ] T059 [P] [US2] Framing copy in `src/locales/{en,es}/` that presents the map as **evidence, not the reason** for the decision (FR-018, FR-044, SC-005, Principle III)
+- [X] T053 [US2] `src/ml/explain/gradcam.ts` per contracts/ml-core.md: `A = truncated.predict(x)`, `tf.grad` over the head, spatial-mean channel weights, ReLU of the weighted sum, bilinear resize, normalise by own maximum, all inside `tf.tidy` (FR-013, R3)
+- [X] T054 [P] [US2] `src/ml/explain/colormap.ts` — build-time inferno lookup table, `applyColormap`, `legendStops` (R6, FR-017)
+- [X] T055 [US2] `src/features/testing/FreezeFrame.tsx` — freeze, retain, and hash the frame for explanation caching (FR-012, D8)
+- [X] T056 [US2] `src/features/explaining/HeatmapView.tsx` — overlay on `HeatmapCanvas`, legend, class selector for **any** class (FR-016), opacity slider (FR-019), "finer detail" target-layer toggle (R3)
+- [X] T057 [US2] Text alternative in `src/features/explaining/` describing where the strongest evidence falls, in plain positional language (FR-017, SC-009)
+- [X] T058 [US2] Explanation caching in `src/lib/db.ts` via `cacheExplanation` / `findExplanation`, storing the map at its **method-specific** native resolution (D8, data-model.md → explanations)
+- [X] T059 [P] [US2] Framing copy in `src/locales/{en,es}/` that presents the map as **evidence, not the reason** for the decision (FR-018, FR-044, SC-005, Principle III)
 
 **Checkpoint**: US1 + US2 both work independently. Validate against W2.
 

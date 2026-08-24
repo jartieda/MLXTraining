@@ -1,1 +1,54 @@
-{}
+{
+  "panelTitle": "¿Por qué ha dicho eso?",
+  "panelIntro": "Congela una imagen y el laboratorio te mostrará qué partes de la foto han empujado la respuesta hacia una clase.",
+  "needFrame": "Congela primero una imagen y pide después la explicación.",
+  "needModel": "Entrena primero el modelo. No hay nada que explicar hasta que haya aprendido algo.",
+  "explain": "Muéstrame por qué",
+  "recompute": "Calcularlo otra vez",
+  "computing": "Calculando el mapa de calor…",
+  "failed": "No se ha podido calcular el mapa de calor. Tus fotos y tu modelo están bien: inténtalo de nuevo.",
+  "framing": {
+    "evidenceNotReason": "Esto muestra dónde estaban las pruebas, no el motivo de la respuesta. El modelo no tiene motivos: tiene patrones de píxeles que han empujado la puntuación en un sentido o en otro.",
+    "notProof": "Un mapa de calor es una pista sobre el modelo, no una prueba de que el modelo tenga razón. Dos métodos distintos pueden señalar sitios distintos, y no se garantiza que ninguno acierte.",
+    "relativeScale": "Los colores son relativos solo a este mapa. El punto más brillante de una explicación débil se ve igual que el de una fuerte, así que no puedes comparar el brillo entre dos mapas.",
+    "coarse": "El mapa de calor se calcula sobre una cuadrícula de {{size}}×{{size}} y luego se estira sobre la foto, así que está borroso a propósito. Puede decirte más o menos dónde, no exactamente qué."
+  },
+  "legend": {
+    "low": "menos pruebas",
+    "high": "más pruebas",
+    "caption": "Dónde eran más fuertes las pruebas de esta clase."
+  },
+  "classSelector": {
+    "label": "Qué clase explicar",
+    "hint": "Puedes preguntar por cualquier clase, no solo por la que ha elegido. Preguntar por qué NO ha elegido la otra suele ser más interesante."
+  },
+  "opacity": {
+    "label": "Intensidad del mapa de calor",
+    "hint": "Bájala para ver la foto que hay debajo."
+  },
+  "detail": {
+    "label": "Más detalle",
+    "hint": "Usa una capa anterior, con una cuadrícula de 14×14 en lugar de 7×7. Más fino no es automáticamente mejor: compáralos y lo verás.",
+    "coarseLabel": "Normal (7×7)",
+    "fineLabel": "Más fino (14×14)"
+  },
+  "alt": {
+    "heading": "En palabras",
+    "concentrated": "Las pruebas más fuertes de «{{name}}» están en la parte {{vertical}} {{horizontal}} de la foto.",
+    "diffuse": "Las pruebas de «{{name}}» están repartidas por casi toda la foto en lugar de concentradas en un sitio, así que el mapa no está señalando realmente una cosa.",
+    "degenerate": "No se han podido calcular pruebas para «{{name}}» en esta imagen. Eso suele significar que el modelo apenas distingue esta clase.",
+    "vertical": {
+      "top": "superior",
+      "middle": "central",
+      "bottom": "inferior"
+    },
+    "horizontal": {
+      "left": "izquierda",
+      "centre": "central",
+      "right": "derecha"
+    },
+    "coverage": "Alrededor del {{percent}}% de la foto tiene al menos la mitad de las pruebas más fuertes."
+  },
+  "cached": "Se muestra lo que se calculó hace un momento.",
+  "onDevice": "El mapa de calor se ha calculado en este dispositivo y no se sube a ningún sitio."
+}

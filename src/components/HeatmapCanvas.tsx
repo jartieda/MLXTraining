@@ -25,11 +25,20 @@ export interface HeatmapCanvasProps {
   /** Display size in CSS pixels. Square, matching the model's own input aspect. */
   readonly displaySize?: number
   /**
-   * Describes where the strongest evidence falls, in words (FR-017, SC-009). A canvas is
-   * invisible to a screen reader, so this is the only route to the same information and
-   * is therefore required rather than optional.
+   * Describes where the strongest evidence falls, in words (FR-017, SC-009).
+   *
+   * Required, not optional: a canvas is invisible to a screen reader, so this is
+   * the only route to the same information.
    */
   readonly textAlternative: string
+  /**
+   * Whether to repeat the description as a visible caption.
+   *
+   * Off by default. A caller that already renders the description as prose — which
+   * the heat-map view does, so a sighted learner gets it too — would otherwise
+   * show the same sentence twice, directly above itself.
+   */
+  readonly showCaption?: boolean
   readonly className?: string
 }
 
@@ -40,6 +49,7 @@ export function HeatmapCanvas({
   mapHeight,
   displaySize = 224,
   textAlternative,
+  showCaption = false,
   className = '',
 }: HeatmapCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -96,7 +106,9 @@ export function HeatmapCanvas({
         className="h-auto w-full max-w-full rounded border border-border-subtle bg-surface-sunken"
         style={{ maxWidth: `${String(displaySize)}px`, aspectRatio: '1 / 1' }}
       />
-      <figcaption className="text-sm text-ink-muted">{textAlternative}</figcaption>
+      {showCaption ? (
+        <figcaption className="text-sm text-ink-muted">{textAlternative}</figcaption>
+      ) : null}
     </figure>
   )
 }

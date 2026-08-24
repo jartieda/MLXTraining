@@ -1,1 +1,54 @@
-{}
+{
+  "panelTitle": "Why did it say that?",
+  "panelIntro": "Freeze a frame and the lab will show you which parts of the picture pushed the answer towards a class.",
+  "needFrame": "Freeze a frame first, then ask for an explanation.",
+  "needModel": "Train the model first. There is nothing to explain until it has learned something.",
+  "explain": "Show me why",
+  "recompute": "Work it out again",
+  "computing": "Working out the heat map…",
+  "failed": "The heat map could not be worked out. Your photos and your model are fine — try again.",
+  "framing": {
+    "evidenceNotReason": "This shows where the evidence was, not the reason for the answer. The model does not have reasons — it has patterns of pixels that pushed the score one way or the other.",
+    "notProof": "A heat map is a clue about the model, not proof that the model is right. Two different methods can point at different places, and neither is guaranteed correct.",
+    "relativeScale": "Colours are relative to this map only. The brightest spot in a weak explanation looks exactly like the brightest spot in a strong one, so you cannot compare brightness between two maps.",
+    "coarse": "The heat map is worked out on a {{size}}×{{size}} grid and then stretched over the photo, so it is blurry on purpose. It can tell you roughly where, not exactly what."
+  },
+  "legend": {
+    "low": "less evidence",
+    "high": "more evidence",
+    "caption": "Where the evidence for this class was strongest."
+  },
+  "classSelector": {
+    "label": "Explain which class",
+    "hint": "You can ask about any class, not only the one it chose. Asking why it did NOT pick the other class is often more interesting."
+  },
+  "opacity": {
+    "label": "Heat map strength",
+    "hint": "Slide it down to see the photo underneath."
+  },
+  "detail": {
+    "label": "Finer detail",
+    "hint": "Uses an earlier layer, giving a 14×14 grid instead of 7×7. Finer is not automatically better — compare them and see.",
+    "coarseLabel": "Normal (7×7)",
+    "fineLabel": "Finer (14×14)"
+  },
+  "alt": {
+    "heading": "In words",
+    "concentrated": "The strongest evidence for \"{{name}}\" is in the {{vertical}} {{horizontal}} of the picture.",
+    "diffuse": "The evidence for \"{{name}}\" is spread across much of the picture rather than concentrated anywhere, so the map is not really pointing at one thing.",
+    "degenerate": "No evidence could be worked out for \"{{name}}\" on this frame. That usually means the model barely distinguishes this class at all.",
+    "vertical": {
+      "top": "top",
+      "middle": "middle",
+      "bottom": "bottom"
+    },
+    "horizontal": {
+      "left": "left",
+      "centre": "centre",
+      "right": "right"
+    },
+    "coverage": "About {{percent}}% of the picture carries at least half the strongest evidence."
+  },
+  "cached": "Shown from what was worked out a moment ago.",
+  "onDevice": "The heat map was worked out on this device and is not uploaded anywhere."
+}
