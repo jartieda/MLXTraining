@@ -4,7 +4,7 @@ import { RouterProvider } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { router } from './routes/router'
 import { initI18n } from './lib/i18n'
-import { useSession } from './features/auth/session'
+import { bootstrapSession } from './features/auth/session'
 import './styles/index.css'
 
 /**
@@ -15,10 +15,12 @@ import './styles/index.css'
  * rather than "My projects" — which is both ugly and, for a Spanish-speaking
  * learner, a flash of a language she may not read.
  *
- * The session starts as `anonymous` rather than `loading`, because FR-023 makes
- * the unauthenticated lab the whole product for a visitor with no account. US4's
- * session restoration (T073) is what will introduce a genuine loading phase; a
- * spinner now would be waiting for something nothing asks for.
+ * Session restoration (T073) is started but deliberately **not awaited**. FR-023
+ * makes the unauthenticated lab the whole product for a visitor with no account,
+ * so blocking the first paint on a token refresh over a school connection would
+ * charge every anonymous visitor for something she never asked for. The store
+ * begins `loading` and every consumer already handles that state, so the shell
+ * simply fills in when the answer arrives.
  */
 
 const queryClient = new QueryClient({
@@ -37,7 +39,7 @@ const queryClient = new QueryClient({
 
 async function start(): Promise<void> {
   await initI18n()
-  useSession.getState().setAccount(null)
+  void bootstrapSession()
 
   const root = document.getElementById('root')
   if (!root) throw new Error('Root element #root is missing from index.html')

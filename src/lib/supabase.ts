@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { z } from 'zod'
 import type { Database } from './database.types'
 
@@ -63,6 +63,7 @@ export function readEnvironment(source: Record<string, unknown> = import.meta.en
 export type LabSupabaseClient = SupabaseClient<Database>
 
 let cached: LabSupabaseClient | null = null
+let pending: Promise<LabSupabaseClient | null> | null = null
 let cachedProblem: string | null = null
 
 /**
@@ -70,16 +71,38 @@ let cachedProblem: string | null = null
  *
  * Callers must handle `null`: it is the normal state of a checkout with no
  * `.env`, and of a deployment intended to run the local lab only.
+ *
+ * **Asynchronous because `@supabase/supabase-js` is imported dynamically**, and
+ * that is a budget decision with a measured cost. Importing it statically puts
+ * ~74 KB compressed into the initial chunk and pushes past the 200 KB budget
+ * SC-008 rests on — for a library that an anonymous visitor never calls, since
+ * FR-023 gives her the whole lab with no account. So it arrives when someone
+ * actually signs in.
+ *
+ * The `pending` promise is what makes that safe under concurrency: the shell
+ * bootstraps a session while a page may already be reading a profile, and two
+ * racing callers must get the same client rather than two, each with its own
+ * token refresh loop competing over one storage key.
  */
-export function getSupabase(): LabSupabaseClient | null {
+export async function getSupabase(): Promise<LabSupabaseClient | null> {
   if (cached) return cached
   if (cachedProblem !== null) return null
+  if (pending) return pending
 
+  pending = createLabClient()
+  const client = await pending
+  pending = null
+  return client
+}
+
+async function createLabClient(): Promise<LabSupabaseClient | null> {
   const result = readEnvironment()
   if (!result.ok || !result.environment) {
     cachedProblem = result.problem ?? 'Supabase is not configured.'
     return null
   }
+
+  const { createClient } = await import('@supabase/supabase-js')
 
   cached = createClient<Database>(
     result.environment.VITE_SUPABASE_URL,
@@ -102,20 +125,29 @@ export function getSupabase(): LabSupabaseClient | null {
   return cached
 }
 
-/** Why the client is unavailable, for a message a contributor can act on. */
+/**
+ * Why the client is unavailable, for a message a contributor can act on.
+ *
+ * Answered from the environment alone, without constructing anything. Both this
+ * and `isSupabaseConfigured` stay synchronous for that reason: whether an account
+ * service exists is a question the interface asks while rendering, and the answer
+ * has never depended on the library being loaded.
+ */
 export function supabaseProblem(): string | null {
   if (cached) return null
-  if (cachedProblem === null) getSupabase()
-  return cachedProblem
+  if (cachedProblem !== null) return cachedProblem
+  const result = readEnvironment()
+  return result.ok ? null : (result.problem ?? 'Supabase is not configured.')
 }
 
 export function isSupabaseConfigured(): boolean {
-  return getSupabase() !== null
+  return supabaseProblem() === null
 }
 
 /** Test-only: drops the memoised client so a fresh environment can be asserted. */
 export function resetSupabaseForTesting(): void {
   cached = null
+  pending = null
   cachedProblem = null
 }
 
@@ -146,7 +178,9 @@ export type RedemptionRefusal =
   | 'rateLimited'
   | 'invalid'
   | 'aliasTaken'
+  | 'aliasLength'
   | 'passwordTooShort'
+  | 'unconfigured'
   | 'unknown'
 
 export function classifyRedemptionError(message: string): RedemptionRefusal {
@@ -155,7 +189,12 @@ export function classifyRedemptionError(message: string): RedemptionRefusal {
   if (text.includes('expired')) return 'expired'
   if (text.includes('already been used')) return 'used'
   if (text.includes('cancelled')) return 'cancelled'
-  if (text.includes('display name')) return 'aliasTaken'
+  // Both alias refusals say "display name", so the taken case has to be matched
+  // first and on its own distinctive phrase. Ordered the other way round, a
+  // learner told to pick a shorter name would in fact have picked a name her
+  // classmate already has — a message that sends her to fix the wrong thing.
+  if (text.includes('already uses that display name')) return 'aliasTaken'
+  if (text.includes('display name between')) return 'aliasLength'
   if (text.includes('8 characters')) return 'passwordTooShort'
   if (text.includes('not valid')) return 'invalid'
   return 'unknown'

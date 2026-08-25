@@ -192,21 +192,21 @@ distinguishable refusals.
 
 ### Tests
 
-- [ ] T069 [P] [US4] `tests/integration/auth.test.tsx` — login; **no reachable registration form without a code** (FR-024); redemption sets the learner's own password and alias; a username is never rendered to another learner (FR-025, FR-027)
-- [ ] T070 [P] [US4] `tests/integration/invitation.test.tsx` — the three refusal cases are distinguishable in the interface, and a refusal for a non-existent username is identical to one for a wrong code (FR-028, Scenario 4.2)
-- [ ] T071 [US4] `tests/e2e/us4-accounts.spec.ts` — Scenarios 4.1–4.8. **Depends on US1–US3**: scenario 4.7 requires an anonymous visitor to complete the whole capture-train-explain journey with zero remote rows (SC-014)
-- [ ] T072 [P] [US4] `tests/e2e/us4-no-pii.spec.ts` — no view or export exposes a username, a real name, or an educator's email address to a learner (SC-016)
+- [X] T069 [P] [US4] `tests/integration/auth.test.tsx` — login; **no reachable registration form without a code** (FR-024); redemption sets the learner's own password and alias; a username is never rendered to another learner (FR-025, FR-027)
+- [X] T070 [P] [US4] `tests/integration/invitation.test.tsx` — the three refusal cases are distinguishable in the interface, and a refusal for a non-existent username is identical to one for a wrong code (FR-028, Scenario 4.2)
+- [X] T071 [US4] `tests/e2e/us4-accounts.spec.ts` — Scenarios 4.1–4.8. **Depends on US1–US3**: scenario 4.7 requires an anonymous visitor to complete the whole capture-train-explain journey with zero remote rows (SC-014)
+- [X] T072 [P] [US4] `tests/e2e/us4-no-pii.spec.ts` — no view or export exposes a username, a real name, or an educator's email address to a learner (SC-016)
 
 ### Implementation
 
-- [ ] T073 [US4] `src/features/auth/Login.tsx` and `src/features/auth/session.ts` — sign-in for all three roles; a learner's credential is her username, mapped to the synthetic non-deliverable identifier at this boundary and never displayed (FR-024, R16)
-- [ ] T074 [US4] `src/features/auth/RedeemInvitation.tsx` — code entry with the unambiguous alphabet, then password and alias selection; calls `redeem_invitation`; surfaces the three refusals distinctly (FR-027, FR-028, R15)
-- [ ] T075 [US4] `src/features/auth/ResetPassword.tsx` — redeem an educator-issued reset code to set a new password. States plainly that only her educator can issue one, and shows **no dead "forgot password" link**, because there is no address to send to (FR-030, R16)
-- [ ] T076 [US4] Rate-limit feedback in `src/features/auth/` — when the database refuses on rate-limit grounds, say so without hinting whether the username exists (FR-028, SC-020)
-- [ ] T077 [US4] Remote/local project reconciliation in `src/features/projects/` — a remote row with no local record explains that samples stay on the capturing device and offers a fresh copy; restores project list, class names, sample counts, and model status on the capturing device. **Depends on US1** for the project list it restores into (FR-031, FR-032, Scenario 4.6)
-- [ ] T078 [P] [US4] Anonymous-session banner in `src/features/projects/` stating plainly that nothing will be saved (FR-023, Scenario 4.7)
-- [ ] T079 [P] [US4] Enforce alias uniqueness within a classroom at the point of choosing it, with a plain "pick another" message (FR-051, Edge Cases)
-- [ ] T080 [P] [US4] `en` and `es` strings in `src/locales/{en,es}/` for login, redemption, reset, and every refusal reason (FR-044, SC-005)
+- [X] T073 [US4] `src/features/auth/Login.tsx` and `src/features/auth/session.ts` — sign-in for all three roles; a learner's credential is her username, mapped to the synthetic non-deliverable identifier at this boundary and never displayed (FR-024, R16)
+- [X] T074 [US4] `src/features/auth/RedeemInvitation.tsx` — code entry with the unambiguous alphabet, then password and alias selection; calls `redeem_invitation`; surfaces the three refusals distinctly (FR-027, FR-028, R15)
+- [X] T075 [US4] `src/features/auth/ResetPassword.tsx` — redeem an educator-issued reset code to set a new password. States plainly that only her educator can issue one, and shows **no dead "forgot password" link**, because there is no address to send to (FR-030, R16)
+- [X] T076 [US4] Rate-limit feedback in `src/features/auth/` — when the database refuses on rate-limit grounds, say so without hinting whether the username exists (FR-028, SC-020)
+- [X] T077 [US4] Remote/local project reconciliation in `src/features/projects/` — a remote row with no local record explains that samples stay on the capturing device and offers a fresh copy; restores project list, class names, sample counts, and model status on the capturing device. **Depends on US1** for the project list it restores into (FR-031, FR-032, Scenario 4.6)
+- [X] T078 [P] [US4] Anonymous-session banner in `src/features/projects/` stating plainly that nothing will be saved (FR-023, Scenario 4.7)
+- [X] T079 [P] [US4] Enforce alias uniqueness within a classroom at the point of choosing it, with a plain "pick another" message (FR-051, Edge Cases)
+- [X] T080 [P] [US4] `en` and `es` strings in `src/locales/{en,es}/` for login, redemption, reset, and every refusal reason (FR-044, SC-005)
 
 **Checkpoint**: Accounts, invitation redemption, and project restoration all work. Validate against
 W4.
@@ -477,6 +477,15 @@ continuous responsibility, not a phase to be pushed to the end.
   five exceptions, and every one of the 58 functional requirements is cited by at least one task
 - Commit after each task or logical group
 - Any checkpoint is a valid place to stop and demonstrate
+- **Filename deviations recorded as built.** T073–T075 name `Login.tsx`, `RedeemInvitation.tsx` and
+  `ResetPassword.tsx`; the files are `LoginPage.tsx`, `RedeemPage.tsx` and `ResetPasswordPage.tsx`,
+  because T034 created those three as route placeholders and the route table, its lazy imports and
+  the Phase 2 "every route renders in both locales" checkpoint all name them. Renaming to match the
+  task text would have churned the router for nothing. US4 also added four files the task list did
+  not anticipate: `src/features/auth/redemption.ts` (the `redeem_invitation` call, shared by T074 and
+  T075), `CodeInput.tsx` and `Field.tsx` (shared form parts, so the 44 px floor and the
+  label/hint wiring have one home), and `src/features/projects/remoteProjects.ts` (T077's reconciliation,
+  kept out of the component so `projectsMadeElsewhere` is testable with no store and no network)
 - Five tasks are worth defending against schedule pressure. Each catches a failure that is invisible
   to manual testing:
   - **T060** — batched occlusion versus a naive reference. A batching error still produces a

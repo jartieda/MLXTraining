@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
-import { useSession } from '@/features/auth/session'
+import { signOutSession, useSession } from '@/features/auth/session'
 import type { AccountRole } from '@/lib/database.types'
 
 /**
@@ -94,9 +94,20 @@ export function AppShell() {
             <LanguageSwitcher className="hidden md:inline-flex" />
 
             {status === 'signed-in' && account ? (
-              // Her alias, never her username (FR-025). The username is not even
-              // readable through `profiles`, so there is nothing else to show.
-              <span className="text-sm text-ink-muted">{account.displayName ?? account.alias}</span>
+              <div className="flex items-center gap-2">
+                {/* Her alias, never her username (FR-025). The username is not even
+                    readable through `profiles`, so there is nothing else to show. */}
+                <span className="text-sm text-ink-muted">
+                  {account.displayName ?? account.alias}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void signOutSession()}
+                  className="flex min-h-touch items-center rounded px-3 text-sm font-medium text-blue"
+                >
+                  {t('nav.logout')}
+                </button>
+              </div>
             ) : (
               <NavLink
                 to="/login"

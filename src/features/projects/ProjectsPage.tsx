@@ -6,6 +6,12 @@ import { Dialog } from '@/components/Dialog'
 import { Meter } from '@/components/Meter'
 import { useOwnerId, useSession } from '@/features/auth/session'
 import * as db from '@/lib/db'
+import {
+  fetchRemoteProjects,
+  projectsMadeElsewhere,
+  pushProjectMetadata,
+  type RemoteProject,
+} from './remoteProjects'
 
 /**
  * T040 / FR-023, FR-049, D1, D9 — the project list.
@@ -32,29 +38,54 @@ export function ProjectsPage() {
   const status = useSession((state) => state.status)
 
   const [projects, setProjects] = useState<readonly db.Project[]>([])
-  const [counts, setCounts] = useState<Readonly<Record<string, { classes: number; samples: number }>>>({})
+  const [counts, setCounts] = useState<Readonly<Record<string, ProjectSummary>>>({})
   const [estimate, setEstimate] = useState<db.StorageEstimate | null>(null)
   const [creating, setCreating] = useState(false)
   const [draft, setDraft] = useState('')
   const [problem, setProblem] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<db.Project | null>(null)
   const [deleted, setDeleted] = useState<string | null>(null)
+  const [elsewhere, setElsewhere] = useState<readonly RemoteProject[]>([])
 
   const reload = useCallback(async () => {
     const loaded = await db.listProjects(ownerId)
     setProjects(loaded)
 
-    const summary: Record<string, { classes: number; samples: number }> = {}
+    const summary: Record<string, ProjectSummary> = {}
     for (const project of loaded) {
       const classes = await db.listClasses(project.id)
       const sampleCounts = await db.countSamplesByClass(project.id)
+      // FR-031 names four things to restore, and the model status is the one that
+      // is not derivable from a count. `activeRunId` alone is not enough: a run
+      // interrupted mid-training leaves a record that must never read as ready
+      // (FR-050).
+      const model = project.activeRunId ? await db.loadModelRecord(project.activeRunId) : undefined
       summary[project.id] = {
         classes: classes.length,
         samples: Object.values(sampleCounts).reduce((a, b) => a + b, 0),
+        model: model?.status ?? 'none',
       }
     }
     setCounts(summary)
     setEstimate(await db.estimateStorage())
+
+    // FR-031, FR-032. Signed out, there is nothing remote to reconcile against —
+    // and by FR-023 there must not be.
+    if (ownerId === null) {
+      setElsewhere([])
+      return
+    }
+
+    await pushProjectMetadata(
+      ownerId,
+      loaded.map((project) => ({
+        id: project.id,
+        name: project.name,
+        classCount: summary[project.id]?.classes ?? 0,
+        sampleCount: summary[project.id]?.samples ?? 0,
+      })),
+    )
+    setElsewhere(projectsMadeElsewhere(loaded, await fetchRemoteProjects(ownerId)))
   }, [ownerId])
 
   useEffect(() => {
@@ -104,6 +135,21 @@ export function ProjectsPage() {
     setPendingDelete(null)
     setDeleted(name)
     await reload()
+  }
+
+  /**
+   * Scenario 4.6 — "start a fresh copy".
+   *
+   * A *copy*, with its own id, not a claim on the remote row. Reusing the id would
+   * overwrite counts recorded by the device that still holds the photos, so the
+   * original stays exactly as it is and keeps showing as made elsewhere, which it
+   * was. Two rows named the same thing is the honest outcome here.
+   */
+  async function startFreshCopy(remote: RemoteProject) {
+    const project = await db.createProject(remote.name, ownerId)
+    setElsewhere((current) => current.filter((candidate) => candidate.id !== remote.id))
+    await reload()
+    void navigate(`/lab/${project.id}`)
   }
 
   const formatter = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' })
@@ -170,6 +216,9 @@ export function ProjectsPage() {
                   {summary && summary.classes > 0
                     ? t('summary', { classes: summary.classes, samples: summary.samples })
                     : t('noClasses')}
+                </p>
+                <p className="text-sm text-ink-muted">
+                  {t(`model.${summary?.model ?? 'none'}`)}
                 </p>
                 <p className="text-sm text-ink-muted">
                   {t('createdOn', { date: formatter.format(new Date(project.createdAt)) })}
@@ -247,6 +296,45 @@ export function ProjectsPage() {
         </p>
       </section>
 
+      {/* FR-032 / Scenario 4.6. Kept below her own projects and visually distinct
+          from them, because these are not projects on this device — presenting
+          them in the same list would make "open in the lab" look available and
+          then produce an empty one. */}
+      {elsewhere.length > 0 ? (
+        <section aria-labelledby="made-elsewhere" className="flex flex-col gap-3">
+          <h2 id="made-elsewhere" className="font-display text-lg">
+            {t('restoreTitle')}
+          </h2>
+          <ul className="grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
+            {elsewhere.map((remote) => (
+              <li
+                key={remote.id}
+                className="flex flex-col gap-2 rounded-lg border border-dashed border-border-subtle bg-surface-sunken p-4"
+              >
+                <h3 className="truncate font-display text-base">{remote.name}</h3>
+                <p className="max-w-prose text-sm">{t('restoreBody', { name: remote.name })}</p>
+                <p className="text-sm text-ink-muted">
+                  {t('restoreRecorded', {
+                    classes: remote.classCount,
+                    samples: remote.sampleCount,
+                  })}
+                </p>
+                <div className="mt-auto">
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      void startFreshCopy(remote)
+                    }}
+                  >
+                    {t('restoreAction')}
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       <Dialog
         open={pendingDelete !== null}
         title={t('deleteTitle', { name: pendingDelete?.name ?? '' })}
@@ -282,6 +370,14 @@ export function ProjectsPage() {
       </Dialog>
     </div>
   )
+}
+
+/** What one project card shows, all of it derived from the local store. */
+interface ProjectSummary {
+  readonly classes: number
+  readonly samples: number
+  /** `'none'` rather than `null`, so it maps straight onto a locale key. */
+  readonly model: db.ModelStatus | 'none'
 }
 
 function formatBytes(bytes: number): string {

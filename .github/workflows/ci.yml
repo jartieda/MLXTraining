@@ -75,6 +75,23 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run fetch:backbone
+      # US4 needs a real Supabase. `redeem_invitation` is a SECURITY DEFINER
+      # function and the whole invitation state machine lives inside it (R15), so
+      # the three refusals and SC-020's rate limit cannot be exercised against a
+      # fake. Without this the account scenarios skip, and a skip is not a pass.
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase start
+      - run: supabase db reset
+      - name: Publish the local keys to the build (baked in by Vite at build time)
+        run: |
+          supabase status -o env >> "$GITHUB_ENV"
+          {
+            echo "VITE_SUPABASE_URL=$(supabase status -o json | jq -r .API_URL)"
+            echo "VITE_SUPABASE_ANON_KEY=$(supabase status -o json | jq -r .ANON_KEY)"
+            echo "VITE_INVITATION_TTL_HOURS=72"
+          } >> "$GITHUB_ENV"
       - run: npm run test:e2e
       - name: Accessibility, zero violations (SC-009)
         run: npm run test:a11y

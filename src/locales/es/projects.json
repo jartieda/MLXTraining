@@ -21,5 +21,12 @@
   "anonymousBody": "Todo funciona y no se guardará nada en ninguna cuenta. Tus proyectos se quedan en este navegador y en este dispositivo: si borras los datos del navegador, desaparecen.",
   "restoreTitle": "Creado en otro dispositivo",
   "restoreBody": "«{{name}}» se creó en otro dispositivo. Tus fotos y tu modelo entrenado se quedan en el dispositivo que los capturó, así que aquí no están. Puedes empezar una copia nueva con las mismas clases.",
-  "restoreAction": "Empezar una copia nueva"
+  "restoreRecorded": "Ese dispositivo registró {{classes}} clases y {{samples}} fotos.",
+  "restoreAction": "Empezar una copia nueva",
+  "model": {
+    "none": "Sin entrenar todavía",
+    "ready": "Modelo entrenado y listo",
+    "training": "El entrenamiento no terminó: vuelve a empezarlo",
+    "failed": "El entrenamiento no funcionó: vuelve a probar"
+  }
 }

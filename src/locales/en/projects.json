@@ -21,5 +21,12 @@
   "anonymousBody": "Everything works, and nothing will be saved to an account. Your projects stay in this browser on this device — clearing your browser data removes them.",
   "restoreTitle": "Made on another device",
   "restoreBody": "\"{{name}}\" was made on a different device. Your photos and trained model stay on the device that captured them, so they are not here. You can start a fresh copy with the same classes.",
-  "restoreAction": "Start a fresh copy"
+  "restoreRecorded": "That device recorded {{classes}} classes and {{samples}} photos.",
+  "restoreAction": "Start a fresh copy",
+  "model": {
+    "none": "Not trained yet",
+    "ready": "Trained model ready",
+    "training": "Training did not finish — start it again",
+    "failed": "Training did not work — try again"
+  }
 }

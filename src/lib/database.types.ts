@@ -11,6 +11,15 @@
  * `profiles.username` and `invitations.code_hash` are therefore absent from the
  * Row types: no signed-in caller can select either, so a type that offered them
  * would describe a query that always fails.
+ *
+ * **`Relationships: []` on every entry is load-bearing, not boilerplate.**
+ * postgrest-js requires it on each table and view for this type to satisfy its
+ * `GenericSchema` constraint, and when the constraint fails the client silently
+ * widens the whole schema instead of erroring — every `from()` and `rpc()` then
+ * type-checks against nothing at all, which is worse than having no types, because
+ * it reads as if it were checked. It is empty because nothing here traverses a
+ * foreign key: the joins this application needs are done by the two views and by
+ * `is_educator_of`, inside the policies (R9).
  */
 
 export type AccountRole = 'learner' | 'educator' | 'administrator'
@@ -45,6 +54,7 @@ export interface Database {
         // let any learner promote herself; a writable `is_active` would let a
         // deactivated educator restore her own access.
         Update: { alias?: string; locale?: UiLocale }
+        Relationships: []
       }
 
       classrooms: {
@@ -57,12 +67,14 @@ export interface Database {
         }
         Insert: { id?: string; name: string; educator_id: string }
         Update: { name?: string; archived_at?: string | null }
+        Relationships: []
       }
 
       enrolments: {
         Row: { classroom_id: string; learner_id: string; enrolled_at: string }
         Insert: never // E1: created only by `redeem_invitation`.
         Update: never
+        Relationships: []
       }
 
       invitations: {
@@ -81,6 +93,7 @@ export interface Database {
         }
         Insert: never // I4: issued only through the RPCs.
         Update: never
+        Relationships: []
       }
 
       projects: {
@@ -99,8 +112,14 @@ export interface Database {
           name: string
           class_count?: number
           sample_count?: number
+          // Writable on insert because an upsert supplies it: `updated_at` defaults
+          // to `now()` only on INSERT and no trigger advances it, so a conflicting
+          // upsert that omitted it would leave the row claiming a time before the
+          // work it just recorded.
+          updated_at?: string
         }
         Update: { name?: string; class_count?: number; sample_count?: number; updated_at?: string }
+        Relationships: []
       }
 
       training_runs: {
@@ -126,6 +145,7 @@ export interface Database {
           epochs: number
         }
         Update: never // A recorded run is history; FR-010 compares runs rather than editing them.
+        Relationships: []
       }
 
       lesson_progress: {
@@ -143,6 +163,7 @@ export interface Database {
           completed_steps?: string[]
         }
         Update: { state?: ProgressState; completed_steps?: string[]; updated_at?: string }
+        Relationships: []
       }
 
       reflections: {
@@ -162,6 +183,7 @@ export interface Database {
           answer: string
         }
         Update: { answer?: string; updated_at?: string }
+        Relationships: []
       }
 
       // `audit_log` is absent on purpose. U1 makes it selectable by nobody, so
@@ -180,10 +202,12 @@ export interface Database {
           is_active: boolean
           classroom_id: string | null
         }
+        Relationships: []
       }
       /** K5: an administrator reads exactly these three columns. */
       admin_classrooms: {
         Row: { id: string; name: string; educator_id: string }
+        Relationships: []
       }
     }
 
