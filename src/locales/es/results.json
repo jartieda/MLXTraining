@@ -1,1 +1,77 @@
-{}
+{
+  "panelTitle": "3. Mira qué tal lo ha hecho",
+  "untrained": "Entrena el modelo y aquí aparecerán las cifras: qué tal lo ha hecho en cada clase y qué ha confundido con qué.",
+  "balance": {
+    "heading": "Fotos en cada clase",
+    "total": "{{count}} fotos en total",
+    "count": "{{count}} fotos"
+  },
+  "perClass": {
+    "heading": "Qué tal lo ha hecho",
+    "overall": "Ha acertado el {{accuracy}} de tus fotos.",
+    "caveat": "Son las mismas fotos con las que aprendió el modelo, así que es lo mejor que va a parecer nunca. Apunta la cámara a algo nuevo para saber de qué es capaz de verdad.",
+    "value": "{{accuracy}} de sus {{count}} fotos"
+  },
+  "confusion": {
+    "heading": "Qué ha confundido",
+    "intro": "Cada fila es una clase que le has enseñado. Lee a lo largo de la fila para ver qué dijo en realidad sobre esas fotos.",
+    "caption": "Las filas son la clase a la que la foto pertenece de verdad. Las columnas son la clase que eligió el modelo.",
+    "cornerLabel": "Es en realidad ↓ · El modelo dijo →",
+    "cell": "{{count}} fotos, el {{share}} de las fotos de {{trueClass}}, se llamaron {{predictedClass}}",
+    "legendLow": "nada de la fila",
+    "legendHigh": "toda la fila",
+    "legendCaption": "El sombreado es la proporción de cada fila, así una clase pequeña se lee igual de bien que una grande."
+  },
+  "imbalance": {
+    "heading": "Las clases no tienen el mismo tamaño",
+    "ratio": "Le has dado {{largeCount}} fotos de {{largeClass}} y solo {{smallCount}} de {{smallClass}}: {{ratio}} veces más.",
+    "effect": "Cuando una clase tiene muchos más ejemplos, el modelo aprende que decir {{largeClass}} suele ser una apuesta segura. Eso lo hace parecer acertado en general mientras es malo justamente con {{smallClass}}.",
+    "confusedPair": "Se ve en la tabla: el {{share}} de las fotos de {{trueClass}} se llamaron {{predictedClass}}.",
+    "stillUsable": "El modelo está entrenado y puedes probarlo ahora mismo: esto es algo en lo que fijarse, no un fallo que haya que arreglar antes de seguir.",
+    "lessonLink": "Descubre por qué pasa esto y qué hacer al respecto"
+  },
+  "comparison": {
+    "heading": "Compara dos entrenamientos",
+    "intro": "Cada vez que entrenas, el laboratorio guarda las cifras. Pon dos entrenamientos uno al lado del otro para ver qué han hecho tus cambios.",
+    "needTwo": "Entrena una segunda vez —después de añadir fotos o de renombrar una clase— y aquí aparecerán los dos entrenamientos para comparar.",
+    "baselineLabel": "Entrenamiento anterior",
+    "currentLabel": "Entrenamiento posterior",
+    "runLabel": "{{date}} · {{accuracy}} en general",
+    "sameRun": "Ese es el mismo entrenamiento. Elige dos distintos.",
+    "overall": "En general ha pasado del {{baseline}} al {{current}}.",
+    "caption": "Acierto y número de fotos de cada clase, en los dos entrenamientos.",
+    "classColumn": "Clase",
+    "baselineColumn": "Antes",
+    "currentColumn": "Después",
+    "changeColumn": "Cambio",
+    "cell": "{{accuracy}} de {{count}}",
+    "direction": {
+      "better": "Mejor",
+      "worse": "Peor",
+      "same": "Más o menos igual",
+      "added": "Clase nueva",
+      "removed": "Clase eliminada",
+      "countChanged": "Las fotos han pasado de {{from}} a {{to}}"
+    },
+    "nothingChanged": "No ha cambiado nada: las mismas fotos y las mismas cifras.",
+    "changedClasses": "{{count}} clases han cambiado: {{names}}."
+  },
+  "export": {
+    "heading": "Exporta el modelo",
+    "intro": "Guarda el modelo entrenado como un archivo en este dispositivo, para conservarlo o para ver qué ha producido el entrenamiento.",
+    "open": "Exportar el modelo…",
+    "dialogTitle": "Lo que estás a punto de descargar",
+    "contains": "El archivo contiene:",
+    "itemWeights": "Los números que el modelo aprendió durante el entrenamiento: la parte que toma la decisión.",
+    "itemClasses": "Los nombres de tus {{count}} clases, en el orden que usa el modelo: {{names}}.",
+    "itemFiles": "Dos archivos, {{fileName}}.json y {{fileName}}.weights.bin, guardados juntos.",
+    "notContains": "No contiene:",
+    "noPhotos": "Ninguna de tus fotos. Se quedan en este navegador y no van en el archivo.",
+    "noBackbone": "Tampoco el modelo grande preentrenado que hay debajo, así que el archivo solo funciona con este laboratorio.",
+    "destination": "Va a la carpeta de descargas de este dispositivo. No se sube nada a ningún sitio.",
+    "confirm": "Descargarlo",
+    "producing": "Creando el archivo…",
+    "done": "Guardado como {{fileName}}.json y {{fileName}}.weights.bin.",
+    "failed": "No se pudo crear el archivo. No se ha perdido nada: vuelve a probar."
+  }
+}

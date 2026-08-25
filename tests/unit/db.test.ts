@@ -23,6 +23,7 @@ import {
   markModelFailed,
   markModelReady,
   listStaleTrainingModels,
+  listFinishedRuns,
   cacheExplanation,
   findExplanation,
   pruneExplanations,
@@ -464,6 +465,19 @@ describe('D7: a quota error mid-burst', () => {
   })
 })
 
+/** A minimal finished-run record. Only `finishedAt` varies across these tests. */
+function runMetrics(finishedAt: string) {
+  return {
+    perClass: [],
+    confusion: [],
+    overallAccuracy: 0.5,
+    imbalanceRatio: 1,
+    backboneAlpha: 0.5 as const,
+    epochs: 20,
+    finishedAt,
+  }
+}
+
 describe('models', () => {
   it('D5: listStaleTrainingModels returns records left mid-training', async () => {
     const project = await createProject('P', 'owner-a')
@@ -502,6 +516,78 @@ describe('models', () => {
     // Without this a saved model's output vector cannot be attributed to classes after a
     // reorder or rename (data-model.md).
     expect((await loadModelRecord('r'))?.classOrder).toEqual([b.id, a.id])
+  })
+
+  it('starts every run with no metrics, because it has none until it finishes', async () => {
+    const project = await createProject('P', 'owner-a')
+    await saveModel({ runId: 'r', projectId: project.id, artifactKey: 'a', classOrder: [] })
+    expect((await db.models.get('r'))?.metrics).toBeNull()
+  })
+
+  it('D11: listFinishedRuns returns only ready runs that carry figures', async () => {
+    const project = await createProject('P', 'owner-a')
+
+    for (const runId of ['ready-with', 'ready-without', 'failed', 'still-training']) {
+      await saveModel({ runId, projectId: project.id, artifactKey: runId, classOrder: [] })
+    }
+    await markModelReady('ready-with', runMetrics('2026-01-01T10:00:00.000Z'))
+    // Ready but with no figures: a version-1 run, whose embeddings are gone. It must
+    // not appear in a comparison, because there is nothing to compare.
+    await markModelReady('ready-without')
+    await markModelFailed('failed')
+
+    const runs = await listFinishedRuns(project.id)
+    expect(runs.map((run) => run.runId)).toEqual(['ready-with'])
+  })
+
+  it('D11: returns finished runs newest first, so a comparison defaults sensibly', async () => {
+    const project = await createProject('P', 'owner-a')
+    // Inserted oldest-last on purpose: sorting by insertion order would pass a test
+    // that fed them in the expected sequence.
+    for (const [runId, at] of [
+      ['middle', '2026-01-02T10:00:00.000Z'],
+      ['newest', '2026-01-03T10:00:00.000Z'],
+      ['oldest', '2026-01-01T10:00:00.000Z'],
+    ] as const) {
+      await saveModel({ runId, projectId: project.id, artifactKey: runId, classOrder: [] })
+      await markModelReady(runId, runMetrics(at))
+    }
+
+    expect((await listFinishedRuns(project.id)).map((run) => run.runId)).toEqual([
+      'newest',
+      'middle',
+      'oldest',
+    ])
+  })
+
+  it('D11: scopes runs to their project', async () => {
+    const mine = await createProject('Mine', 'owner-a')
+    const other = await createProject('Other', 'owner-a')
+    await saveModel({ runId: 'a', projectId: mine.id, artifactKey: 'a', classOrder: [] })
+    await markModelReady('a', runMetrics('2026-01-01T10:00:00.000Z'))
+    await saveModel({ runId: 'b', projectId: other.id, artifactKey: 'b', classOrder: [] })
+    await markModelReady('b', runMetrics('2026-01-01T11:00:00.000Z'))
+
+    expect((await listFinishedRuns(mine.id)).map((run) => run.runId)).toEqual(['a'])
+  })
+
+  it('keeps the class NAME as it was at the time of the run (D2)', async () => {
+    const project = await createProject('P', 'owner-a')
+    const klass = await addClass(project.id, 'Cats')
+    await saveModel({ runId: 'r', projectId: project.id, artifactKey: 'a', classOrder: [klass.id] })
+    await markModelReady('r', {
+      ...runMetrics('2026-01-01T10:00:00.000Z'),
+      perClass: [{ classId: klass.id, className: 'Cats', sampleCount: 10, accuracy: 0.9 }],
+    })
+
+    await renameClass(klass.id, 'Kittens')
+
+    // The run still says "Cats", and still points at the same id. That pairing is
+    // what lets a comparison say "this used to be called Cats" rather than showing
+    // a blank, while keeping the figures attributed correctly.
+    const run = (await listFinishedRuns(project.id))[0]
+    expect(run?.metrics?.perClass[0]).toMatchObject({ classId: klass.id, className: 'Cats' })
+    expect((await listClasses(project.id))[0]?.name).toBe('Kittens')
   })
 })
 

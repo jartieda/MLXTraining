@@ -122,8 +122,50 @@ export function applyColormap(map: HeatMap, opacity: number): Uint8ClampedArray 
  */
 export function legendStops(count: number): readonly string[] {
   if (count < 2) return []
-  return Array.from({ length: count }, (_, i) => {
-    const [r, g, b] = rampColour(i / (count - 1))
-    return `rgb(${String(r)} ${String(g)} ${String(b)})`
-  })
+  return Array.from({ length: count }, (_, i) => rampCss(i / (count - 1)))
+}
+
+/** The ramp colour at `value` as a CSS colour, for a swatch or a table cell. */
+export function rampCss(value: number): string {
+  const [r, g, b] = rampColour(value)
+  return `rgb(${String(r)} ${String(g)} ${String(b)})`
+}
+
+/**
+ * Text colours for labels sitting **on** the ramp — a confusion-matrix cell, a
+ * value printed inside a swatch.
+ *
+ * These are fixed rather than the `--tv-ink` tokens, and that is the point rather
+ * than an oversight. The ink tokens flip with the theme; the ramp does not, because
+ * it encodes data and inferno's pale yellow is pale yellow on a dark page too. Using
+ * `text-ink` over a ramp cell would render navy-on-yellow in light mode and
+ * white-on-yellow in dark mode, and the second is unreadable. They live here because
+ * this module is the one Principle V exempts, and they belong to the ramp's own
+ * visual system rather than to the brand palette.
+ */
+export const RAMP_INK_ON_LIGHT = 'rgb(20 20 25)'
+export const RAMP_INK_ON_DARK = 'rgb(250 250 252)'
+
+/**
+ * Whether the ramp colour at `value` is light enough to take dark text.
+ *
+ * The 0.179 crossover is WCAG's own: it is the relative luminance at which contrast
+ * against black equals contrast against white, so picking a side by comparing to it
+ * maximises contrast rather than guessing a threshold. Derived from the ramp instead
+ * of hard-coded against a value of `value`, so changing the ramp cannot silently
+ * leave the text at the wrong end of it.
+ */
+export function rampPrefersDarkInk(value: number): boolean {
+  const [r, g, b] = rampColour(value)
+  const channel = (byte: number) => {
+    const scaled = byte / 255
+    return scaled <= 0.03928 ? scaled / 12.92 : Math.pow((scaled + 0.055) / 1.055, 2.4)
+  }
+  const luminance = 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
+  return luminance > 0.179
+}
+
+/** The text colour to use over the ramp at `value`. */
+export function rampInk(value: number): string {
+  return rampPrefersDarkInk(value) ? RAMP_INK_ON_LIGHT : RAMP_INK_ON_DARK
 }

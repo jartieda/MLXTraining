@@ -7,6 +7,7 @@ import { CameraCapture } from './CameraCapture'
 import { UploadSamples } from './UploadSamples'
 import { SampleGrid } from './SampleGrid'
 import { TrainPanel } from '@/features/training/TrainPanel'
+import { ResultsPanel } from '@/features/results/ResultsPanel'
 import { LivePrediction } from '@/features/testing/LivePrediction'
 import { FreezeFrame, type FrozenFrame } from '@/features/testing/FreezeFrame'
 import { HeatmapView } from '@/features/explaining/HeatmapView'
@@ -152,6 +153,13 @@ export function LabPage() {
             </h2>
             <p className="text-sm text-ink-muted">{t('training:panelIntro', { ns: 'training' })}</p>
             <TrainPanel />
+
+            {/* US7. In the training column rather than a route of its own: the
+                figures are what a learner reads immediately after pressing Train,
+                and a separate page would put a navigation step between the run and
+                its result — which is exactly where she stops looking. */}
+            <hr className="border-border-subtle" />
+            <ResultsPanel />
           </div>
         }
         explaining={

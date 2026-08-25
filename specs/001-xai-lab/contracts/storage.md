@@ -22,7 +22,28 @@ db.version(1).stores({
   models:       'runId, projectId, status',
   explanations: 'id, runId, [runId+frameHash+classId+method], computedAt',
 })
+
+// Version 2 (T089) adds `models.metrics: RunMetrics | null`. Indexes are
+// unchanged — nothing queries by it — so the version bump exists solely to carry
+// the defaulting upgrade the rules below require.
+db.version(2).stores({ /* identical to version 1 */ })
+  .upgrade(tx => tx.table('models').toCollection().modify(r => { r.metrics ??= null }))
 ```
+
+`models.metrics` holds the per-class counts and accuracies, the confusion matrix, the overall
+accuracy, the imbalance ratio, the backbone width and the epoch count for one finished run.
+
+It is stored **locally** and not only remotely, and that is a requirement rather than a convenience:
+FR-023 gives an unauthenticated visitor the complete lab, and FR-010's run comparison is part of it.
+Held only in `training_runs`, comparing two runs would silently become an account feature — and the
+fairness module (FR-036) that argues from a skewed run beside a rebalanced one would stop working for
+exactly the learner most likely to be on a shared classroom machine with no account. The remote row
+for a signed-in learner is a copy keyed by the same `runId`.
+
+A run recorded before version 2 keeps `metrics: null`. It is not backfilled and cannot be: the
+embeddings it was evaluated against are not retained, so the figures no longer exist. `null` says so,
+and the interface offers a retrain rather than inventing zeros that would read as a model that got
+everything wrong.
 
 **Migration rules**:
 
@@ -56,9 +77,11 @@ countSamplesByClass(projectId: string): Promise<Record<string, number>>
 
 // Models
 saveModel(record: NewModel): Promise<void>
+markModelReady(runId: string, metrics?: RunMetrics): Promise<void>
 loadModelRecord(runId: string): Promise<ModelRecord | undefined>
 markModelFailed(runId: string): Promise<void>
 listStaleTrainingModels(): Promise<ModelRecord[]>     // see D5
+listFinishedRuns(projectId: string): Promise<ModelRecord[]>  // see D11
 
 // Explanations
 cacheExplanation(record: NewExplanation): Promise<void>
@@ -86,6 +109,7 @@ requestPersistence(): Promise<boolean>
 | **D8** | `findExplanation` keys on `(runId, frameHash, classId, method)` plus the method's parameters. A cached map computed with a different grid size or target layer is a miss, not a hit. |
 | **D9** | Every read returns data owned by the current session's `ownerId`, or `null`-owned anonymous data. A logged-in learner must never see another account's local projects on a shared classroom device. |
 | **D10** | No function in this module may send data anywhere. Enforced by the import-boundary lint rule that forbids `fetch`, `XMLHttpRequest`, and the Supabase client inside `src/lib/db.ts`. |
+| **D11** | `listFinishedRuns` returns only records that are `ready` **and** carry `metrics`, newest first. A run that did not finish has no figures worth comparing, and offering one would be the same defect FR-050 forbids in the predictor, one screen over. |
 
 D9 deserves emphasis: shared devices are the norm in schools, so scoping local reads by `ownerId` is
 a real privacy requirement, not a theoretical one.

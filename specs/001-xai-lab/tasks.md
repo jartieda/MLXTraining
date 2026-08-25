@@ -226,19 +226,19 @@ the imbalance notice all appear and are correct.
 
 ### Tests
 
-- [ ] T081 [P] [US7] `tests/integration/results.test.tsx` — per-class counts and accuracy, confusion matrix orientation (rows = true), imbalance notice appears **and training still succeeded** (FR-009, FR-020, Scenario 7.2)
-- [ ] T082 [P] [US7] `tests/e2e/us7-fairness.spec.ts` — train 40-vs-5, assert the imbalance notice, the confusion pattern, and that the model is testable; then rebalance and compare runs (FR-010, FR-021)
-- [ ] T083 [P] [US7] `tests/integration/export.test.tsx` — the export dialog states what the file contains **before** producing it (FR-022, Scenario 7.4)
+- [X] T081 [P] [US7] `tests/integration/results.test.tsx` — per-class counts and accuracy, confusion matrix orientation (rows = true), imbalance notice appears **and training still succeeded** (FR-009, FR-020, Scenario 7.2)
+- [X] T082 [P] [US7] `tests/e2e/us7-fairness.spec.ts` — train 40-vs-5, assert the imbalance notice, the confusion pattern, and that the model is testable; then rebalance and compare runs (FR-010, FR-021)
+- [X] T083 [P] [US7] `tests/integration/export.test.tsx` — the export dialog states what the file contains **before** producing it (FR-022, Scenario 7.4)
 
 ### Implementation
 
-- [ ] T084 [US7] `src/features/results/ConfusionMatrix.tsx` — accessible table with a visual encoding; heat encoding follows the R6 ramp, not brand colours (FR-020, Principle V)
-- [ ] T085 [P] [US7] `src/features/results/ClassBalance.tsx` — per-class sample distribution shown in the training view (FR-020)
-- [ ] T086 [US7] Imbalance reporting in `src/features/results/` — plain-language explanation of the likely effect, a pointer to the fairness module, and **no blocking of training** (FR-021, FR-009)
-- [ ] T087 [US7] `src/features/results/RunComparison.tsx` — two `training_runs` side by side, marking which classes changed (FR-010, Scenario 7.3)
-- [ ] T088 [P] [US7] Model export in `src/features/results/` — `tf` save to a downloadable file, preceded by a statement of contents (FR-022, FR-048)
-- [ ] T089 [P] [US7] Persist `training_runs` rows remotely for signed-in learners in `src/features/training/`, including `per_class`, `confusion`, `imbalance_ratio`, `backbone_alpha` (data-model.md)
-- [ ] T090 [P] [US7] `en` and `es` strings in `src/locales/{en,es}/` for results, imbalance, and export (FR-044, SC-005)
+- [X] T084 [US7] `src/features/results/ConfusionMatrix.tsx` — accessible table with a visual encoding; heat encoding follows the R6 ramp, not brand colours (FR-020, Principle V)
+- [X] T085 [P] [US7] `src/features/results/ClassBalance.tsx` — per-class sample distribution shown in the training view (FR-020)
+- [X] T086 [US7] Imbalance reporting in `src/features/results/` — plain-language explanation of the likely effect, a pointer to the fairness module, and **no blocking of training** (FR-021, FR-009)
+- [X] T087 [US7] `src/features/results/RunComparison.tsx` — two `training_runs` side by side, marking which classes changed (FR-010, Scenario 7.3)
+- [X] T088 [P] [US7] Model export in `src/features/results/` — `tf` save to a downloadable file, preceded by a statement of contents (FR-022, FR-048)
+- [X] T089 [P] [US7] Persist `training_runs` rows remotely for signed-in learners in `src/features/training/`, including `per_class`, `confusion`, `imbalance_ratio`, `backbone_alpha` (data-model.md)
+- [X] T090 [P] [US7] `en` and `es` strings in `src/locales/{en,es}/` for results, imbalance, and export (FR-044, SC-005)
 
 **Checkpoint**: The evidence the fairness lesson argues from exists and is correct. Validate against
 W5 steps 2–4.

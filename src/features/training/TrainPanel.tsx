@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/Button'
 import { ProgressBar } from '@/components/ProgressBar'
 import { useLab, trainReadiness, DEFAULT_SETTINGS } from '@/features/lab/labStore'
+import { useOwnerId } from '@/features/auth/session'
+import { recordTrainingRun } from './remoteRuns'
 import * as db from '@/lib/db'
 import { trainClassifier } from '@/ml/train'
 import { evaluate } from '@/ml/metrics'
@@ -42,6 +44,7 @@ export function TrainPanel() {
     resetProgress,
   } = useLab()
 
+  const ownerId = useOwnerId()
   const abortRef = useRef<AbortController | null>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
@@ -146,11 +149,45 @@ export function TrainPanel() {
       })
 
       await trained.save(runId)
-      await db.markModelReady(runId)
+
+      const result = evaluate(trained, embeddings, labels, classes.length, embeddingSize)
+
+      // T089 / FR-010. The figures are recorded LOCALLY and unconditionally, then
+      // remotely only if she has an account — in that order, because FR-023 gives
+      // an anonymous visitor the whole lab and run comparison is part of it.
+      const metrics: db.RunMetrics = {
+        perClass: result.perClass.map((entry) => ({
+          classId: classes[entry.classIndex]?.id ?? String(entry.classIndex),
+          // The name at the time of the run, so a later comparison can say what a
+          // since-renamed class used to be called (D2).
+          className: classes[entry.classIndex]?.name ?? '',
+          sampleCount: entry.sampleCount,
+          accuracy: entry.accuracy,
+        })),
+        confusion: result.confusion.map((row) => [...row]),
+        overallAccuracy: result.overallAccuracy,
+        // `Infinity` is what an empty class produces, and it is not a number any
+        // JSON or Postgres `numeric` column can hold. Stored as `null`, which the
+        // interface renders as "one class has no samples" rather than as "∞".
+        imbalanceRatio: Number.isFinite(result.imbalanceRatio) ? result.imbalanceRatio : null,
+        backboneAlpha: project.backboneAlpha,
+        epochs: settings.epochs,
+        finishedAt: new Date().toISOString(),
+      }
+
+      await db.markModelReady(runId, metrics)
       await db.setActiveRun(projectId, runId)
 
       setModel(trained, runId)
-      setEvaluation(evaluate(trained, embeddings, labels, classes.length, embeddingSize))
+      setEvaluation(result)
+
+      if (ownerId) {
+        // Not awaited into the training path, and a failure is not surfaced as one:
+        // the work is safe on her device either way, and a school connection that
+        // drops must not make a successful run look like a failed one.
+        void recordTrainingRun(projectId, runId, metrics)
+      }
+
       setProgress({
         phase: 'done',
         epoch: settings.epochs,

@@ -53,6 +53,46 @@ export interface SampleRecord {
   capturedAt: string
 }
 
+/**
+ * What one class scored in one run.
+ *
+ * `classId` and `className` are both stored, and the redundancy is deliberate:
+ * the id is what keeps a run's figures correctly attributed after a rename (D2),
+ * and the name is what the run was called *at the time*, so a comparison of two
+ * runs can say "this used to be called Cats" rather than showing a blank where a
+ * since-deleted class used to be.
+ */
+export interface RunClassMetric {
+  readonly classId: string
+  readonly className: string
+  readonly sampleCount: number
+  readonly accuracy: number
+}
+
+/**
+ * The figures FR-020 reports and FR-010 compares, stored locally.
+ *
+ * Local because FR-023 gives an unauthenticated visitor the complete lab, and
+ * "compare two runs" is part of it. Held remotely only, run comparison would
+ * silently be an account feature — and the fairness lesson (FR-036) that argues
+ * from a skewed run and a rebalanced one would stop working for exactly the
+ * learner most likely to be using a shared classroom machine with no account.
+ *
+ * The remote `training_runs` row for a signed-in learner is a copy of this, keyed
+ * by the same `runId`, holding numbers and names and nothing else.
+ */
+export interface RunMetrics {
+  readonly perClass: readonly RunClassMetric[]
+  /** Row = true class, column = predicted class, ordered as `perClass`. */
+  readonly confusion: readonly (readonly number[])[]
+  readonly overallAccuracy: number
+  /** Largest ÷ smallest class count. `null` where it was not finite. */
+  readonly imbalanceRatio: number | null
+  readonly backboneAlpha: Alpha
+  readonly epochs: number
+  readonly finishedAt: string
+}
+
 export interface ModelRecord {
   runId: string
   projectId: string
@@ -61,6 +101,8 @@ export interface ModelRecord {
   classOrder: string[]
   status: ModelStatus
   savedAt: string
+  /** `null` until the run finishes, and for every run recorded before version 2. */
+  metrics: RunMetrics | null
 }
 
 export interface ExplanationRecord {
@@ -134,6 +176,38 @@ class LabDatabase extends Dexie {
       models: 'runId, projectId, status',
       explanations: 'id, runId, [runId+frameHash+classId+method], computedAt',
     })
+
+    /**
+     * Version 2 (T089) adds `models.metrics`, so FR-010's run comparison works
+     * for a learner with no account.
+     *
+     * A field addition with a defaulting upgrade, exactly as the migration rules
+     * in contracts/storage.md require. The index list is unchanged — `metrics` is
+     * a nested object nothing queries by — and the upgrade only writes `null`
+     * into rows that predate it. No image blob is read, rewritten or risked,
+     * which matters because they are the one thing here that cannot be
+     * recomputed.
+     */
+    this.version(2)
+      .stores({
+        projects: 'id, ownerId, updatedAt',
+        classes: 'id, projectId, [projectId+order]',
+        samples: 'id, projectId, classId, [projectId+classId], capturedAt',
+        models: 'runId, projectId, status',
+        explanations: 'id, runId, [runId+frameHash+classId+method], computedAt',
+      })
+      .upgrade(async (transaction) => {
+        await transaction
+          .table<ModelRecord>('models')
+          .toCollection()
+          .modify((record) => {
+            // A run trained before version 2 has no figures and never will: the
+            // embeddings it was evaluated against are not retained. `null` says
+            // so, and the interface offers a retrain rather than inventing zeros
+            // that would read as a model that got everything wrong.
+            record.metrics ??= null
+          })
+      })
   }
 }
 
@@ -539,11 +613,30 @@ export async function saveModel(record: NewModel): Promise<void> {
     classOrder: [...record.classOrder],
     status: 'training',
     savedAt: now(),
+    metrics: null,
   })
 }
 
-export async function markModelReady(runId: string): Promise<void> {
-  await db.models.update(runId, { status: 'ready', savedAt: now() })
+export async function markModelReady(runId: string, metrics?: RunMetrics): Promise<void> {
+  await db.models.update(runId, {
+    status: 'ready',
+    savedAt: now(),
+    ...(metrics ? { metrics } : {}),
+  })
+}
+
+/**
+ * Every finished run for a project, newest first — the input to FR-010.
+ *
+ * `failed` and `training` runs are excluded. A run that did not finish has no
+ * figures worth comparing, and offering one in a comparison would be the same
+ * defect FR-050 forbids in the predictor, one screen over.
+ */
+export async function listFinishedRuns(projectId: string): Promise<ModelRecord[]> {
+  const records = await db.models.where('projectId').equals(projectId).toArray()
+  return records
+    .filter((record) => record.status === 'ready' && record.metrics !== null)
+    .sort((a, b) => (a.metrics?.finishedAt ?? '') < (b.metrics?.finishedAt ?? '') ? 1 : -1)
 }
 
 export async function markModelFailed(runId: string): Promise<void> {

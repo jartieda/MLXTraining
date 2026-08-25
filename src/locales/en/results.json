@@ -1,1 +1,77 @@
-{}
+{
+  "panelTitle": "3. See how it did",
+  "untrained": "Train the model and the figures appear here: how well it did on each class, and what it mixed up with what.",
+  "balance": {
+    "heading": "Photos in each class",
+    "total": "{{count}} photos altogether",
+    "count": "{{count}} photos"
+  },
+  "perClass": {
+    "heading": "How well it did",
+    "overall": "It got {{accuracy}} of your photos right.",
+    "caveat": "These are the same photos the model learned from, so this is the best it will ever look. Point the camera at something new to find out what it can really do.",
+    "value": "{{accuracy}} of its {{count}} photos"
+  },
+  "confusion": {
+    "heading": "What it mixed up",
+    "intro": "Each row is a class you taught it. Read across the row to see what it actually said about those photos.",
+    "caption": "Rows are the class the photo really belongs to. Columns are the class the model chose.",
+    "cornerLabel": "Really is ↓ · Model said →",
+    "cell": "{{count}} photos, {{share}} of the {{trueClass}} photos, were called {{predictedClass}}",
+    "legendLow": "none of the row",
+    "legendHigh": "all of the row",
+    "legendCaption": "Shading is the share of each row, so a small class is as readable as a big one."
+  },
+  "imbalance": {
+    "heading": "The classes are not the same size",
+    "ratio": "You gave it {{largeCount}} photos of {{largeClass}} and only {{smallCount}} of {{smallClass}} — {{ratio}} times as many.",
+    "effect": "When one class has far more examples, the model learns that guessing {{largeClass}} is usually a safe bet. That makes it look accurate overall while being poor at {{smallClass}} in particular.",
+    "confusedPair": "You can see it in the table: {{share}} of the {{trueClass}} photos were called {{predictedClass}}.",
+    "stillUsable": "The model is trained and you can test it right now — this is something to notice, not a mistake to fix before carrying on.",
+    "lessonLink": "Find out why this happens, and what to do about it"
+  },
+  "comparison": {
+    "heading": "Compare two runs",
+    "intro": "Every time you train, the lab keeps the figures. Put two runs next to each other to see what your changes did.",
+    "needTwo": "Train a second time — after adding photos, or renaming a class — and the two runs will appear here to compare.",
+    "baselineLabel": "Earlier run",
+    "currentLabel": "Later run",
+    "runLabel": "{{date}} · {{accuracy}} overall",
+    "sameRun": "Those are the same run. Pick two different ones.",
+    "overall": "Overall it went from {{baseline}} to {{current}}.",
+    "caption": "Accuracy and photo count for each class, in both runs.",
+    "classColumn": "Class",
+    "baselineColumn": "Earlier",
+    "currentColumn": "Later",
+    "changeColumn": "Change",
+    "cell": "{{accuracy}} of {{count}}",
+    "direction": {
+      "better": "Better",
+      "worse": "Worse",
+      "same": "About the same",
+      "added": "New class",
+      "removed": "Class removed",
+      "countChanged": "Photos went from {{from}} to {{to}}"
+    },
+    "nothingChanged": "Nothing changed: the same photos, and the same figures.",
+    "changedClasses": "{{count}} classes changed: {{names}}."
+  },
+  "export": {
+    "heading": "Export the model",
+    "intro": "Save the trained model as a file on this device — to keep it, or to look at what training actually produced.",
+    "open": "Export the model…",
+    "dialogTitle": "What you are about to download",
+    "contains": "The file contains:",
+    "itemWeights": "The numbers the model learned during training — the part that does the deciding.",
+    "itemClasses": "The names of your {{count}} classes, in the order the model uses them: {{names}}.",
+    "itemFiles": "Two files, {{fileName}}.json and {{fileName}}.weights.bin, saved together.",
+    "notContains": "It does not contain:",
+    "noPhotos": "None of your photos. They stay in this browser and are not in the file.",
+    "noBackbone": "Not the large pretrained model underneath, so the file only works with this lab.",
+    "destination": "It goes to this device's downloads folder. Nothing is uploaded anywhere.",
+    "confirm": "Download it",
+    "producing": "Making the file…",
+    "done": "Saved as {{fileName}}.json and {{fileName}}.weights.bin.",
+    "failed": "The file could not be made. Nothing was lost — try again."
+  }
+}
