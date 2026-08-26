@@ -487,3 +487,37 @@ describe('export file naming (T088)', () => {
     expect(safeFileName('   ')).toBe('model')
   })
 })
+
+describe('the offline notice (T122, Edge Cases)', () => {
+  it('reassures a signed-in learner, and stays silent for an anonymous one', async () => {
+    const { OfflineNotice } = await import('@/components/OfflineNotice')
+    const { useSession } = await import('@/features/auth/session')
+
+    // Driven by `navigator.onLine`, read on first render so a learner who opens the
+    // lab already offline sees it on the first paint rather than after a transition.
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
+
+    useSession.setState({ status: 'anonymous', account: null })
+    const anonymous = renderWithProviders(<OfflineNotice />)
+    expect(screen.queryByTestId('offline-notice')).toBeNull()
+    anonymous.unmount()
+
+    useSession.setState({
+      status: 'signed-in',
+      account: { id: 'l1', alias: 'Comet', role: 'learner', displayName: null, classroomId: 'c1' },
+    })
+    renderWithProviders(<OfflineNotice />)
+
+    const notice = screen.getByTestId('offline-notice')
+    // Reassurance, not warning: going offline changes nothing about the core journey,
+    // and the reasonable assumption — that a web app with no connection has stopped
+    // working — is exactly wrong here.
+    expect(notice).toHaveTextContent(/projects already on this device still work/i)
+    expect(notice).toHaveTextContent(/anything that needs the network will wait/i)
+    // A condition, not an error: an assertive region would interrupt a screen-reader
+    // user to announce something that has not stopped her doing anything.
+    expect(notice).toHaveAttribute('role', 'status')
+
+    vi.restoreAllMocks()
+  })
+})

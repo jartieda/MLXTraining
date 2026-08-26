@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { OfflineNotice } from '@/components/OfflineNotice'
 import { signOutSession, useSession } from '@/features/auth/session'
 import type { AccountRole } from '@/lib/database.types'
 
@@ -58,6 +59,10 @@ export function AppShell() {
       >
         {t('app.skipToContent')}
       </a>
+
+      {/* Above the header, so it is the first thing after the skip link rather than
+          something she scrolls past (T122). */}
+      <OfflineNotice />
 
       <header className="border-b border-border-subtle bg-surface">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-3 md:flex-row md:items-center md:justify-between">

@@ -365,16 +365,16 @@ from any administration screen.
 ## Phase 12: Polish & Cross-Cutting
 
 - [X] T119 Bundle budget — initial route JavaScript under 200 KB compressed, TensorFlow.js and the backbone lazy-loaded on lab entry; verify SC-008's 3 s interactive budget on the reference phone
-- [ ] T120 [P] WebGL-disabled suite — `npm run test:e2e:nowebgl` proving the SC-012 4× budget on the reference Chromebook (R7, FR-047)
-- [ ] T121 [P] Storage-pressure suite — the 80% warning, the 95% refusal, and the D7 mid-burst quota error preserving already-written samples (FR-049)
-- [ ] T122 [P] Offline behaviour — local projects remain fully usable with an expired session (Edge Cases)
+- [X] T120 [P] WebGL-disabled suite — `npm run test:e2e:nowebgl` proving the SC-012 4× budget on the reference Chromebook (R7, FR-047)
+- [X] T121 [P] Storage-pressure suite — the 80% warning, the 95% refusal, and the D7 mid-burst quota error preserving already-written samples (FR-049)
+- [X] T122 [P] Offline behaviour — local projects remain fully usable with an expired session (Edge Cases)
 - [X] T123 Netlify deployment with the strict CSP from R14: `connect-src` limited to the Supabase project, `wasm-unsafe-eval` for the WASM backend, no third-party origins
-- [ ] T124 [P] `README.md` and `CONTRIBUTING.md` — setup, the `src/ml/` import boundary, the token rules, and the fact that there is no self-registration so a seeded administrator is the only way in (Principle VII)
-- [ ] T125 [P] Classroom review of all seven modules by someone with teaching experience; a technically correct lesson that does not teach is a defect (Constitution → Quality Gates)
-- [ ] T125b Pilot session with 8–12 real participants, measuring the three learner-outcome criteria that only observation can establish: unaided completion of module 1 (SC-007), correct identification of the induced background shortcut and of the imbalance effect (SC-006), and time to first prediction (SC-001). Feed the failures back as new tasks rather than treating the numbers as met
-- [ ] T126 Full `quickstart.md` pass — W1–W9 on the reference laptop, the reference Chromebook, **and** the reference phone, with every SC-001…SC-021 checked off
-- [ ] T127 Resolve `TODO(CONTROLLER_AGREEMENT)` and `TODO(TECHNOVATION_TRADEMARK)` — **blocks public launch, blocks nothing in development**
-- [ ] T137 Re-run `tests/e2e/network.spec.ts` across the **complete** W1–W9 journey and make it merge-blocking. T036 built the harness before any journey existed, where a pass proved nothing; this is where SC-010 is actually established (FR-048, SC-010, Principle I)
+- [X] T124 [P] `README.md` and `CONTRIBUTING.md` — setup, the `src/ml/` import boundary, the token rules, and the fact that there is no self-registration so a seeded administrator is the only way in (Principle VII)
+- [ ] T125 [P] **BLOCKED — needs a person, not a commit.** Classroom review of all seven modules by someone with teaching experience; a technically correct lesson that does not teach is a defect (Constitution → Quality Gates)
+- [ ] T125b **BLOCKED — needs 8–12 real participants.** Pilot session with 8–12 real participants, measuring the three learner-outcome criteria that only observation can establish: unaided completion of module 1 (SC-007), correct identification of the induced background shortcut and of the imbalance effect (SC-006), and time to first prediction (SC-001). Feed the failures back as new tasks rather than treating the numbers as met
+- [ ] T126 **BLOCKED — needs the three reference devices.** Full `quickstart.md` pass — W1–W9 on the reference laptop, the reference Chromebook, **and** the reference phone, with every SC-001…SC-021 checked off
+- [ ] T127 **BLOCKED — needs legal review and a trademark confirmation.** Resolve `TODO(CONTROLLER_AGREEMENT)` and `TODO(TECHNOVATION_TRADEMARK)` — **blocks public launch, blocks nothing in development**
+- [X] T137 Re-run `tests/e2e/network.spec.ts` across the **complete** W1–W9 journey and make it merge-blocking. T036 built the harness before any journey existed, where a pass proved nothing; this is where SC-010 is actually established (FR-048, SC-010, Principle I)
 
 ---
 
