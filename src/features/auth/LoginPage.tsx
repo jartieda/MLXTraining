@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import {useNavigate} from 'react-router'
+import { TextLink } from '@/components/TextLink'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/Button'
 import { Field } from './Field'
@@ -104,17 +105,17 @@ export function LoginPage() {
       <section className="flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-4">
         <h2 className="text-base font-semibold">{t('login.noSignUpTitle')}</h2>
         <p className="max-w-prose text-sm">{t('login.noSignUpBody')}</p>
-        <Link to="/redeem" className="text-sm font-medium text-blue">
+        <TextLink to="/redeem" className="text-sm">
           {t('login.haveCode')}
-        </Link>
+        </TextLink>
       </section>
 
       <section className="flex flex-col gap-2">
         <h2 className="text-base font-semibold">{t('login.forgotTitle')}</h2>
         <p className="max-w-prose text-sm text-ink-muted">{t('login.forgotBody')}</p>
-        <Link to="/reset" className="text-sm font-medium text-blue">
+        <TextLink to="/reset" className="text-sm">
           {t('login.forgotAction')}
-        </Link>
+        </TextLink>
       </section>
     </div>
   )

@@ -71,7 +71,7 @@ export function Roster({
         {roster.length === 0 ? (
           <p className="max-w-prose text-sm text-ink-muted">{t('classroom:roster.empty')}</p>
         ) : (
-          <ul className="flex list-none flex-col gap-3 p-0">
+          <ul role="list" className="flex list-none flex-col gap-3 p-0">
             {roster.map((learner) => {
               const open = expanded === learner.learnerId
               return (

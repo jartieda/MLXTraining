@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import {useNavigate} from 'react-router'
+import { TextLink } from '@/components/TextLink'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/Button'
 import { invitationTtlHours, type RedemptionRefusal } from '@/lib/supabase'
@@ -85,9 +86,9 @@ export function ResetPasswordPage() {
         <p role="alert" className="max-w-prose">
           {t('reset.success')}
         </p>
-        <Link to="/login" className="font-medium text-blue">
+        <TextLink to="/login">
           {t('login.submit')}
-        </Link>
+        </TextLink>
       </div>
     )
   }

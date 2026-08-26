@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+import { TextLink } from '@/components/TextLink'
 import { useTranslation } from 'react-i18next'
 import { IMBALANCE_THRESHOLD } from '@/ml/metrics'
 import type { RunClassMetric } from '@/lib/db'
@@ -91,9 +91,9 @@ export function ImbalanceNotice({
       <p className="max-w-prose text-sm font-medium">{t('imbalance.stillUsable')}</p>
 
       <p className="text-sm">
-        <Link to="/lessons/fairness" className="text-blue">
+        <TextLink to="/lessons/fairness">
           {t('imbalance.lessonLink')}
-        </Link>
+        </TextLink>
       </p>
     </section>
   )

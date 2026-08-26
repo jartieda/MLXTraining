@@ -183,11 +183,20 @@ export function UploadSamples() {
         type="file"
         accept="image/*"
         multiple
-        // Visually hidden but focusable and labelled: a bare file input cannot be
-        // styled to the token system, and replacing it with a div would lose the
-        // native keyboard and screen-reader behaviour entirely.
+        // Visually hidden and removed from the accessibility tree, because the
+        // Button below is the control (T113).
+        //
+        // This input used to be `sr-only` and focusable with a comment claiming it
+        // was labelled, which it was not — axe found it. Labelling it was the wrong
+        // repair: it then presented as a SECOND "Choose photos" control, so a
+        // screen-reader user tabbed past two things that did one job, and every e2e
+        // locator for the button became ambiguous. A bare file input cannot be
+        // styled to the token system, so the input stays and the button drives it —
+        // and only one of the two is a control.
         className="sr-only"
         id="upload-samples-input"
+        aria-hidden="true"
+        tabIndex={-1}
         onChange={(event) => {
           void handleFiles([...(event.target.files ?? [])])
         }}

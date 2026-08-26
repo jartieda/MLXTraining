@@ -203,7 +203,7 @@ export function ProjectsPage() {
       <section className="flex flex-col gap-3">
         {projects.length === 0 ? <p className="text-ink-muted">{t('empty')}</p> : null}
 
-        <ul className="grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
+        <ul role="list" className="grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
           {projects.map((project) => {
             const summary = counts[project.id]
             return (
@@ -305,7 +305,7 @@ export function ProjectsPage() {
           <h2 id="made-elsewhere" className="font-display text-lg">
             {t('restoreTitle')}
           </h2>
-          <ul className="grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
+          <ul role="list" className="grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
             {elsewhere.map((remote) => (
               <li
                 key={remote.id}

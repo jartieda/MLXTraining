@@ -1,1 +1,83 @@
-{}
+{
+  "title": "Administración",
+  "intro": "Invita a las educadoras que dirigirán clases, consulta el estado de cada invitación que has emitido y traspasa una clase de una educadora a otra.",
+  "scope": {
+    "heading": "Qué alcanza y qué no alcanza esta pantalla",
+    "body": "Gestionas quién puede dirigir una clase, no lo que pasa dentro de ella. Desde aquí, ni desde ningún sitio al que puedas navegar, se puede llegar a ninguna cuenta de alumna, proyecto, cifra, respuesta o foto: no porque esté escondido, sino porque la base de datos no te concede acceso. De una clase puedes leer su nombre y su educadora actual, que es exactamente lo que necesitas para traspasarla.",
+    "noAdmins": "Tampoco hay forma de crear otra administradora desde dentro del laboratorio. La primera se establece al montar la base de datos, y eso es a propósito."
+  },
+  "invite": {
+    "heading": "Invitar a una educadora",
+    "intro": "Escribe su dirección de correo y el laboratorio creará un código de un solo uso. Tú se lo pasas a ella; ella elige su propia contraseña al canjearlo.",
+    "emailLabel": "Correo de la educadora",
+    "emailHint": "Una dirección profesional de una persona adulta. Es el único dato de contacto que el laboratorio guarda, y solo se usa para iniciar sesión.",
+    "submit": "Crear una invitación",
+    "issuing": "Creándola…",
+    "issuedHeading": "Una invitación para {{email}}",
+    "shownOnce": "Es la única vez que verás el código. Solo se guarda una versión cifrada, así que no se puede volver a consultar.",
+    "openMail": "Abrir mi aplicación de correo",
+    "copyMessage": "Copiar el mensaje",
+    "mailSubject": "Tu invitación al Laboratorio de IA Explicable",
+    "mailBody": "Hola:\n\nEste es tu código de invitación para el Laboratorio de IA Explicable: {{code}}\n\nEntra en el laboratorio, elige «Tengo un código de invitación» e introdúcelo junto con esta dirección de correo. Tú elegirás tu propia contraseña.\n\nEl código sirve una sola vez y caduca en {{hours}} horas.",
+    "weSendNothing": "El laboratorio no envía ningún correo por sí mismo. Ese botón abre tu propia aplicación de correo con el mensaje listo: tú le das a enviar, desde tu dirección.",
+    "noMailClient": "Si no se abre nada, este dispositivo no tiene aplicación de correo configurada. Copia el mensaje y envíalo como lo harías normalmente.",
+    "expiry": "El código sirve una sola vez y caduca en {{hours}} horas.",
+    "inviteAnother": "Invitar a otra persona"
+  },
+  "educators": {
+    "heading": "Educadoras ({{count}})",
+    "empty": "Todavía nadie ha canjeado una invitación.",
+    "unnamed": "Sin nombre todavía",
+    "active": "Activa",
+    "inactive": "Desactivada",
+    "alreadyInactive": "Desactivada",
+    "role": {
+      "educator": "Educadora",
+      "administrator": "Administradora",
+      "learner": "Alumna"
+    },
+    "deactivate": "Desactivar",
+    "deactivateSelf": "Desactivar mi propia cuenta",
+    "deactivateTitle": "¿Desactivar la cuenta de {{name}}?",
+    "deactivateBody": "Ya no podrá iniciar sesión. Después seguirás viéndola aquí, pero el laboratorio no tiene forma de volver a activarla desde esta pantalla.",
+    "deactivateKeepsWork": "Sus clases y todo lo que han hecho sus alumnas se quedan tal cual. Solo termina su acceso, así que traspasa antes sus clases a otra educadora o su grupo se quedará sin ninguna persona adulta que pueda ver su progreso.",
+    "deactivateConfirm": "Desactivarla"
+  },
+  "invitations": {
+    "heading": "Invitaciones que has emitido",
+    "empty": "Todavía no has emitido ninguna invitación.",
+    "caption": "El correo de una educadora identifica su invitación. Aparece aquí y en ningún sitio que una alumna pueda ver.",
+    "emailColumn": "Correo",
+    "stateColumn": "Estado",
+    "actionColumn": "",
+    "state": {
+      "live": "Esperando a usarse",
+      "redeemed": "Usada",
+      "revoked": "Anulada",
+      "expired": "Se le acabó el tiempo"
+    },
+    "expires": "hasta el {{date}}",
+    "revoke": "Anularla"
+  },
+  "reassign": {
+    "heading": "Traspasar una clase",
+    "intro": "Si una educadora se marcha, traspasa sus clases a otra persona para que su grupo siga teniendo una adulta que pueda ver su progreso.",
+    "cannotOpen": "No puedes abrir una clase, y no hay nada a lo que entrar. Un nombre y su educadora actual es todo lo que esta pantalla tiene permitido leer.",
+    "empty": "Todavía no hay clases.",
+    "currentOwner": "Ahora mismo con {{name}}",
+    "newOwnerLabel": "Traspasarla a",
+    "choose": "Elige una educadora…",
+    "submit": "Traspasarla",
+    "moving": "Traspasándola…",
+    "moved": "«{{name}}» ya tiene una educadora nueva."
+  },
+  "failure": {
+    "notAdministrator": "Solo una administradora puede hacer eso.",
+    "badEmail": "Eso no parece una dirección de correo.",
+    "lastAdministrator": "Eres la última administradora, así que esta cuenta no se puede desactivar. El programa se quedaría sin nadie que lo dirija. Invita y prepara antes el acceso de otra administradora.",
+    "notAnEducator": "Una clase solo puede pasar a una educadora con la cuenta activada.",
+    "alreadyOwns": "Esa clase ya pertenece a esa educadora.",
+    "unconfigured": "Esta copia del laboratorio no tiene servicio de cuentas configurado, así que la administración no está disponible.",
+    "unknown": "Eso no ha funcionado. No se ha cambiado nada: vuelve a probar."
+  }
+}

@@ -1,1 +1,83 @@
-{}
+{
+  "title": "Administration",
+  "intro": "Invite the educators who will run classrooms, see the state of every invitation you have issued, and move a classroom from one educator to another.",
+  "scope": {
+    "heading": "What this screen can and cannot reach",
+    "body": "You manage who may run a classroom, not what happens inside one. No learner account, project, figure, answer or photo is reachable from here or from anywhere you can navigate to — not because it is hidden, but because the database grants you no access to it. Of a classroom you can read its name and its current educator, which is exactly what you need to move it.",
+    "noAdmins": "There is also no way to create another administrator from inside the lab. The first one is put in place when the database is set up, and that is deliberate."
+  },
+  "invite": {
+    "heading": "Invite an educator",
+    "intro": "Enter her email address and the lab will make a single-use code. You pass the code to her; she chooses her own password when she redeems it.",
+    "emailLabel": "Educator's email address",
+    "emailHint": "An adult's work address. This is the only contact detail the lab ever stores, and it is used for signing in and nothing else.",
+    "submit": "Make an invitation",
+    "issuing": "Making it…",
+    "issuedHeading": "An invitation for {{email}}",
+    "shownOnce": "This is the only time you will see the code. Only a scrambled version is stored, so it cannot be looked up again.",
+    "openMail": "Open my mail app",
+    "copyMessage": "Copy the message",
+    "mailSubject": "Your invitation to the Explainable AI Lab",
+    "mailBody": "Hello,\n\nHere is your invitation code for the Explainable AI Lab: {{code}}\n\nGo to the lab, choose \"I have an invitation code\", and enter it along with this email address. You will pick your own password.\n\nThe code works once and expires in {{hours}} hours.",
+    "weSendNothing": "The lab sends no email itself. That button opens your own mail app with the message ready — you press send, from your own address.",
+    "noMailClient": "If nothing opens, this device has no mail app set up. Copy the message instead and send it however you normally would.",
+    "expiry": "The code works once and expires in {{hours}} hours.",
+    "inviteAnother": "Invite someone else"
+  },
+  "educators": {
+    "heading": "Educators ({{count}})",
+    "empty": "Nobody has redeemed an invitation yet.",
+    "unnamed": "Not yet named",
+    "active": "Active",
+    "inactive": "Switched off",
+    "alreadyInactive": "Switched off",
+    "role": {
+      "educator": "Educator",
+      "administrator": "Administrator",
+      "learner": "Learner"
+    },
+    "deactivate": "Switch off",
+    "deactivateSelf": "Switch off my own account",
+    "deactivateTitle": "Switch off {{name}}'s account?",
+    "deactivateBody": "She will no longer be able to sign in. You can find her here afterwards, but the lab has no way to switch her back on from this screen.",
+    "deactivateKeepsWork": "Her classrooms and everything her learners have made stay exactly as they are. Only her access ends — so move her classrooms to another educator first, or her group will have no adult who can see their progress.",
+    "deactivateConfirm": "Switch it off"
+  },
+  "invitations": {
+    "heading": "Invitations you have issued",
+    "empty": "You have not issued any invitations yet.",
+    "caption": "An educator's email address identifies her invitation. It appears here and nowhere a learner can see.",
+    "emailColumn": "Email address",
+    "stateColumn": "State",
+    "actionColumn": "",
+    "state": {
+      "live": "Waiting to be used",
+      "redeemed": "Used",
+      "revoked": "Cancelled",
+      "expired": "Ran out of time"
+    },
+    "expires": "until {{date}}",
+    "revoke": "Cancel it"
+  },
+  "reassign": {
+    "heading": "Move a classroom",
+    "intro": "If an educator leaves, move her classrooms to someone else so her group still has an adult who can see their progress.",
+    "cannotOpen": "You cannot open a classroom, and there is nothing to click through to. A name and its current educator is all this screen is allowed to read.",
+    "empty": "There are no classrooms yet.",
+    "currentOwner": "Currently with {{name}}",
+    "newOwnerLabel": "Move it to",
+    "choose": "Choose an educator…",
+    "submit": "Move it",
+    "moving": "Moving it…",
+    "moved": "\"{{name}}\" has a new educator."
+  },
+  "failure": {
+    "notAdministrator": "Only an administrator can do that.",
+    "badEmail": "That does not look like an email address.",
+    "lastAdministrator": "You are the last administrator, so this account cannot be switched off. The program would have nobody left to run it. Invite and set up another administrator's access first.",
+    "notAnEducator": "A classroom can only go to an educator whose account is switched on.",
+    "alreadyOwns": "That classroom already belongs to that educator.",
+    "unconfigured": "This copy of the lab has no account service set up, so administration is unavailable.",
+    "unknown": "That did not work. Nothing was changed — try again."
+  }
+}

@@ -108,6 +108,12 @@ export interface TrainingRunRow {
   epochs: number
 }
 
+export interface AdminClassroomRow {
+  id: string
+  name: string
+  educator_id: string
+}
+
 export interface EnrolmentRow {
   classroom_id: string
   learner_id: string
@@ -122,6 +128,7 @@ interface Tables {
   classrooms: ClassroomRow[]
   invitations: InvitationRow[]
   educator_roster: RosterViewRow[]
+  admin_classrooms: AdminClassroomRow[]
   training_runs: TrainingRunRow[]
   enrolments: EnrolmentRow[]
 }
@@ -246,6 +253,7 @@ export function createFakeSupabase(seed: Partial<Tables> = {}): FakeSupabase {
     classrooms: seed.classrooms ?? [],
     invitations: seed.invitations ?? [],
     educator_roster: seed.educator_roster ?? [],
+    admin_classrooms: seed.admin_classrooms ?? [],
     training_runs: seed.training_runs ?? [],
     enrolments: seed.enrolments ?? [],
   }

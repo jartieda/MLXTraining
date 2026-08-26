@@ -117,7 +117,7 @@ export function ResultsPanel() {
                 drawing conclusions from 100% deserves to know why it says 100%. */}
             <p className="max-w-prose text-sm text-ink-muted">{t('perClass.caveat')}</p>
 
-            <ul className="flex list-none flex-col gap-2 p-0">
+            <ul role="list" className="flex list-none flex-col gap-2 p-0">
               {perClass.map((entry) => (
                 <li key={entry.classId}>
                   <Meter

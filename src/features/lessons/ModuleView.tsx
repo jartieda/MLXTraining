@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router'
+import { TextLink } from '@/components/TextLink'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/Button'
 import { ProgressBar } from '@/components/ProgressBar'
@@ -143,9 +144,7 @@ export function ModuleView({ moduleId }: { readonly moduleId: ModuleId }) {
     return (
       <div className="flex flex-col gap-3">
         <h1 className="font-display text-2xl">{t('common:error.notFound')}</h1>
-        <Link to="/lessons" className="text-blue">
-          {t('lessons:path.backToPath')}
-        </Link>
+        <TextLink to="/lessons">{t('lessons:path.backToPath')}</TextLink>
       </div>
     )
   }
@@ -197,7 +196,7 @@ export function ModuleView({ moduleId }: { readonly moduleId: ModuleId }) {
           })}
         />
 
-        <ol className="flex list-none flex-col gap-3 p-0">
+        <ol role="list" className="flex list-none flex-col gap-3 p-0">
           {module.steps.map((step, index) => (
             <StepRow
               key={step.slug}
@@ -229,25 +228,30 @@ export function ModuleView({ moduleId }: { readonly moduleId: ModuleId }) {
             className="flex flex-col gap-2 rounded-lg border border-amber bg-surface p-4"
           >
             <p className="font-medium">{t('lessons:path.notYetHeading')}</p>
-            <ul className="flex list-none flex-col gap-2 p-0">
+            <ul role="list" className="flex list-none flex-col gap-2 p-0">
               {unmet.map((prerequisite) => {
                 const target = prerequisite.satisfiedBy
                 return (
-                  <li key={`${prerequisite.kind}-${target.stepSlug}`} className="text-sm">
-                    {t(`lessons:prerequisite.${prerequisite.kind}`, {
-                      count: prerequisite.count ?? 0,
-                    })}{' '}
-                    {/* The step, named, as a link. This is the whole of FR-037. */}
-                    <Link
-                      to={`/lessons/${target.moduleId}`}
-                      className="font-medium text-blue"
-                      data-testid="prerequisite-link"
-                    >
+                  <li
+                    key={`${prerequisite.kind}-${target.stepSlug}`}
+                    className="flex flex-col gap-1 text-sm"
+                  >
+                    <span>
+                      {t(`lessons:prerequisite.${prerequisite.kind}`, {
+                        count: prerequisite.count ?? 0,
+                      })}
+                    </span>
+                    {/* The step, named, as a link. This is the whole of FR-037.
+                        On its own line rather than mid-sentence, so it can carry
+                        the 44 px floor without stretching the line it sits in
+                        (FR-046) — and a link on its own line is easier to find
+                        when you are stuck, which is when this renders. */}
+                    <TextLink to={`/lessons/${target.moduleId}`} data-testid="prerequisite-link">
                       {t('lessons:path.goToStep', {
                         step: t(`lessons:${stepKey(target.moduleId, target.stepSlug)}.title`),
                         module: t(`lessons:${moduleKey(target.moduleId)}.title`),
                       })}
-                    </Link>
+                    </TextLink>
                   </li>
                 )
               })}
@@ -292,13 +296,11 @@ export function ModuleView({ moduleId }: { readonly moduleId: ModuleId }) {
       </section>
 
       <nav aria-label={t('lessons:path.moduleNav')} className="flex flex-wrap gap-3">
-        <Link to="/lessons" className="font-medium text-blue">
-          {t('lessons:path.backToPath')}
-        </Link>
+        <TextLink to="/lessons">{t('lessons:path.backToPath')}</TextLink>
         {previous ? (
-          <Link to={`/lessons/${previous.id}`} className="font-medium text-blue">
+          <TextLink to={`/lessons/${previous.id}`}>
             {t('lessons:path.previous', { module: t(`lessons:${moduleKey(previous.id)}.title`) })}
-          </Link>
+          </TextLink>
         ) : null}
       </nav>
     </article>
@@ -323,7 +325,11 @@ function StepRow({
 
   return (
     <li className="flex flex-col gap-1 rounded-lg border border-border-subtle bg-surface p-3">
-      <label className="flex items-start gap-3">
+      {/* FR-046: the LABEL is the touch target, not the box. A 44 px checkbox is
+          not a checkbox any learner recognises, and the whole row is tappable —
+          so the floor belongs on the row. `py-2` is what actually clears it once
+          a one-line step title is the only content. */}
+      <label className="flex min-h-touch items-start gap-3 py-2">
         {/* A real checkbox, so it is keyboard-operable and announced as checked
             without any of it being hand-rolled (SC-009). */}
         <input
@@ -346,9 +352,9 @@ function StepRow({
           and leaves her to find the capture panel is a step she abandons. */}
       {step.where ? (
         <div className="pl-8">
-          <Link to={WHERE_ROUTE[step.where]} className="text-sm font-medium text-blue">
+          <TextLink to={WHERE_ROUTE[step.where]} className="text-sm">
             {t(`path.goTo.${step.where}`)}
-          </Link>
+          </TextLink>
         </div>
       ) : null}
     </li>

@@ -58,7 +58,9 @@
     "offline": "You are offline. Projects already on this device still work; anything that needs the network will wait.",
     "notFound": "That page does not exist.",
     "notFoundBody": "Check the address, or go back to your projects.",
-    "forbidden": "This part of the lab is not for your account."
+    "forbidden": "This part of the lab is not for your account.",
+    "forbiddenForRole": "Your account does not have access to this part of the lab. That is deliberate rather than a mistake.",
+    "forbiddenSignIn": "This part of the lab needs an account. Ask your educator for a username and a code."
   },
   "privacy": {
     "onDevice": "Your photos, your trained model and your heat maps stay on this device. They are never uploaded.",

@@ -68,8 +68,14 @@ export function AppShell() {
             <LanguageSwitcher className="md:hidden" />
           </div>
 
-          <div className="flex items-center gap-3">
-            <nav aria-label={t('nav.label')}>
+          {/* `min-w-0` on the row and on the nav is what makes the nav's own
+              horizontal scroll work. A flex item defaults to `min-width: auto`,
+              so without it the nav refuses to shrink below its content and pushes
+              the sign-in control off the right edge of a 360 px screen — visible
+              only as a page 40 px too wide, which is exactly the kind of mobile
+              failure a screenshot review passes (SC-004). */}
+          <div className="flex min-w-0 items-center gap-3">
+            <nav aria-label={t('nav.label')} className="min-w-0 flex-1">
               {/* Horizontal scroll rather than wrap: a wrapping nav changes the
                   page's vertical rhythm as the item count changes with role. */}
               <ul className="-mx-1 flex list-none items-center gap-1 overflow-x-auto p-0">
@@ -94,7 +100,9 @@ export function AppShell() {
             <LanguageSwitcher className="hidden md:inline-flex" />
 
             {status === 'signed-in' && account ? (
-              <div className="flex items-center gap-2">
+              // `shrink-0`: the identity and sign-out control is the one thing in
+              // this row that must never be the part that gets clipped.
+              <div className="flex shrink-0 items-center gap-2">
                 {/* Her alias, never her username (FR-025). The username is not even
                     readable through `profiles`, so there is nothing else to show. */}
                 <span className="text-sm text-ink-muted">
@@ -103,7 +111,7 @@ export function AppShell() {
                 <button
                   type="button"
                   onClick={() => void signOutSession()}
-                  className="flex min-h-touch items-center rounded px-3 text-sm font-medium text-blue"
+                  className="flex min-h-touch items-center rounded px-3 text-sm font-medium text-blue-ink"
                 >
                   {t('nav.logout')}
                 </button>
@@ -111,7 +119,7 @@ export function AppShell() {
             ) : (
               <NavLink
                 to="/login"
-                className="flex min-h-touch items-center rounded px-3 text-sm font-medium text-blue no-underline"
+                className="flex min-h-touch shrink-0 items-center rounded px-3 text-sm font-medium text-blue-ink no-underline"
               >
                 {t('nav.login')}
               </NavLink>

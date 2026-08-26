@@ -131,7 +131,7 @@ export function LearnerDetail({
             value={moduleIds.length === 0 ? 0 : completed / moduleIds.length}
             valueText={`${String(completed)} / ${String(moduleIds.length)}`}
           />
-          <ul className="flex list-none flex-col gap-1 p-0 text-sm">
+          <ul role="list" className="flex list-none flex-col gap-1 p-0 text-sm">
             {mine.progress.length === 0 ? (
               <li className="text-ink-muted">{t('classroom:detail.noProgress')}</li>
             ) : null}
@@ -156,7 +156,7 @@ export function LearnerDetail({
                   runs: mine.runs.length,
                 })}
               </p>
-              <ul className="flex list-none flex-col gap-1 p-0 text-sm">
+              <ul role="list" className="flex list-none flex-col gap-1 p-0 text-sm">
                 {mine.runs.slice(0, 5).map((run) => (
                   <li key={`${run.projectName}-${run.finishedAt}`} className="text-ink-muted">
                     {t('classroom:detail.runLine', {
@@ -177,7 +177,7 @@ export function LearnerDetail({
         {mine.reflections.length === 0 ? (
           <p className="text-sm text-ink-muted">{t('classroom:detail.noReflections')}</p>
         ) : (
-          <ul className="flex list-none flex-col gap-3 p-0">
+          <ul role="list" className="flex list-none flex-col gap-3 p-0">
             {mine.reflections.map((entry) => (
               <li key={`${entry.moduleId}-${entry.questionId}`} className="flex flex-col gap-1">
                 <p className="text-sm font-medium">

@@ -1,0 +1,91 @@
+# T123 / R14 — Netlify deployment.
+#
+# Netlify rather than GitHub Pages for one reason: Pages cannot serve custom headers,
+# and the Content-Security-Policy below is a load-bearing part of this project's
+# privacy design rather than a hardening extra. Vercel or Cloudflare Pages would do
+# equally well; the choice is not otherwise load-bearing.
+
+[build]
+  command = "npm run fetch:backbone && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# A static single-page application: every unknown path is the app's own router, not a
+# missing file. 200 rather than 301 so that /lessons/imbalance-experiment is served the
+# application instead of being redirected somewhere that then redirects back.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# ─────────────────────────────────────────────────────────────── security headers
+#
+# The CSP is **a second, independent enforcement of Principle I**. The application is
+# written not to transmit an image; this makes it unable to. With `connect-src` limited
+# to the Supabase project and `self`, there is no destination an image could be
+# exfiltrated to even if the application code were compromised — an attacker who got
+# script execution would find every outbound origin closed.
+#
+# Two directives are worth their explanation:
+#
+#   `wasm-unsafe-eval` — unavoidable for the TensorFlow.js WASM backend, which SC-012
+#   requires to work rather than merely be configured. It permits WebAssembly
+#   compilation and nothing else; it is not `unsafe-eval` and does not allow
+#   `eval()` of JavaScript.
+#
+#   `connect-src` — the one directive a reviewer should check on every change. Adding
+#   an analytics or error-reporting origin here would open exactly the channel this
+#   project spent its whole architecture closing, which is why there is none.
+#
+# `style-src` needs `unsafe-inline` because Tailwind's arbitrary values and React's
+# `style` prop both emit inline declarations — including the confusion matrix's ramp
+# colours. That is a known, accepted weakening: it permits styling, not script.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = """
+      default-src 'self';
+      script-src 'self' 'wasm-unsafe-eval';
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' blob: data:;
+      media-src 'self' blob:;
+      font-src 'self';
+      connect-src 'self' https://*.supabase.co https://*.supabase.in;
+      worker-src 'self' blob:;
+      frame-ancestors 'none';
+      base-uri 'self';
+      form-action 'self';
+      object-src 'none';
+      upgrade-insecure-requests
+      """
+    # The camera is the only powerful feature this application uses, and it uses it on
+    # its own origin only. Everything else is explicitly denied, so a future embedded
+    # third party cannot ask for it on our behalf.
+    Permissions-Policy = "camera=(self), microphone=(), geolocation=(), payment=(), usb=()"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Cross-Origin-Opener-Policy = "same-origin"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains"
+
+# The backbone weights are ~5.4 MB and never change for a given alpha, so they are
+# fingerprinted by path and cached for a year. Without this a learner on a school
+# connection re-downloads them every lesson (R1).
+[[headers]]
+  for = "/models/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# `index.html` must never be cached, or a deploy leaves learners on the previous
+# build pointing at asset filenames that no longer exist.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

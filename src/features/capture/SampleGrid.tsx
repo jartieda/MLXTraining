@@ -67,7 +67,7 @@ export function SampleGrid() {
         <p className="text-sm text-ink-muted">{t('samples.empty')}</p>
       ) : (
         <>
-          <ul className="grid list-none grid-cols-3 gap-2 p-0 sm:grid-cols-4">
+          <ul role="list" className="grid list-none grid-cols-3 gap-2 p-0 sm:grid-cols-4">
             {visible.map((sample, index) => (
               <SampleThumb
                 key={sample.id}

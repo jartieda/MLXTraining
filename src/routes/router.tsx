@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router'
 import { AppShell } from './AppShell'
 import { Landing } from './Landing'
 import { NotFound } from './NotFound'
+import { LearnerRoute, RoleGate } from './RoleGate'
 
 /**
  * T034 — the route table.
@@ -16,9 +17,10 @@ import { NotFound } from './NotFound'
  * The one non-lazy pair is the shell and the landing page, since they are on
  * every first paint by definition.
  *
- * Route guards (T135) are deliberately not here yet. They belong with US9, where
- * an administrator exists to be kept out of the lab, and adding them now would
- * mean writing a guard with no role to enforce against.
+ * T135 adds the guards. They are **convenience, not enforcement**: the row-level
+ * security policies are the boundary, and a client-side guard is removable by anyone
+ * with developer tools open. What `RoleGate` buys is that the interface never offers
+ * a route it will then refuse — see the note in RoleGate.tsx.
  */
 
 const Projects = lazy(() =>
@@ -47,21 +49,31 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Landing /> },
 
-      // FR-023: reachable with no account. These two are the whole product for an
+      // FR-023: reachable with no account. These are the whole product for an
       // anonymous visitor, which is why they sit alongside the landing page rather
-      // than behind the login.
-      { path: 'projects', element: <Projects /> },
-      { path: 'projects/:projectId', element: <Projects /> },
-      { path: 'lab/:projectId', element: <Lab /> },
-      { path: 'lab', element: <Lab /> },
+      // than behind the login — and why `allowAnonymous` is set rather than the
+      // routes being ungated. An administrator is still kept out (FR-055).
+      { path: 'projects', element: <LearnerRoute>{<Projects />}</LearnerRoute> },
+      { path: 'projects/:projectId', element: <LearnerRoute>{<Projects />}</LearnerRoute> },
+      { path: 'lab/:projectId', element: <LearnerRoute>{<Lab />}</LearnerRoute> },
+      { path: 'lab', element: <LearnerRoute>{<Lab />}</LearnerRoute> },
 
-      { path: 'lessons', element: <Lessons /> },
-      { path: 'lessons/:moduleId', element: <Lessons /> },
+      { path: 'lessons', element: <LearnerRoute>{<Lessons />}</LearnerRoute> },
+      { path: 'lessons/:moduleId', element: <LearnerRoute>{<Lessons />}</LearnerRoute> },
 
-      { path: 'classroom', element: <Classroom /> },
-      { path: 'classroom/:classroomId', element: <Classroom /> },
+      {
+        path: 'classroom',
+        element: <RoleGate allow={['educator']}>{<Classroom />}</RoleGate>,
+      },
+      {
+        path: 'classroom/:classroomId',
+        element: <RoleGate allow={['educator']}>{<Classroom />}</RoleGate>,
+      },
 
-      { path: 'admin', element: <Admin /> },
+      {
+        path: 'admin',
+        element: <RoleGate allow={['administrator']}>{<Admin />}</RoleGate>,
+      },
 
       { path: 'login', element: <Login /> },
       // The redemption route, and the only route by which an account can come into

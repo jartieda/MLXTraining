@@ -72,7 +72,7 @@ export function LearningPath() {
         />
       )}
 
-      <ol className="flex list-none flex-col gap-3 p-0">
+      <ol role="list" className="flex list-none flex-col gap-3 p-0">
         {LESSON_MODULES.map((module) => {
           const entry = byModule.get(module.id)
           const done = entry?.completedSteps.length ?? 0
@@ -85,10 +85,13 @@ export function LearningPath() {
               className="flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-4"
             >
               <div className="flex flex-wrap items-baseline justify-between gap-2">
+                {/* Plain text, not a link. Every card already carries a
+                    full-sized Start / Carry on button to the same place, and a
+                    22 px heading link beside it was both a second target below
+                    FR-046's floor and a duplicate destination for a screen-reader
+                    user tabbing the list. */}
                 <h2 className="font-display text-lg">
-                  <Link to={`/lessons/${module.id}`} className="text-ink no-underline">
-                    {module.order}. {t(`lessons:${moduleKey(module.id)}.title`)}
-                  </Link>
+                  {module.order}. {t(`lessons:${moduleKey(module.id)}.title`)}
                 </h2>
                 {/* A word, not a tick glyph. A green check needs a legend and reads
                     as decoration to a screen reader. */}

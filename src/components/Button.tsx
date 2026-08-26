@@ -28,7 +28,7 @@ const VARIANT: Record<ButtonVariant, string> = {
   // Blue is the action colour (R12). White-on-blue clears AA comfortably.
   primary: 'bg-blue text-ink-inverse hover:opacity-90 active:opacity-80',
   secondary: 'bg-surface text-ink border border-border-subtle hover:bg-surface-sunken',
-  ghost: 'bg-transparent text-blue hover:bg-surface-sunken',
+  ghost: 'bg-transparent text-blue-ink hover:bg-surface-sunken',
   // Magenta rather than a red outside the palette. Destructive actions in this product
   // are rare and always confirmed, so the colour signals "stop and read", not "error".
   danger: 'bg-magenta text-ink-inverse hover:opacity-90',

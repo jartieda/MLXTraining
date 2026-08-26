@@ -74,6 +74,7 @@
       "disagreementWarning": "When two methods disagree, NEITHER of them is guaranteed to be right. The lab is not going to pick one for you or average them together — the disagreement is the finding. It usually means the model is relying on something fragile, and that is worth investigating rather than smoothing over.",
       "noBlend": "The two maps are shown separately, side by side, on purpose. Averaging them would hide exactly the thing you should be looking at."
     },
-    "budget": "Covering up takes a few seconds because it asks the model {{count}} separate questions. You can stop it at any time."
+    "budget": "Covering up takes a few seconds because it asks the model {{count}} separate questions. You can stop it at any time.",
+    "coarseGrid": "This device is running the slower fallback, or has a small screen, so the covering-up map uses a {{size}}×{{size}} grid instead of 12×12. Both explanations still run — the second one is just a little chunkier."
   }
 }

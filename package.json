@@ -23,7 +23,8 @@
     "test:e2e:nowebgl": "NO_WEBGL=1 playwright test --project=chromium-nowebgl",
     "test:a11y": "playwright test tests/e2e/a11y.spec.ts",
     "test:network": "playwright test tests/e2e/network.spec.ts",
-    "fetch:backbone": "node scripts/fetch-backbone.mjs"
+    "fetch:backbone": "node scripts/fetch-backbone.mjs",
+    "check:bundle": "node scripts/check-bundle-budget.mjs"
   },
   "dependencies": {
     "@fontsource/poppins": "^5.2.5",

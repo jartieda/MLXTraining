@@ -37,7 +37,7 @@ export function ClassBalance({ counts }: { readonly counts: readonly ClassCount[
       </h3>
       <p className="text-sm text-ink-muted">{t('balance.total', { count: total })}</p>
 
-      <ul className="flex list-none flex-col gap-2 p-0">
+      <ul role="list" className="flex list-none flex-col gap-2 p-0">
         {counts.map((entry) => (
           <li key={entry.classId}>
             <Meter

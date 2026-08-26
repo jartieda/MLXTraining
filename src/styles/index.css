@@ -37,6 +37,8 @@
      border-*, ring-* and friends. */
   --color-navy: var(--tv-navy);
   --color-blue: var(--tv-blue);
+  /* `text-blue` must resolve to the AA-compliant ink, never the fill (Principle V). */
+  --color-blue-ink: var(--tv-blue-ink);
   --color-orange: var(--tv-orange);
   --color-amber: var(--tv-amber);
   --color-magenta: var(--tv-magenta);

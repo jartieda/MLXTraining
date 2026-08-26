@@ -26,6 +26,19 @@
   --tv-navy: #041e42;
   --tv-blue: #0076cf;
 
+  /* T113: brand blue as TEXT fails AA, and only just.
+   *
+   * #0076cf against --tv-surface (#f7f9fc) is 4.43:1 — under the 4.5:1 floor for
+   * body text, and it passes against pure white by 0.05 which is why it survived
+   * review for so long. Almost every link in the product sits on --tv-surface, not
+   * on white, so almost every link was failing.
+   *
+   * Principle V anticipates exactly this: a token below AA is restricted to fills
+   * and borders, and text needs a compliant value. So --tv-blue stays the action
+   * FILL (white on it is 5.6:1 at this darkness) and this is the one used for text.
+   * 5.4:1 on the surface, 5.7:1 on white, same hue. */
+  --tv-blue-ink: #0069b8;
+
   /* ── 2. Warm accents ──────────────────────────────────────────────────────
      Orange passes AA on white for large text and is safe for icons and borders;
      amber is fill-only (see the header note). */

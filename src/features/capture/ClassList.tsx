@@ -131,6 +131,12 @@ export function ClassList() {
           return (
             <li
               key={klass.id}
+              // `role="presentation"` because the parent is a `radiogroup`, whose
+              // only valid children are radios (T113). Without it axe reports every
+              // row as a list item outside a list — correctly: the `ul` stopped
+              // being a list the moment it took the radiogroup role, and the `li`
+              // is a layout wrapper around the real radio inside it.
+              role="presentation"
               className={[
                 'flex flex-col gap-2 rounded border p-2',
                 isSelected ? 'border-blue bg-sky-100' : 'border-border-subtle bg-surface',

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router'
+import {useParams} from 'react-router'
+import { TextLink } from '@/components/TextLink'
 import { useTranslation } from 'react-i18next'
 import { LabLayout } from '@/routes/AppShell'
 import { ClassList } from './ClassList'
@@ -82,9 +83,9 @@ export function LabPage() {
       <div className="flex flex-col gap-3">
         <h1 className="font-display text-2xl">{t('capture:panelTitle')}</h1>
         <p className="text-ink-muted">{t('projects:empty', { ns: 'projects' })}</p>
-        <Link to="/projects" className="text-blue">
+        <TextLink to="/projects">
           {t('common:nav.projects', { ns: 'common' })}
-        </Link>
+        </TextLink>
       </div>
     )
   }
@@ -94,9 +95,9 @@ export function LabPage() {
       <div className="flex flex-col gap-3">
         <h1 className="font-display text-2xl">{t('common:error.notFound', { ns: 'common' })}</h1>
         <p className="text-ink-muted">{t('common:error.notFoundBody', { ns: 'common' })}</p>
-        <Link to="/projects" className="text-blue">
+        <TextLink to="/projects">
           {t('common:nav.projects', { ns: 'common' })}
-        </Link>
+        </TextLink>
       </div>
     )
   }

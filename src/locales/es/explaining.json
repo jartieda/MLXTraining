@@ -74,6 +74,7 @@
       "disagreementWarning": "Cuando dos métodos no coinciden, NINGUNO de los dos tiene garantizado acertar. El laboratorio no va a elegir uno por ti ni a promediarlos: la discrepancia es el hallazgo. Suele significar que el modelo se apoya en algo frágil, y eso merece investigarse en lugar de disimularse.",
       "noBlend": "Los dos mapas se muestran por separado, uno al lado del otro, a propósito. Promediarlos ocultaría justo aquello que deberías estar mirando."
     },
-    "budget": "Tapar cosas tarda unos segundos porque hace al modelo {{count}} preguntas distintas. Puedes detenerlo cuando quieras."
+    "budget": "Tapar cosas tarda unos segundos porque hace al modelo {{count}} preguntas distintas. Puedes detenerlo cuando quieras.",
+    "coarseGrid": "Este dispositivo usa el modo más lento, o tiene una pantalla pequeña, así que el mapa de tapar usa una rejilla de {{size}}×{{size}} en vez de 12×12. Las dos explicaciones siguen funcionando: la segunda es solo un poco más gruesa."
   }
 }

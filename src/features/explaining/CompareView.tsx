@@ -9,7 +9,8 @@ import { useLab } from '@/features/lab/labStore'
 import type { FrozenFrame } from '@/features/testing/FreezeFrame'
 import * as db from '@/lib/db'
 import { gradCam, summariseHeatMap } from '@/ml/explain/gradcam'
-import { occlusionSensitivity, DEFAULT_GRID_SIZE } from '@/ml/explain/occlusion'
+import { occlusionSensitivity } from '@/ml/explain/occlusion'
+import { chooseDeviceBudget, variantCount } from '@/features/lab/deviceBudget'
 import { agreement, type Agreement } from '@/ml/explain/agreement'
 import { applyColormap, legendStops } from '@/ml/explain/colormap'
 import { isMlError, type HeatMap } from '@/ml/types'
@@ -46,7 +47,17 @@ export interface CompareViewProps {
 
 export function CompareView({ frozen }: CompareViewProps) {
   const { t } = useTranslation('explaining')
-  const { classes, model, backbone, runId } = useLab()
+  const { classes, model, backbone, runId, backend } = useLab()
+
+  /**
+   * T118. Recomputed on every render rather than memoised: it reads
+   * `window.innerWidth`, and a rotation must change the answer (Scenario 8.3). It is
+   * two comparisons, so there is nothing to memoise.
+   */
+  const budget = chooseDeviceBudget(
+    backend,
+    typeof window === 'undefined' ? 1440 : window.innerWidth,
+  )
 
   const abortRef = useRef<AbortController | null>(null)
   const [classIndex, setClassIndex] = useState(0)
@@ -141,17 +152,21 @@ export function CompareView({ frozen }: CompareViewProps) {
       setGradcamMap(gradient)
 
       setPhase('occlusion')
+      // T118: coarser where the device cannot afford 144 forward passes. The grid is
+      // part of the cache key (D8), so a map computed at 8×8 is a miss for a 12×12
+      // request rather than a wrong hit.
+      const gridSize = budget.occlusionGridSize
       const occlusionParams = {
-        gridSize: DEFAULT_GRID_SIZE,
-        patchSize: Math.round(frozen.image.width / DEFAULT_GRID_SIZE),
-        stride: Math.round(frozen.image.width / DEFAULT_GRID_SIZE),
+        gridSize,
+        patchSize: Math.round(frozen.image.width / gridSize),
+        stride: Math.round(frozen.image.width / gridSize),
         degenerate: 0,
       }
       const covered = await resolveMap('occlusion', occlusionParams, () =>
         occlusionSensitivity(model, backbone, {
           image: frozen.image,
           classIndex,
-          gridSize: DEFAULT_GRID_SIZE,
+          gridSize,
           signal: controller.signal,
           onProgress: (done, total) => {
             setProgress({ done, total })
@@ -166,7 +181,10 @@ export function CompareView({ frozen }: CompareViewProps) {
       abortRef.current = null
       setProgress(null)
     }
-  }, [frozen, model, backbone, explainedClass, classIndex, resolveMap])
+    // `budget.occlusionGridSize` rather than `budget`: the object is rebuilt every
+    // render, so depending on it would recreate this callback every time and defeat
+    // the memo entirely.
+  }, [frozen, model, backbone, explainedClass, classIndex, resolveMap, budget.occlusionGridSize])
 
   const scores = useMemo<Agreement | null>(
     () => (gradcamMap && occlusionMap ? agreement(gradcamMap, occlusionMap) : null),
@@ -199,7 +217,7 @@ export function CompareView({ frozen }: CompareViewProps) {
   if (!frozen) return <p className="text-sm text-ink-muted">{t('needFrame')}</p>
 
   const busy = phase === 'gradcam' || phase === 'occlusion'
-  const variantCount = DEFAULT_GRID_SIZE * DEFAULT_GRID_SIZE
+  const variants = variantCount(budget.occlusionGridSize)
 
   return (
     <section className="flex flex-col gap-4">
@@ -224,7 +242,14 @@ export function CompareView({ frozen }: CompareViewProps) {
         </select>
       </label>
 
-      <p className="text-sm text-ink-muted">{t('compare.budget', { count: variantCount })}</p>
+      <p className="text-sm text-ink-muted">{t('compare.budget', { count: variants })}</p>
+      {/* T118: said out loud, because a learner comparing her map with a
+          classmate's on a faster laptop needs to know why hers is chunkier. */}
+      {budget.reason !== null ? (
+        <p className="text-sm text-ink-muted" data-testid="coarse-grid-note">
+          {t('compare.coarseGrid', { size: budget.occlusionGridSize })}
+        </p>
+      ) : null}
 
       {busy ? (
         <ProgressBar
@@ -301,7 +326,7 @@ export function CompareView({ frozen }: CompareViewProps) {
             <div className="aspect-square w-full max-w-[224px] rounded border border-border-subtle bg-surface-sunken" />
           )}
           <figcaption className="text-sm text-ink-muted">
-            {t('compare.occlusionHow', { count: variantCount })}
+            {t('compare.occlusionHow', { count: variants })}
           </figcaption>
           {occlusionMap ? (
             <p data-testid="occlusion-description" className="text-sm">

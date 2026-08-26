@@ -58,7 +58,9 @@
     "offline": "Estás sin conexión. Los proyectos que ya están en este dispositivo siguen funcionando; lo que necesite la red esperará.",
     "notFound": "Esa página no existe.",
     "notFoundBody": "Comprueba la dirección o vuelve a tus proyectos.",
-    "forbidden": "Esta parte del laboratorio no es para tu cuenta."
+    "forbidden": "Esta parte del laboratorio no es para tu cuenta.",
+    "forbiddenForRole": "Tu cuenta no tiene acceso a esta parte del laboratorio. Es a propósito, no un error.",
+    "forbiddenSignIn": "Esta parte del laboratorio necesita una cuenta. Pide a tu educadora un nombre de usuaria y un código."
   },
   "privacy": {
     "onDevice": "Tus fotos, tu modelo entrenado y tus mapas de calor se quedan en este dispositivo. Nunca se suben a ningún sitio.",

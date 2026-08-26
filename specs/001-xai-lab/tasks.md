@@ -311,17 +311,17 @@ see it on the educator view, and confirm no image data is reachable.
 
 ### Tests
 
-- [ ] T111 [P] [US8] `tests/e2e/us8-mobile.spec.ts` at 360×740 — the complete journey; asserts no horizontal scroll and no clipped controls (SC-004, FR-045)
-- [ ] T112 [P] [US8] `tests/e2e/us8-orientation.spec.ts` — rotate mid-session; no samples, models, or explanations lost (Scenario 8.3)
-- [ ] T113 [P] [US8] `tests/e2e/a11y.spec.ts` — `axe` across the primary journey at both viewports, **zero violations**; plus a keyboard-only pass (SC-009, FR-046)
+- [X] T111 [P] [US8] `tests/e2e/us8-mobile.spec.ts` at 360×740 — the complete journey; asserts no horizontal scroll and no clipped controls (SC-004, FR-045)
+- [X] T112 [P] [US8] `tests/e2e/us8-orientation.spec.ts` — rotate mid-session; no samples, models, or explanations lost (Scenario 8.3)
+- [X] T113 [P] [US8] `tests/e2e/a11y.spec.ts` — `axe` across the primary journey at both viewports, **zero violations**; plus a keyboard-only pass (SC-009, FR-046)
 
 ### Implementation
 
-- [ ] T114 [US8] Audit and fix every layout at 360 px; verify the lab's three panels stack correctly below `md` (FR-045)
-- [ ] T115 [US8] Camera switching on mobile in `src/lib/camera.ts` — front/rear, preserving already-captured samples (FR-005, Scenario 8.2)
-- [ ] T116 [US8] Touch burst capture and a minimum 44 px touch target on every control (Scenario 8.4, FR-046)
-- [ ] T117 [US8] Orientation-change resilience — preserve session state across rotation (Scenario 8.3)
-- [ ] T118 [US8] Mobile performance pass — measure SC-002's 90 s budget and SC-003 on the reference phone; if missed, reduce capture resolution or the occlusion grid on small screens (R4, R7)
+- [X] T114 [US8] Audit and fix every layout at 360 px; verify the lab's three panels stack correctly below `md` (FR-045)
+- [X] T115 [US8] Camera switching on mobile in `src/lib/camera.ts` — front/rear, preserving already-captured samples (FR-005, Scenario 8.2)
+- [X] T116 [US8] Touch burst capture and a minimum 44 px touch target on every control (Scenario 8.4, FR-046)
+- [X] T117 [US8] Orientation-change resilience — preserve session state across rotation (Scenario 8.3)
+- [X] T118 [US8] Mobile performance pass — measure SC-002's 90 s budget and SC-003 on the reference phone; if missed, reduce capture resolution or the occlusion grid on small screens (R4, R7)
 
 **Checkpoint**: All eight stories work on a phone. Validate against W7.
 
@@ -345,18 +345,18 @@ from any administration screen.
 
 ### Tests
 
-- [ ] T128 [P] [US9] `tests/integration/admin.test.tsx` — invite by email, educator list with invitation states, revoke an unredeemed invitation, deactivate, reassign (FR-053, FR-054, FR-057)
-- [ ] T129 [P] [US9] `tests/e2e/us9-admin.spec.ts` — Scenarios 9.1–9.7, including that the last administrator cannot deactivate herself (FR-056)
-- [ ] T130 [US9] `tests/e2e/us9-admin-isolation.spec.ts` — **the test that matters most in this phase**: no administration screen and no navigation from one reaches a learner, a project, a training run, a progress record, a reflection, a metric, or an image; a classroom appears only as a name and an owner (FR-055, SC-018)
+- [X] T128 [P] [US9] `tests/integration/admin.test.tsx` — invite by email, educator list with invitation states, revoke an unredeemed invitation, deactivate, reassign (FR-053, FR-054, FR-057)
+- [X] T129 [P] [US9] `tests/e2e/us9-admin.spec.ts` — Scenarios 9.1–9.7, including that the last administrator cannot deactivate herself (FR-056)
+- [X] T130 [US9] `tests/e2e/us9-admin-isolation.spec.ts` — **the test that matters most in this phase**: no administration screen and no navigation from one reaches a learner, a project, a training run, a progress record, a reflection, a metric, or an image; a classroom appears only as a name and an owner (FR-055, SC-018)
 
 ### Implementation
 
-- [ ] T131 [US9] `src/features/admin/InviteEducator.tsx` — invite by email address via `issue_educator_invitation`; hand the code over with a `mailto:` link prefilled with recipient and message, falling back to copy-to-clipboard where no mail client is available. The application itself sends no email (FR-053, R15)
-- [ ] T132 [US9] `src/features/admin/EducatorList.tsx` — educators with `is_active`, and every invitation she issued with its state: issued, redeemed, expired, or revoked (FR-054)
-- [ ] T133 [US9] `src/features/admin/` revoke and deactivate actions — `revoke_invitation` on an unredeemed invitation, `deactivate_educator` with the last-administrator refusal surfaced plainly (FR-054, FR-056)
-- [ ] T134 [US9] `src/features/admin/ReassignClassroom.tsx` — move a classroom to another active educator via `reassign_classroom`, showing only its name and current owner. No rename, archive, or delete from here (FR-057, K6)
-- [ ] T135 [P] [US9] Route guards in `src/routes/` — an administrator cannot navigate to any lab, lesson, or classroom-content route; a learner or educator cannot reach `/admin` (FR-055)
-- [ ] T136 [P] [US9] `en` and `es` strings in `src/locales/{en,es}/admin.json` for invitations, states, and refusals (FR-044, SC-005)
+- [X] T131 [US9] `src/features/admin/InviteEducator.tsx` — invite by email address via `issue_educator_invitation`; hand the code over with a `mailto:` link prefilled with recipient and message, falling back to copy-to-clipboard where no mail client is available. The application itself sends no email (FR-053, R15)
+- [X] T132 [US9] `src/features/admin/EducatorList.tsx` — educators with `is_active`, and every invitation she issued with its state: issued, redeemed, expired, or revoked (FR-054)
+- [X] T133 [US9] `src/features/admin/` revoke and deactivate actions — `revoke_invitation` on an unredeemed invitation, `deactivate_educator` with the last-administrator refusal surfaced plainly (FR-054, FR-056)
+- [X] T134 [US9] `src/features/admin/ReassignClassroom.tsx` — move a classroom to another active educator via `reassign_classroom`, showing only its name and current owner. No rename, archive, or delete from here (FR-057, K6)
+- [X] T135 [P] [US9] Route guards in `src/routes/` — an administrator cannot navigate to any lab, lesson, or classroom-content route; a learner or educator cannot reach `/admin` (FR-055)
+- [X] T136 [P] [US9] `en` and `es` strings in `src/locales/{en,es}/admin.json` for invitations, states, and refusals (FR-044, SC-005)
 
 **Checkpoint**: The program is operable by someone other than a developer. Validate against W9.
 
@@ -364,11 +364,11 @@ from any administration screen.
 
 ## Phase 12: Polish & Cross-Cutting
 
-- [ ] T119 Bundle budget — initial route JavaScript under 200 KB compressed, TensorFlow.js and the backbone lazy-loaded on lab entry; verify SC-008's 3 s interactive budget on the reference phone
+- [X] T119 Bundle budget — initial route JavaScript under 200 KB compressed, TensorFlow.js and the backbone lazy-loaded on lab entry; verify SC-008's 3 s interactive budget on the reference phone
 - [ ] T120 [P] WebGL-disabled suite — `npm run test:e2e:nowebgl` proving the SC-012 4× budget on the reference Chromebook (R7, FR-047)
 - [ ] T121 [P] Storage-pressure suite — the 80% warning, the 95% refusal, and the D7 mid-burst quota error preserving already-written samples (FR-049)
 - [ ] T122 [P] Offline behaviour — local projects remain fully usable with an expired session (Edge Cases)
-- [ ] T123 Netlify deployment with the strict CSP from R14: `connect-src` limited to the Supabase project, `wasm-unsafe-eval` for the WASM backend, no third-party origins
+- [X] T123 Netlify deployment with the strict CSP from R14: `connect-src` limited to the Supabase project, `wasm-unsafe-eval` for the WASM backend, no third-party origins
 - [ ] T124 [P] `README.md` and `CONTRIBUTING.md` — setup, the `src/ml/` import boundary, the token rules, and the fact that there is no self-registration so a seeded administrator is the only way in (Principle VII)
 - [ ] T125 [P] Classroom review of all seven modules by someone with teaching experience; a technically correct lesson that does not teach is a defect (Constitution → Quality Gates)
 - [ ] T125b Pilot session with 8–12 real participants, measuring the three learner-outcome criteria that only observation can establish: unaided completion of module 1 (SC-007), correct identification of the induced background shortcut and of the imbalance effect (SC-006), and time to first prediction (SC-001). Feed the failures back as new tasks rather than treating the numbers as met
