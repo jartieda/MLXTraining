@@ -1,1 +1,283 @@
-{}
+{
+  "path": {
+    "title": "Learning path",
+    "intro": "Seven modules. You build a model, learn to read what it is looking at, then find out where it goes wrong and why. Each one asks you to write down what you noticed.",
+    "overall": "Modules finished",
+    "modulesDone": "{{done}} of {{total}}",
+    "anonymous": "You are not signed in, so you can read everything here but your steps and answers will not be saved. Ask your educator for a username and a code if you want to keep them.",
+    "moduleNumber": "Module {{number}} of {{total}}",
+    "goalHeading": "What you will learn",
+    "stepsHeading": "Do this in the lab",
+    "stepProgress": "Steps finished",
+    "stepsDone": "{{done}} of {{total}} steps",
+    "challengeHeading": "Your challenge",
+    "challengeReady": "You have everything you need. Go for it.",
+    "notYetHeading": "You need something first",
+    "goToStep": "Go to \"{{step}}\" in {{module}}",
+    "goTo": {
+      "lab": "Open the lab",
+      "projects": "Open my projects",
+      "results": "Open the figures"
+    },
+    "comparisonHeading": "Your two runs, side by side",
+    "comparisonIntro": "This is the same comparison the lab shows after training. Here it is the point of the module: the lopsided run and the fixed one, next to each other.",
+    "reflectionHeading": "Write it down",
+    "reflectionIntro": "In your own words. There is no right answer being marked — the point is to notice what you noticed. Your writing saves itself as you go.",
+    "moduleNav": "Module navigation",
+    "backToPath": "Back to the learning path",
+    "previous": "Back to {{module}}",
+    "start": "Start",
+    "continue": "Carry on",
+    "open": "Open"
+  },
+  "state": {
+    "not_started": "Not started",
+    "in_progress": "In progress",
+    "completed": "Finished"
+  },
+  "reflection": {
+    "saving": "Saving…",
+    "saved": "Saved",
+    "failed": "That did not save. Your writing is still here — check your connection.",
+    "notSaved": "Not being saved, because you are not signed in.",
+    "remaining": "{{count}} characters left"
+  },
+  "prerequisite": {
+    "project": "You need a project first.",
+    "twoClasses": "You need at least two classes in one project.",
+    "samplesPerClass": "You need at least {{count}} photos in every class.",
+    "trainedModel": "You need a trained model.",
+    "gradcamExplanation": "You need to have explained a frozen frame at least once.",
+    "bothExplanations": "You need to have run both explanations on the same frozen frame.",
+    "twoRuns": "You need to have trained the same project twice.",
+    "imbalancedRun": "You need a run where one class had far more photos than another."
+  },
+  "modules": {
+    "what-the-model-sees": {
+      "title": "What the model sees",
+      "goal": "That a model does not see objects the way you do. It sees patterns of light and shape, and it will happily name a class for anything you show it — including things you never taught it.",
+      "intro": "You are going to teach a computer to tell two things apart, using nothing but photographs you take yourself. It will take about ten minutes, and it will work. What is interesting is what happens at the edges.",
+      "challenge": "Show your model something that belongs to neither class — your hand, a book, an empty wall. Watch what it says. It will not say \"I do not know\", because it cannot. Find the object it is most confidently wrong about.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Read what you are about to do",
+          "body": "The model you build will only ever know the classes you give it. Keep that in mind — it is the whole of this module."
+        },
+        "make-a-project": {
+          "title": "Make a project",
+          "body": "Give it a name that says what you are teaching it, like \"cup or bottle\"."
+        },
+        "name-two-classes": {
+          "title": "Name two classes",
+          "body": "Pick two things you have to hand and that look clearly different. Two objects on your desk work better than two ideas."
+        },
+        "capture-ten-each": {
+          "title": "Take ten photos of each",
+          "body": "Move the object around between shots — turn it, tilt it, move it nearer and further. Ten near-identical photos teach it almost nothing."
+        },
+        "train-it": {
+          "title": "Train it",
+          "body": "This runs on your device and takes a few seconds. Nothing is uploaded."
+        },
+        "try-something-new": {
+          "title": "Point it at something new",
+          "body": "Something that is neither of your two classes. Notice that it still picks one, and notice how sure it says it is."
+        }
+      },
+      "questions": {
+        "what-it-used": "You showed it your two objects. What do you think it was actually using to tell them apart — the shape, the colour, something in the background?",
+        "never-seen": "When you showed it something it had never seen, it still named a class. Why do you think it cannot say \"I do not know\"?"
+      }
+    },
+    "reading-a-heat-map": {
+      "title": "Reading a heat map",
+      "goal": "How to read a heat map as evidence rather than as a reason. It shows you where in the picture the model found support for a class — not why it decided, and not whether it was right.",
+      "intro": "A heat map is warm where the evidence for a class is concentrated and cool where it is not. That sounds simple, and the trap is right there in the word \"evidence\": the map tells you where the model looked, and says nothing about whether looking there was sensible.",
+      "challenge": "Freeze a frame and explain it. Then switch the explanation to the other class — the one the model did not pick. Look at where the evidence for that alternative would have been. If the two maps are warm in the same place, that is worth thinking about.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Read what you are about to do",
+          "body": "You will look at where the model found its evidence, and practise not over-reading it."
+        },
+        "freeze-a-frame": {
+          "title": "Freeze a frame",
+          "body": "Hold your object up and freeze the picture. An explanation needs a still image — a live one would have changed by the time the map appeared."
+        },
+        "explain-a-frame": {
+          "title": "Ask for an explanation",
+          "body": "Warm means more evidence for the class being explained. Check the legend for the scale."
+        },
+        "switch-the-class": {
+          "title": "Explain a different class",
+          "body": "Use the class picker. You are asking \"where would the evidence for that one have been?\""
+        },
+        "move-the-slider": {
+          "title": "Move the overlay slider",
+          "body": "All the way one way you see your photo, all the way the other you see the map. The middle is usually where you can read both."
+        }
+      },
+      "questions": {
+        "where-it-looked": "Where was the map warmest? Was it on the object, or somewhere you did not expect?",
+        "evidence-not-reason": "The lab is careful to say a heat map is evidence, not a reason. What is the difference, in your own words?"
+      }
+    },
+    "shortcuts-and-bias": {
+      "title": "Shortcuts and bias",
+      "goal": "That a model will take the easiest route to a right answer, even when that route has nothing to do with what you meant. If all your photos of one class share a background, the background is the easier answer.",
+      "intro": "This is the most important module in the path, and the least comfortable. You are going to build a model that gets everything right for completely the wrong reason — on purpose — and then catch it.",
+      "challenge": "Build a model that cheats. Photograph one class only against a wall and the other only against your desk, and keep the objects roughly similar. Train it, then explain a frame. Find the moment the heat map shows it looking at the background rather than at the thing.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Read what you are about to do",
+          "body": "You are going to give the model a shortcut and then watch it take it."
+        },
+        "same-background": {
+          "title": "Give one class its own background",
+          "body": "Every photo of class one against the same wall; every photo of class two somewhere else. This is the shortcut you are planting."
+        },
+        "train-and-explain": {
+          "title": "Train it, then explain a frame",
+          "body": "The accuracy will probably look excellent. That is the problem."
+        },
+        "spot-the-shortcut": {
+          "title": "Find the shortcut in the map",
+          "body": "Look at where the warmth is. If it is on the wall, the corner of the desk, or the edge of the frame, you have caught it."
+        },
+        "change-one-thing": {
+          "title": "Move the object to the other background",
+          "body": "Same object, wrong background. Watch the prediction change even though the thing you care about did not."
+        }
+      },
+      "questions": {
+        "what-was-the-shortcut": "What shortcut did your model take? How did the heat map show you?",
+        "who-would-it-fail": "Imagine this model was used for something real. Who would it get wrong, and would anyone notice?"
+      }
+    },
+    "fooling-the-model": {
+      "title": "Fooling the model",
+      "goal": "That being confident and being right are completely separate things. You will make your model give a wrong answer at high confidence, deliberately, and see that nothing in the interface warns you.",
+      "intro": "In the last module you found a shortcut by looking at the evidence. Now you use what you found: if you know what the model is really keying on, you can break it on purpose. This is the difference between suspecting a weakness and proving one.",
+      "challenge": "Make your model say the wrong class with more than 80% confidence. Then explain that frame and see what it thought it was looking at. Write down what you did, so someone else could repeat it.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Read what you are about to do",
+          "body": "You are going to attack your own model. Predicting the failure before you cause it is the interesting part."
+        },
+        "predict-the-failure": {
+          "title": "Guess how it will fail, first",
+          "body": "Before you try anything: write down or say out loud what you think will fool it. Guessing first is what turns this from fiddling into an experiment."
+        },
+        "try-to-fool-it": {
+          "title": "Try to fool it",
+          "body": "Change the light, the background, the angle, the distance. Partly cover the object. Show it something similar but wrong."
+        },
+        "explain-the-mistake": {
+          "title": "Explain the mistake",
+          "body": "Freeze the frame where it was confidently wrong and ask for the heat map. This is where you find out what it thought it saw."
+        }
+      },
+      "questions": {
+        "how-you-fooled-it": "What did you do that fooled it? Was it what you predicted, or something else?",
+        "confident-and-wrong": "Your model was very sure and completely wrong. What does that tell you about trusting a confidence number?"
+      }
+    },
+    "comparing-explanations": {
+      "title": "Comparing two explanations",
+      "goal": "That an explanation is itself a model, with its own limits. Two honest methods looking at the same picture can disagree — and when they do, the disagreement is the finding, not an error to resolve.",
+      "intro": "So far you have used one method. There is a second, which works completely differently: instead of looking inside the model, it covers up small parts of the picture and watches how much the confidence drops. Two different questions, two different answers.",
+      "challenge": "Find a frame where the two methods disagree — where one is warm somewhere the other is cool. Then decide which one you believe, and be able to say why. There is no right answer here, only a defensible one.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Read what you are about to do",
+          "body": "Two methods, one picture. Watch for where they differ rather than where they agree."
+        },
+        "run-both": {
+          "title": "Run both methods on one frozen frame",
+          "body": "The second method is slower — it is testing the picture piece by piece. You can watch its progress, and cancel it."
+        },
+        "read-the-agreement": {
+          "title": "Read the agreement score",
+          "body": "The lab tells you how strongly the two maps agree, in plain words as well as a number."
+        },
+        "find-a-disagreement": {
+          "title": "Hunt for a disagreement",
+          "body": "Try a few frames — a cluttered background, an odd angle, poor light. Disagreements are easiest to find where the picture is hard."
+        }
+      },
+      "questions": {
+        "which-do-you-trust": "When the two maps disagreed, which one did you believe? What made you pick that one?",
+        "why-disagree": "The two methods ask different questions about the same picture. Why might that make them disagree?"
+      }
+    },
+    "imbalance-experiment": {
+      "title": "The imbalance experiment",
+      "goal": "That an unfair model is usually not the result of anyone being unfair. It comes from the data — and you can measure it, cause it on purpose, and then fix it.",
+      "intro": "This is an experiment with a before and an after, and you run both halves. You will give one class far more photographs than the other, look carefully at what that does, then fix the balance and compare the two runs. The comparison is the module.",
+      "challenge": "Train deliberately lopsided — something like forty photos in one class and five in the other. Read the figures and the confusion breakdown. Then take enough photos of the small class to even it up, train again, and put the two runs side by side. Be able to say what changed, and what did not.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Read what you are about to do",
+          "body": "You are going to build an unfair model on purpose. Doing it deliberately is what makes it measurable."
+        },
+        "train-lopsided": {
+          "title": "Train with one class much bigger",
+          "body": "Roughly forty photos of one class and five of the other. The lab will warn you about the imbalance and will train anyway — that is on purpose."
+        },
+        "read-the-breakdown": {
+          "title": "Read the figures and the confusion breakdown",
+          "body": "Look at each class separately, not just the overall number. The overall number is the one that hides this."
+        },
+        "explain-the-small-class": {
+          "title": "Explain a frame from the small class",
+          "body": "Compare its heat map with one from the big class. A map with no clear focus is telling you something."
+        },
+        "rebalance-and-retrain": {
+          "title": "Even up the photos and train again",
+          "body": "Take more photographs of the small class until the two are close, then train. This is your \"after\"."
+        },
+        "compare-the-runs": {
+          "title": "Put the two runs side by side",
+          "body": "The comparison is further down this page. Look at what moved per class, not just overall."
+        }
+      },
+      "questions": {
+        "what-happened-to-the-small-class": "In the lopsided run, what happened to the class with fewer photos? Where did its photos end up?",
+        "who-gets-hurt": "Think of a real system built this way — one where some group of people is the small class. Who does it fail, and would the overall accuracy show it?",
+        "what-would-you-check": "If someone handed you a model and said it was 95% accurate, what would you now want to check before believing it was fair?"
+      }
+    },
+    "final-presentation": {
+      "title": "Present your model",
+      "goal": "How to present a model honestly: what it does, what it is actually using, where it fails, and what you would want before trusting it with anything that matters.",
+      "intro": "This is the last module and it has no new mechanics. You bring one model, its evidence, and its limits, and you present all three. Being able to say clearly what your model gets wrong is the whole skill.",
+      "challenge": "Present your model to your class, your mentor, or your family in about three minutes. Show it working. Show a heat map and say what it is looking at. Show it failing, on purpose. Then say what you would need before you would trust it for something real.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Read what you are about to do",
+          "body": "Pick one model and prepare to be honest about it — including the parts that do not work."
+        },
+        "pick-your-model": {
+          "title": "Pick the model you will present",
+          "body": "Not necessarily your most accurate one. The one you understand best makes the better presentation."
+        },
+        "gather-the-evidence": {
+          "title": "Gather your evidence",
+          "body": "The per-class figures, the confusion breakdown, one heat map that shows it doing something sensible, and one that shows it doing something odd."
+        },
+        "write-the-honest-limits": {
+          "title": "Write down three ways it fails",
+          "body": "Three specific ways, that you have actually seen. \"It might make mistakes\" is not one of them."
+        },
+        "present-it": {
+          "title": "Present it",
+          "body": "Working, then explained, then broken. Finish with what you would need before trusting it."
+        }
+      },
+      "questions": {
+        "what-it-does-well": "What does your model genuinely do well, and how do you know rather than assume?",
+        "what-it-gets-wrong": "What are three specific ways it fails? Describe them so someone else could reproduce them.",
+        "would-you-deploy-it": "Would you let this model decide something that mattered to a person? What would have to be true first?"
+      }
+    }
+  }
+}

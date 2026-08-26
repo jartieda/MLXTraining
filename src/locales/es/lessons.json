@@ -1,1 +1,283 @@
-{}
+{
+  "path": {
+    "title": "Camino de aprendizaje",
+    "intro": "Siete módulos. Construyes un modelo, aprendes a leer dónde está mirando y luego descubres dónde se equivoca y por qué. Cada uno te pide que escribas lo que has notado.",
+    "overall": "Módulos terminados",
+    "modulesDone": "{{done}} de {{total}}",
+    "anonymous": "No has iniciado sesión, así que puedes leerlo todo pero tus pasos y tus respuestas no se guardarán. Pide a tu educadora un nombre de usuaria y un código si quieres conservarlos.",
+    "moduleNumber": "Módulo {{number}} de {{total}}",
+    "goalHeading": "Qué vas a aprender",
+    "stepsHeading": "Haz esto en el laboratorio",
+    "stepProgress": "Pasos terminados",
+    "stepsDone": "{{done}} de {{total}} pasos",
+    "challengeHeading": "Tu reto",
+    "challengeReady": "Ya tienes todo lo que necesitas. Adelante.",
+    "notYetHeading": "Antes necesitas algo",
+    "goToStep": "Ve a «{{step}}» en {{module}}",
+    "goTo": {
+      "lab": "Abrir el laboratorio",
+      "projects": "Abrir mis proyectos",
+      "results": "Abrir las cifras"
+    },
+    "comparisonHeading": "Tus dos entrenamientos, uno al lado del otro",
+    "comparisonIntro": "Es la misma comparación que muestra el laboratorio después de entrenar. Aquí es el objetivo del módulo: el entrenamiento desequilibrado y el arreglado, juntos.",
+    "reflectionHeading": "Escríbelo",
+    "reflectionIntro": "Con tus palabras. Aquí nadie corrige una respuesta correcta: la idea es fijarse en lo que has notado. Lo que escribes se guarda solo.",
+    "moduleNav": "Navegación del módulo",
+    "backToPath": "Volver al camino de aprendizaje",
+    "previous": "Volver a {{module}}",
+    "start": "Empezar",
+    "continue": "Seguir",
+    "open": "Abrir"
+  },
+  "state": {
+    "not_started": "Sin empezar",
+    "in_progress": "En marcha",
+    "completed": "Terminado"
+  },
+  "reflection": {
+    "saving": "Guardando…",
+    "saved": "Guardado",
+    "failed": "Eso no se ha guardado. Lo que escribiste sigue aquí: comprueba tu conexión.",
+    "notSaved": "No se está guardando, porque no has iniciado sesión.",
+    "remaining": "Quedan {{count}} caracteres"
+  },
+  "prerequisite": {
+    "project": "Primero necesitas un proyecto.",
+    "twoClasses": "Necesitas al menos dos clases en un proyecto.",
+    "samplesPerClass": "Necesitas al menos {{count}} fotos en cada clase.",
+    "trainedModel": "Necesitas un modelo entrenado.",
+    "gradcamExplanation": "Necesitas haber explicado una imagen congelada al menos una vez.",
+    "bothExplanations": "Necesitas haber ejecutado las dos explicaciones sobre la misma imagen congelada.",
+    "twoRuns": "Necesitas haber entrenado dos veces el mismo proyecto.",
+    "imbalancedRun": "Necesitas un entrenamiento en el que una clase tuviera muchas más fotos que otra."
+  },
+  "modules": {
+    "what-the-model-sees": {
+      "title": "Qué ve el modelo",
+      "goal": "Que un modelo no ve objetos como los ves tú. Ve patrones de luz y de forma, y le pondrá nombre de clase a cualquier cosa que le muestres, incluidas cosas que nunca le enseñaste.",
+      "intro": "Vas a enseñar a un ordenador a distinguir dos cosas usando solo fotos que hagas tú. Te llevará unos diez minutos y funcionará. Lo interesante es lo que pasa en los bordes.",
+      "challenge": "Muéstrale a tu modelo algo que no pertenezca a ninguna de las dos clases: tu mano, un libro, una pared vacía. Mira qué dice. No dirá «no lo sé», porque no puede. Busca el objeto con el que se equivoca con más seguridad.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Lee lo que vas a hacer",
+          "body": "El modelo que construyas solo conocerá las clases que le des. Tenlo presente: es todo este módulo."
+        },
+        "make-a-project": {
+          "title": "Crea un proyecto",
+          "body": "Ponle un nombre que diga qué le estás enseñando, como «taza o botella»."
+        },
+        "name-two-classes": {
+          "title": "Nombra dos clases",
+          "body": "Elige dos cosas que tengas a mano y que se vean claramente distintas. Dos objetos de tu mesa funcionan mejor que dos ideas."
+        },
+        "capture-ten-each": {
+          "title": "Haz diez fotos de cada una",
+          "body": "Mueve el objeto entre fotos: gíralo, inclínalo, acércalo y aléjalo. Diez fotos casi idénticas no le enseñan casi nada."
+        },
+        "train-it": {
+          "title": "Entrénalo",
+          "body": "Esto ocurre en tu dispositivo y tarda unos segundos. No se sube nada."
+        },
+        "try-something-new": {
+          "title": "Apúntalo a algo nuevo",
+          "body": "Algo que no sea ninguna de tus dos clases. Fíjate en que aun así elige una, y en lo segura que dice estar."
+        }
+      },
+      "questions": {
+        "what-it-used": "Le mostraste tus dos objetos. ¿Qué crees que estaba usando en realidad para distinguirlos: la forma, el color, algo del fondo?",
+        "never-seen": "Cuando le mostraste algo que nunca había visto, igualmente eligió una clase. ¿Por qué crees que no puede decir «no lo sé»?"
+      }
+    },
+    "reading-a-heat-map": {
+      "title": "Leer un mapa de calor",
+      "goal": "Cómo leer un mapa de calor como evidencia y no como razón. Te muestra dónde encontró el modelo apoyo para una clase, no por qué decidió, ni si acertó.",
+      "intro": "Un mapa de calor está cálido donde se concentra la evidencia de una clase y frío donde no. Suena sencillo, y la trampa está justo en la palabra «evidencia»: el mapa te dice dónde miró el modelo y no dice nada sobre si mirar ahí tenía sentido.",
+      "challenge": "Congela una imagen y explícala. Luego cambia la explicación a la otra clase, la que el modelo no eligió. Fíjate en dónde habría estado la evidencia de esa alternativa. Si los dos mapas están cálidos en el mismo sitio, eso da que pensar.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Lee lo que vas a hacer",
+          "body": "Vas a mirar dónde encontró el modelo su evidencia, y a practicar el no leer en ella más de lo que dice."
+        },
+        "freeze-a-frame": {
+          "title": "Congela una imagen",
+          "body": "Sujeta tu objeto y congela la imagen. Una explicación necesita una imagen quieta: una en directo ya habría cambiado cuando apareciera el mapa."
+        },
+        "explain-a-frame": {
+          "title": "Pide una explicación",
+          "body": "Cálido significa más evidencia de la clase que se está explicando. Mira la leyenda para la escala."
+        },
+        "switch-the-class": {
+          "title": "Explica otra clase",
+          "body": "Usa el selector de clase. Estás preguntando «¿dónde habría estado la evidencia de esa otra?»."
+        },
+        "move-the-slider": {
+          "title": "Mueve el control de la superposición",
+          "body": "Del todo a un lado ves tu foto, del todo al otro ves el mapa. En el medio suele leerse todo."
+        }
+      },
+      "questions": {
+        "where-it-looked": "¿Dónde estaba más cálido el mapa? ¿Sobre el objeto o en algún sitio que no esperabas?",
+        "evidence-not-reason": "El laboratorio insiste en que un mapa de calor es evidencia, no una razón. ¿Cuál es la diferencia, con tus palabras?"
+      }
+    },
+    "shortcuts-and-bias": {
+      "title": "Atajos y sesgo",
+      "goal": "Que un modelo tomará el camino más fácil hacia una respuesta correcta, aunque ese camino no tenga nada que ver con lo que tú querías. Si todas tus fotos de una clase comparten fondo, el fondo es la respuesta más fácil.",
+      "intro": "Este es el módulo más importante del camino y el más incómodo. Vas a construir un modelo que acierta todo por una razón completamente equivocada —a propósito— y luego lo vas a pillar.",
+      "challenge": "Construye un modelo que hace trampa. Fotografía una clase solo contra una pared y la otra solo contra tu mesa, y mantén los objetos parecidos. Entrénalo y explica una imagen. Encuentra el momento en que el mapa de calor muestra que está mirando el fondo y no la cosa.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Lee lo que vas a hacer",
+          "body": "Vas a darle un atajo al modelo y luego mirar cómo lo toma."
+        },
+        "same-background": {
+          "title": "Dale a una clase su propio fondo",
+          "body": "Todas las fotos de la clase uno contra la misma pared; todas las de la clase dos en otro sitio. Ese es el atajo que estás plantando."
+        },
+        "train-and-explain": {
+          "title": "Entrénalo y explica una imagen",
+          "body": "El acierto probablemente se verá excelente. Ese es el problema."
+        },
+        "spot-the-shortcut": {
+          "title": "Encuentra el atajo en el mapa",
+          "body": "Mira dónde está el calor. Si está en la pared, en la esquina de la mesa o en el borde de la imagen, lo has pillado."
+        },
+        "change-one-thing": {
+          "title": "Lleva el objeto al otro fondo",
+          "body": "Mismo objeto, fondo equivocado. Mira cómo cambia la predicción aunque no cambió lo que a ti te importa."
+        }
+      },
+      "questions": {
+        "what-was-the-shortcut": "¿Qué atajo tomó tu modelo? ¿Cómo te lo mostró el mapa de calor?",
+        "who-would-it-fail": "Imagina que este modelo se usara para algo real. ¿Con quién se equivocaría, y se daría cuenta alguien?"
+      }
+    },
+    "fooling-the-model": {
+      "title": "Engañar al modelo",
+      "goal": "Que estar seguro y tener razón son cosas completamente distintas. Vas a hacer que tu modelo dé una respuesta equivocada con mucha seguridad, a propósito, y verás que nada en la pantalla te avisa.",
+      "intro": "En el módulo anterior encontraste un atajo mirando la evidencia. Ahora usas lo que encontraste: si sabes en qué se está fijando el modelo de verdad, puedes romperlo a propósito. Esa es la diferencia entre sospechar una debilidad y demostrarla.",
+      "challenge": "Haz que tu modelo diga la clase equivocada con más del 80% de seguridad. Luego explica esa imagen y mira qué creía estar mirando. Escribe lo que hiciste, para que otra persona pueda repetirlo.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Lee lo que vas a hacer",
+          "body": "Vas a atacar tu propio modelo. Predecir el fallo antes de provocarlo es la parte interesante."
+        },
+        "predict-the-failure": {
+          "title": "Adivina primero cómo fallará",
+          "body": "Antes de probar nada: escribe o di en voz alta qué crees que lo engañará. Adivinar primero es lo que convierte esto en un experimento y no en trastear."
+        },
+        "try-to-fool-it": {
+          "title": "Intenta engañarlo",
+          "body": "Cambia la luz, el fondo, el ángulo, la distancia. Tapa parte del objeto. Muéstrale algo parecido pero equivocado."
+        },
+        "explain-the-mistake": {
+          "title": "Explica el error",
+          "body": "Congela la imagen en la que se equivocó con seguridad y pide el mapa de calor. Ahí descubres qué creía ver."
+        }
+      },
+      "questions": {
+        "how-you-fooled-it": "¿Qué hiciste que lo engañó? ¿Fue lo que habías predicho o algo distinto?",
+        "confident-and-wrong": "Tu modelo estaba muy seguro y completamente equivocado. ¿Qué te dice eso sobre fiarte de un número de seguridad?"
+      }
+    },
+    "comparing-explanations": {
+      "title": "Comparar dos explicaciones",
+      "goal": "Que una explicación es también un modelo, con sus propios límites. Dos métodos honestos mirando la misma imagen pueden no estar de acuerdo, y cuando eso pasa, el desacuerdo es el hallazgo, no un error que haya que resolver.",
+      "intro": "Hasta ahora has usado un método. Hay un segundo que funciona de forma completamente distinta: en vez de mirar dentro del modelo, tapa partes pequeñas de la imagen y observa cuánto cae la seguridad. Dos preguntas distintas, dos respuestas distintas.",
+      "challenge": "Encuentra una imagen en la que los dos métodos no coincidan, donde uno esté cálido en un sitio en el que el otro está frío. Luego decide a cuál crees y sé capaz de decir por qué. Aquí no hay respuesta correcta, solo una defendible.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Lee lo que vas a hacer",
+          "body": "Dos métodos, una imagen. Fíjate en dónde difieren más que en dónde coinciden."
+        },
+        "run-both": {
+          "title": "Ejecuta los dos métodos sobre una imagen congelada",
+          "body": "El segundo método es más lento: está probando la imagen trozo a trozo. Puedes ver su progreso y cancelarlo."
+        },
+        "read-the-agreement": {
+          "title": "Lee la puntuación de acuerdo",
+          "body": "El laboratorio te dice con qué fuerza coinciden los dos mapas, en palabras además de en número."
+        },
+        "find-a-disagreement": {
+          "title": "Busca un desacuerdo",
+          "body": "Prueba varias imágenes: un fondo con muchas cosas, un ángulo raro, poca luz. Los desacuerdos aparecen más fácil donde la imagen es difícil."
+        }
+      },
+      "questions": {
+        "which-do-you-trust": "Cuando los dos mapas no coincidieron, ¿a cuál creíste? ¿Qué te hizo elegir ese?",
+        "why-disagree": "Los dos métodos hacen preguntas distintas sobre la misma imagen. ¿Por qué podría eso hacer que no coincidan?"
+      }
+    },
+    "imbalance-experiment": {
+      "title": "El experimento del desequilibrio",
+      "goal": "Que un modelo injusto no suele ser el resultado de que alguien haya sido injusto. Viene de los datos, y puedes medirlo, provocarlo a propósito y después arreglarlo.",
+      "intro": "Este es un experimento con un antes y un después, y haces las dos mitades. Le darás a una clase muchas más fotos que a la otra, mirarás con atención qué provoca eso, y luego arreglarás el equilibrio y compararás los dos entrenamientos. La comparación es el módulo.",
+      "challenge": "Entrena a propósito desequilibrado: algo así como cuarenta fotos en una clase y cinco en la otra. Lee las cifras y el desglose de confusiones. Luego haz suficientes fotos de la clase pequeña para igualarlo, entrena otra vez y pon los dos entrenamientos uno al lado del otro. Sé capaz de decir qué cambió y qué no.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Lee lo que vas a hacer",
+          "body": "Vas a construir un modelo injusto a propósito. Hacerlo deliberadamente es lo que lo hace medible."
+        },
+        "train-lopsided": {
+          "title": "Entrena con una clase mucho más grande",
+          "body": "Unas cuarenta fotos de una clase y cinco de la otra. El laboratorio te avisará del desequilibrio y entrenará igualmente: eso es a propósito."
+        },
+        "read-the-breakdown": {
+          "title": "Lee las cifras y el desglose de confusiones",
+          "body": "Mira cada clase por separado, no solo el número general. El número general es justo el que esconde esto."
+        },
+        "explain-the-small-class": {
+          "title": "Explica una imagen de la clase pequeña",
+          "body": "Compara su mapa de calor con uno de la clase grande. Un mapa sin un foco claro te está diciendo algo."
+        },
+        "rebalance-and-retrain": {
+          "title": "Iguala las fotos y entrena otra vez",
+          "body": "Haz más fotos de la clase pequeña hasta que las dos se parezcan, y entrena. Este es tu «después»."
+        },
+        "compare-the-runs": {
+          "title": "Pon los dos entrenamientos uno al lado del otro",
+          "body": "La comparación está más abajo en esta página. Mira qué se movió por clase, no solo en general."
+        }
+      },
+      "questions": {
+        "what-happened-to-the-small-class": "En el entrenamiento desequilibrado, ¿qué le pasó a la clase con menos fotos? ¿Dónde acabaron sus fotos?",
+        "who-gets-hurt": "Piensa en un sistema real construido así, en el que algún grupo de personas es la clase pequeña. ¿A quién falla, y lo mostraría el acierto general?",
+        "what-would-you-check": "Si alguien te diera un modelo diciendo que acierta el 95%, ¿qué querrías comprobar ahora antes de creer que es justo?"
+      }
+    },
+    "final-presentation": {
+      "title": "Presenta tu modelo",
+      "goal": "Cómo presentar un modelo con honestidad: qué hace, en qué se está fijando de verdad, dónde falla y qué querrías antes de confiarle algo que importe.",
+      "intro": "Este es el último módulo y no tiene mecánicas nuevas. Traes un modelo, su evidencia y sus límites, y presentas las tres cosas. Ser capaz de decir con claridad en qué se equivoca tu modelo es toda la habilidad.",
+      "challenge": "Presenta tu modelo a tu clase, a tu mentora o a tu familia en unos tres minutos. Muéstralo funcionando. Muestra un mapa de calor y di qué está mirando. Muéstralo fallando, a propósito. Y termina diciendo qué necesitarías antes de confiar en él para algo real.",
+      "steps": {
+        "read-the-goal": {
+          "title": "Lee lo que vas a hacer",
+          "body": "Elige un modelo y prepárate para ser honesta sobre él, incluidas las partes que no funcionan."
+        },
+        "pick-your-model": {
+          "title": "Elige el modelo que vas a presentar",
+          "body": "No necesariamente el más acertado. El que entiendes mejor da la mejor presentación."
+        },
+        "gather-the-evidence": {
+          "title": "Reúne tu evidencia",
+          "body": "Las cifras por clase, el desglose de confusiones, un mapa de calor que lo muestre haciendo algo sensato y otro que lo muestre haciendo algo raro."
+        },
+        "write-the-honest-limits": {
+          "title": "Escribe tres formas en las que falla",
+          "body": "Tres formas concretas, que hayas visto de verdad. «Puede cometer errores» no es una de ellas."
+        },
+        "present-it": {
+          "title": "Preséntalo",
+          "body": "Funcionando, luego explicado, luego roto. Termina con lo que necesitarías antes de confiar en él."
+        }
+      },
+      "questions": {
+        "what-it-does-well": "¿Qué hace bien tu modelo de verdad, y cómo lo sabes en lugar de suponerlo?",
+        "what-it-gets-wrong": "¿Cuáles son tres formas concretas en las que falla? Descríbelas para que otra persona pueda reproducirlas.",
+        "would-you-deploy-it": "¿Dejarías que este modelo decidiera algo que le importara a una persona? ¿Qué tendría que ser cierto antes?"
+      }
+    }
+  }
+}

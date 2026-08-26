@@ -50,9 +50,28 @@ export const DB_MESSAGE = {
   passwordTooShort: 'Choose a password of at least 8 characters.',
 } as const
 
+export interface LessonProgressRow {
+  learner_id: string
+  module_id: string
+  state: 'not_started' | 'in_progress' | 'completed'
+  completed_steps: string[]
+  updated_at: string
+}
+
+export interface ReflectionRow {
+  id: string
+  learner_id: string
+  module_id: string
+  question_id: string
+  answer: string
+  updated_at: string
+}
+
 interface Tables {
   profiles: ProfileRow[]
   projects: ProjectRow[]
+  lesson_progress: LessonProgressRow[]
+  reflections: ReflectionRow[]
 }
 
 /**
@@ -64,13 +83,20 @@ interface Tables {
  */
 class FakeQuery<T extends Record<string, unknown>> implements PromiseLike<{ data: T[]; error: null }> {
   private rows: T[]
-  private readonly onUpsert: (values: readonly Partial<T>[]) => void
+  private deleting = false
+  private readonly onUpsert: (values: readonly Partial<T>[], options?: unknown) => void
+  private readonly onDelete: (rows: readonly T[]) => void
 
   // Written out rather than as constructor parameter properties: `tsconfig.app.json`
   // sets `erasableSyntaxOnly`, which forbids the shorthand.
-  constructor(rows: readonly T[], onUpsert: (values: readonly Partial<T>[]) => void) {
+  constructor(
+    rows: readonly T[],
+    onUpsert: (values: readonly Partial<T>[], options?: unknown) => void,
+    onDelete: (rows: readonly T[]) => void = () => undefined,
+  ) {
     this.rows = [...rows]
     this.onUpsert = onUpsert
+    this.onDelete = onDelete
   }
 
   select(): this {
@@ -83,6 +109,14 @@ class FakeQuery<T extends Record<string, unknown>> implements PromiseLike<{ data
 
   eq(column: keyof T, value: unknown): this {
     this.rows = this.rows.filter((row) => row[column] === value)
+    // A delete is terminal only once its filters are applied, so the rows are
+    // reported on each `eq` and the last call is the one the test reads.
+    if (this.deleting) this.onDelete(this.rows)
+    return this
+  }
+
+  delete(): this {
+    this.deleting = true
     return this
   }
 
@@ -90,7 +124,15 @@ class FakeQuery<T extends Record<string, unknown>> implements PromiseLike<{ data
     return Promise.resolve({ data: this.rows[0] ?? null, error: null })
   }
 
-  upsert(values: Partial<T> | readonly Partial<T>[]): Promise<{ data: null; error: null }> {
+  upsert(
+    values: Partial<T> | readonly Partial<T>[],
+    options?: unknown,
+  ): Promise<{ data: null; error: null }> {
+    this.onUpsert(Array.isArray(values) ? values : [values as Partial<T>], options)
+    return Promise.resolve({ data: null, error: null })
+  }
+
+  insert(values: Partial<T> | readonly Partial<T>[]): Promise<{ data: null; error: null }> {
     this.onUpsert(Array.isArray(values) ? values : [values as Partial<T>])
     return Promise.resolve({ data: null, error: null })
   }
@@ -106,6 +148,9 @@ class FakeQuery<T extends Record<string, unknown>> implements PromiseLike<{ data
 export interface FakeSupabase {
   readonly tables: Tables
   readonly upserted: Record<string, unknown[]>
+  /** The options passed with each upsert, so a test can assert `onConflict`. */
+  readonly upsertOptions: Record<string, unknown[]>
+  readonly deleted: Record<string, unknown[]>
   readonly rpc: ReturnType<typeof vi.fn>
   readonly signInWithPassword: ReturnType<typeof vi.fn>
   readonly signOut: ReturnType<typeof vi.fn>
@@ -120,8 +165,15 @@ export interface FakeSupabase {
 }
 
 export function createFakeSupabase(seed: Partial<Tables> = {}): FakeSupabase {
-  const tables: Tables = { profiles: seed.profiles ?? [], projects: seed.projects ?? [] }
+  const tables: Tables = {
+    profiles: seed.profiles ?? [],
+    projects: seed.projects ?? [],
+    lesson_progress: seed.lesson_progress ?? [],
+    reflections: seed.reflections ?? [],
+  }
   const upserted: Record<string, unknown[]> = {}
+  const upsertOptions: Record<string, unknown[]> = {}
+  const deleted: Record<string, unknown[]> = {}
 
   interface PostgresError {
     message: string
@@ -139,6 +191,8 @@ export function createFakeSupabase(seed: Partial<Tables> = {}): FakeSupabase {
   const fake: FakeSupabase = {
     tables,
     upserted,
+    upsertOptions,
+    deleted,
     rpc,
     signInWithPassword,
     signOut,
@@ -198,9 +252,18 @@ export function createFakeSupabase(seed: Partial<Tables> = {}): FakeSupabase {
     },
     rpc,
     from: (table: keyof Tables) =>
-      new FakeQuery(tables[table] as unknown as Record<string, unknown>[], (values) => {
-        upserted[table] = [...(upserted[table] ?? []), ...values]
-      }),
+      new FakeQuery(
+        tables[table] as unknown as Record<string, unknown>[],
+        (values, options) => {
+          upserted[table] = [...(upserted[table] ?? []), ...values]
+          if (options !== undefined) {
+            upsertOptions[table] = [...(upsertOptions[table] ?? []), options]
+          }
+        },
+        (rows) => {
+          deleted[table] = [...rows]
+        },
+      ),
   }
 
   ;(fake as { client?: unknown }).client = client

@@ -161,6 +161,12 @@ export interface Database {
           module_id: string
           state?: ProgressState
           completed_steps?: string[]
+          // Writable on insert because an upsert supplies it: `updated_at` defaults
+          // to `now()` on INSERT only and no trigger advances it, so a conflicting
+          // upsert that omitted it would leave the row claiming a time before the
+          // progress it just recorded — and an educator sorting a roster by last
+          // activity would see a learner who worked today as untouched for a week.
+          updated_at?: string
         }
         Update: { state?: ProgressState; completed_steps?: string[]; updated_at?: string }
         Relationships: []
@@ -181,6 +187,10 @@ export interface Database {
           module_id: string
           question_id: string
           answer: string
+          // Same reason as `lesson_progress` above: L4 makes a revision an upsert on
+          // `(learner, module, question)`, and a revision whose timestamp did not
+          // move would look to an educator like an answer the learner never revisited.
+          updated_at?: string
         }
         Update: { answer?: string; updated_at?: string }
         Relationships: []

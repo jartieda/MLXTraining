@@ -86,6 +86,7 @@ listFinishedRuns(projectId: string): Promise<ModelRecord[]>  // see D11
 // Explanations
 cacheExplanation(record: NewExplanation): Promise<void>
 findExplanation(key: ExplanationKey): Promise<ExplanationRecord | undefined>
+listExplanationsForRun(runId: string): Promise<ExplanationRecord[]>  // see D12
 pruneExplanations(runId: string, keep: number): Promise<void>
 
 // Storage budget
@@ -110,6 +111,7 @@ requestPersistence(): Promise<boolean>
 | **D9** | Every read returns data owned by the current session's `ownerId`, or `null`-owned anonymous data. A logged-in learner must never see another account's local projects on a shared classroom device. |
 | **D10** | No function in this module may send data anywhere. Enforced by the import-boundary lint rule that forbids `fetch`, `XMLHttpRequest`, and the Supabase client inside `src/lib/db.ts`. |
 | **D11** | `listFinishedRuns` returns only records that are `ready` **and** carry `metrics`, newest first. A run that did not finish has no figures worth comparing, and offering one would be the same defect FR-050 forbids in the predictor, one screen over. |
+| **D12** | `listExplanationsForRun` returns the cached explanations for a run, so the lesson prerequisites (FR-037) can ask whether a learner has in fact explained a frame, and whether she ran **both** methods on the *same* frame. Records rather than a count, because the caller must group them by `frameHash` — both methods on one frame is the comparison the module asks for; one method on two frames is not. |
 
 D9 deserves emphasis: shared devices are the norm in schools, so scoping local reads by `ownerId` is
 a real privacy requirement, not a theoretical one.

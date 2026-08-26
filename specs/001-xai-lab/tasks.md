@@ -253,20 +253,20 @@ W5 steps 2–4.
 
 ### Tests
 
-- [ ] T091 [P] [US5] `tests/integration/lessons.test.tsx` — step completion autosaves, reflections are revisable in place (FR-035, L4), a module names the prerequisite step when its challenge is unavailable (FR-037)
-- [ ] T092 [P] [US5] `tests/e2e/us5-learning-path.spec.ts` — module 1 end to end, then the fairness module's before-and-after comparison (FR-036)
-- [ ] T093 [P] [US5] `tests/unit/lesson-content.test.ts` — every module has a goal, steps, a challenge, and at least one reflection question, in both locales (FR-034)
+- [X] T091 [P] [US5] `tests/integration/lessons.test.tsx` — step completion autosaves, reflections are revisable in place (FR-035, L4), a module names the prerequisite step when its challenge is unavailable (FR-037)
+- [X] T092 [P] [US5] `tests/e2e/us5-learning-path.spec.ts` — module 1 end to end, then the fairness module's before-and-after comparison (FR-036)
+- [X] T093 [P] [US5] `tests/unit/lesson-content.test.ts` — every module has a goal, steps, a challenge, and at least one reflection question, in both locales (FR-034)
 
 ### Implementation
 
-- [ ] T094 [US5] `src/content/lessons/schema.ts` module definition schema — id slug, goal, ordered step slugs, challenge, reflection questions; locale-keyed, lazy-loaded per module (R11, FR-034)
-- [ ] T095 [US5] Author the seven modules required by FR-033 in `src/content/lessons/`: what the model sees · reading a heat map · shortcuts and bias (background, lighting, incidental cues) · fooling the model · comparing two explanations · **the imbalance experiment** · the final presentation challenge
-- [ ] T096 [US5] `src/features/lessons/LearningPath.tsx` — module list with completion state (Scenario 5.1)
-- [ ] T097 [US5] `src/features/lessons/ModuleView.tsx` — stepper, in-lab guidance, challenge, autosave (FR-035)
-- [ ] T098 [US5] `src/features/lessons/Reflection.tsx` — write, store, revisit, revise (FR-035, L4)
-- [ ] T099 [US5] Prerequisite handling in `src/features/lessons/` — name the earlier step to complete (FR-037, Scenario 5.4)
-- [ ] T100 [US5] Wire the fairness module to US7's run comparison for its explicit before-and-after (FR-036)
-- [ ] T101 [P] [US5] `en` and `es` lesson content in `src/locales/{en,es}/lessons.json` for all seven modules (FR-044, SC-005)
+- [X] T094 [US5] `src/content/lessons/schema.ts` module definition schema — id slug, goal, ordered step slugs, challenge, reflection questions; locale-keyed, lazy-loaded per module (R11, FR-034)
+- [X] T095 [US5] Author the seven modules required by FR-033 in `src/content/lessons/`: what the model sees · reading a heat map · shortcuts and bias (background, lighting, incidental cues) · fooling the model · comparing two explanations · **the imbalance experiment** · the final presentation challenge
+- [X] T096 [US5] `src/features/lessons/LearningPath.tsx` — module list with completion state (Scenario 5.1)
+- [X] T097 [US5] `src/features/lessons/ModuleView.tsx` — stepper, in-lab guidance, challenge, autosave (FR-035)
+- [X] T098 [US5] `src/features/lessons/Reflection.tsx` — write, store, revisit, revise (FR-035, L4)
+- [X] T099 [US5] Prerequisite handling in `src/features/lessons/` — name the earlier step to complete (FR-037, Scenario 5.4)
+- [X] T100 [US5] Wire the fairness module to US7's run comparison for its explicit before-and-after (FR-036)
+- [X] T101 [P] [US5] `en` and `es` lesson content in `src/locales/{en,es}/lessons.json` for all seven modules (FR-044, SC-005)
 
 **Checkpoint**: The tool has become a course. Validate against W5 in full.
 
@@ -486,6 +486,15 @@ continuous responsibility, not a phase to be pushed to the end.
   T075), `CodeInput.tsx` and `Field.tsx` (shared form parts, so the 44 px floor and the
   label/hint wiring have one home), and `src/features/projects/remoteProjects.ts` (T077's reconciliation,
   kept out of the component so `projectsMadeElsewhere` is testable with no store and no network)
+- **Lesson progress is remote-only, deliberately, and this differs from US7.** `models.metrics`
+  is stored locally because FR-023 gives an unauthenticated visitor the whole lab and FR-010's run
+  comparison is part of it. `lesson_progress` and `reflections` are not: the learning path is what an
+  educator assigns and reads, so progress with no account has nobody to report to. An anonymous
+  visitor reads every module — the content ships in the bundle — writes into the reflection fields,
+  and is told plainly that nothing is recorded. US5 also added
+  `src/features/lessons/capabilities.ts`, which reads IndexedDB rather than `labStore` because the
+  lessons route never opens a project: a capability check against the store would tell a learner with
+  three trained models that she has none, in the one place she has gone looking for help
 - Five tasks are worth defending against schedule pressure. Each catches a failure that is invisible
   to manual testing:
   - **T060** — batched occlusion versus a naive reference. A batching error still produces a

@@ -29,6 +29,7 @@ export const SEED = {
   educator1: '00000000-0000-4000-a000-0000000000e1',
   classroom1: '00000000-0000-4000-b000-0000000000c1',
   /** L1: username `learner-l1`, alias "Comet", enrolled in K1. */
+  learner1Id: '00000000-0000-4000-a000-00000000001a',
   learner1Username: 'learner-l1',
   learner1Alias: 'Comet',
   password: 'labpassword',

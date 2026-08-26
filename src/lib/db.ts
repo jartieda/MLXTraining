@@ -731,6 +731,19 @@ export async function findExplanation(key: ExplanationKey): Promise<ExplanationR
 }
 
 /** Keeps the `keep` most recent maps for a run and drops the rest. */
+/**
+ * Every cached explanation for a run.
+ *
+ * Added for the lesson prerequisites (T099): a module that says "compare the two
+ * methods" needs to know whether she actually did, and the cache is the only record
+ * that she did. Returns the records rather than a count, because the caller needs to
+ * group them by frame — both methods on *one* frame is the comparison; one method on
+ * two frames is not.
+ */
+export async function listExplanationsForRun(runId: string): Promise<ExplanationRecord[]> {
+  return db.explanations.where('runId').equals(runId).toArray()
+}
+
 export async function pruneExplanations(runId: string, keep: number): Promise<void> {
   const records = await db.explanations.where('runId').equals(runId).toArray()
   if (records.length <= keep) return
