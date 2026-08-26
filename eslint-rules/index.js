@@ -119,9 +119,55 @@ const mlCoreImportBoundary = {
   },
 }
 
+/**
+ * FR-041 / Principle I: an educator's screens cannot reach a learner's images.
+ *
+ * The architecture already makes this true across devices — the images live in the
+ * learner's IndexedDB and there is no channel to them. What this rule closes is the
+ * case where it is NOT true by architecture: a shared classroom Chromebook, where the
+ * educator's browser holds a learner's local store from the previous lesson. A
+ * roster component that imported `@/lib/db` to "show a thumbnail" would work on that
+ * machine, and only on that machine, which is the worst possible way for a privacy
+ * boundary to fail.
+ *
+ * So the classroom and admin features may not import the local store at all. FR-041
+ * then holds by construction rather than by every future contributor remembering it.
+ */
+const LOCAL_STORE_IMPORTS = ['@/lib/db', '@/features/lab/labStore', '@/ml']
+
+const noLocalStoreInClassroom = {
+  meta: {
+    type: 'problem',
+    docs: {
+      description:
+        'Keep educator- and administrator-facing features away from the on-device sample store',
+    },
+    schema: [],
+    messages: {
+      forbiddenImport:
+        'This feature must not import "{{source}}". FR-041 forbids any view or export making a ' +
+        'learner\'s captured images reachable by an educator or an administrator, and on a shared ' +
+        'classroom device the local store is present — so the boundary is enforced here rather than ' +
+        'left to review.',
+    },
+  },
+  create(context) {
+    return {
+      ImportDeclaration(node) {
+        const source = node.source.value
+        if (typeof source !== 'string') return
+        if (LOCAL_STORE_IMPORTS.some((p) => source === p || source.startsWith(`${p}/`))) {
+          context.report({ node, messageId: 'forbiddenImport', data: { source } })
+        }
+      },
+    }
+  },
+}
+
 export default {
   rules: {
     'no-raw-hex-or-font-family': noRawHexOrFontFamily,
     'ml-core-import-boundary': mlCoreImportBoundary,
+    'no-local-store-in-classroom': noLocalStoreInClassroom,
   },
 }

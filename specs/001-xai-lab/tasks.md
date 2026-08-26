@@ -282,19 +282,19 @@ see it on the educator view, and confirm no image data is reachable.
 
 ### Tests
 
-- [ ] T102 [P] [US6] `tests/integration/classroom.test.tsx` — create, rename, archive; issue an invitation and see its state; revoke it; remove a learner; delete an account (FR-038, FR-039, FR-052, K4)
-- [ ] T103 [P] [US6] `tests/e2e/us6-classroom.spec.ts` — Scenarios 6.1–6.7 including the cross-educator refusal (SC-011) and the absence of images, names, emails, and usernames in every view and export (FR-041, SC-016)
-- [ ] T104 [P] [US6] `tests/integration/export-csv.test.tsx` — one row per learner and module with a reflection column; a **hostile reflection** containing a comma, a double quote, a line break and a leading `=` survives intact and is not interpretable as a formula (FR-043, SC-021)
+- [X] T102 [P] [US6] `tests/integration/classroom.test.tsx` — create, rename, archive; issue an invitation and see its state; revoke it; remove a learner; delete an account (FR-038, FR-039, FR-052, K4)
+- [X] T103 [P] [US6] `tests/e2e/us6-classroom.spec.ts` — Scenarios 6.1–6.7 including the cross-educator refusal (SC-011) and the absence of images, names, emails, and usernames in every view and export (FR-041, SC-016)
+- [X] T104 [P] [US6] `tests/integration/export-csv.test.tsx` — one row per learner and module with a reflection column; a **hostile reflection** containing a comma, a double quote, a line break and a leading `=` survives intact and is not interpretable as a formula (FR-043, SC-021)
 
 ### Implementation
 
-- [ ] T105 [US6] `src/features/classroom/CreateClassroom.tsx` — create, rename, archive; reaching a usable classroom with its first invitation in under 3 minutes (FR-038, SC-013)
-- [ ] T106 [US6] `src/features/classroom/InviteLearner.tsx` — assign a username, call `issue_learner_invitation`, show the code **once** with copy-to-clipboard and no email option, and refuse a username already taken (FR-026, FR-028, Edge Cases)
-- [ ] T107 [US6] `src/features/classroom/Roster.tsx` — alias-only rows for other learners, module completion, accuracy figures; pending invitations with their state (FR-040, FR-054)
-- [ ] T108 [US6] `src/features/classroom/LearnerDetail.tsx` — progress, recorded metrics, reflections; **structurally incapable of showing images** (FR-041)
-- [ ] T109 [US6] Membership and lifecycle actions in `src/features/classroom/` — issue a password reset (FR-030), remove a learner leaving her own rows intact (FR-039, E4), and delete an account removing every remote row (FR-052, SC-015)
-- [ ] T110 [P] [US6] Classroom CSV export in `src/features/classroom/export.ts` — progress and reflections for the educator's own classroom only, alias-only, with quoting and formula-prefix neutralisation (FR-043, SC-016, SC-021)
-- [ ] T110b [P] [US6] `en` and `es` strings in `src/locales/{en,es}/` for the classroom features (FR-044, SC-005)
+- [X] T105 [US6] `src/features/classroom/CreateClassroom.tsx` — create, rename, archive; reaching a usable classroom with its first invitation in under 3 minutes (FR-038, SC-013)
+- [X] T106 [US6] `src/features/classroom/InviteLearner.tsx` — assign a username, call `issue_learner_invitation`, show the code **once** with copy-to-clipboard and no email option, and refuse a username already taken (FR-026, FR-028, Edge Cases)
+- [X] T107 [US6] `src/features/classroom/Roster.tsx` — alias-only rows for other learners, module completion, accuracy figures; pending invitations with their state (FR-040, FR-054)
+- [X] T108 [US6] `src/features/classroom/LearnerDetail.tsx` — progress, recorded metrics, reflections; **structurally incapable of showing images** (FR-041)
+- [X] T109 [US6] Membership and lifecycle actions in `src/features/classroom/` — issue a password reset (FR-030), remove a learner leaving her own rows intact (FR-039, E4), and delete an account removing every remote row (FR-052, SC-015)
+- [X] T110 [P] [US6] Classroom CSV export in `src/features/classroom/export.ts` — progress and reflections for the educator's own classroom only, alias-only, with quoting and formula-prefix neutralisation (FR-043, SC-016, SC-021)
+- [X] T110b [P] [US6] `en` and `es` strings in `src/locales/{en,es}/` for the classroom features (FR-044, SC-005)
 
 **Checkpoint**: The lab is workshop-ready. Validate against W6.
 

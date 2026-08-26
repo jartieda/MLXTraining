@@ -27,7 +27,10 @@ const DEFAULT_DATABASE_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/pos
 /** Fixed ids from supabase/seed.sql. */
 export const SEED = {
   educator1: '00000000-0000-4000-a000-0000000000e1',
+  /** An educator signs in with the address she was invited by, not a username (R16). */
+  educator1Email: 'educator1@example.org',
   classroom1: '00000000-0000-4000-b000-0000000000c1',
+  classroom1Name: 'Year 9 — Wednesday',
   /** L1: username `learner-l1`, alias "Comet", enrolled in K1. */
   learner1Id: '00000000-0000-4000-a000-00000000001a',
   learner1Username: 'learner-l1',

@@ -1,1 +1,101 @@
-{}
+{
+  "title": "Mi clase",
+  "intro": "Crea una clase, invita a tus alumnas y mira cómo van. Ves su progreso, sus cifras y sus respuestas; nunca sus fotos.",
+  "create": {
+    "firstHeading": "Empieza tu primera clase",
+    "firstIntro": "Ponle nombre y en la pantalla siguiente ya podrás repartir tu primera invitación. No hace falta nada más.",
+    "nameLabel": "Nombre de la clase",
+    "nameHint": "Como llames al grupo: «club de los martes» o «3.º B». Solo lo veis tú y tus alumnas.",
+    "submit": "Crear la clase",
+    "another": "Añadir otra",
+    "pickerHeading": "Elige una clase",
+    "pickerLabel": "Clase",
+    "renameLabel": "Nombre nuevo",
+    "archive": "Archivar",
+    "unarchive": "Recuperarla",
+    "archived": "Archivada",
+    "archivedOption": "{{name}} (archivada)",
+    "archivedNote": "Una clase archivada está apartada, no borrada. Tus alumnas conservan sus cuentas, sus proyectos y sus respuestas, y puedes recuperarla cuando quieras."
+  },
+  "invite": {
+    "heading": "Invitar a una alumna",
+    "intro": "Elige un nombre de usuaria para ella. Lo usará para iniciar sesión, y ella elige su propia contraseña al canjear el código: tú no la ves nunca.",
+    "usernameLabel": "Nombre de usuaria",
+    "usernameHint": "De 3 a 24 caracteres: letras, dígitos, puntos, guiones y guiones bajos. Tiene que estar libre en todo el laboratorio, así que algo como «maria-t9» funciona mejor que «maria».",
+    "submit": "Crear una invitación",
+    "issuing": "Creándola…",
+    "issuedHeading": "Entrégale esto",
+    "shownOnce": "Es la única vez que verás el código. Solo se guarda una versión cifrada, así que no se puede volver a consultar: cópialo ahora.",
+    "codeLabel": "Código de invitación",
+    "copyBoth": "Copiar el nombre de usuaria y el código",
+    "copyPayload": "Usuaria: {{username}} · Código: {{code}}",
+    "expiry": "Sirve durante {{hours}} horas y solo se puede usar una vez.",
+    "inPerson": "Entrégalo en persona o escríbelo en un papel. El laboratorio no guarda ninguna dirección de correo de una alumna y nunca le envía nada.",
+    "inviteAnother": "Invitar a otra persona",
+    "failure": {
+      "usernameTaken": "Ese nombre de usuaria ya pertenece a una cuenta. Elige otro.",
+      "invitationExists": "Ya hay una invitación sin usar para ese nombre de usuaria. Anúlala más abajo y crea una nueva.",
+      "usernameShape": "Un nombre de usuaria necesita de 3 a 24 caracteres, y solo letras, dígitos, puntos, guiones y guiones bajos.",
+      "notYourClassroom": "Esa clase no es tuya, o está archivada.",
+      "unconfigured": "Esta copia del laboratorio no tiene servicio de cuentas configurado, así que no se pueden crear invitaciones.",
+      "unknown": "Eso no ha funcionado. No se ha creado nada: vuelve a probar."
+    }
+  },
+  "roster": {
+    "heading": "Alumnas ({{count}})",
+    "empty": "Todavía no se ha unido nadie. Crea una invitación arriba y entrégala.",
+    "modulesDone": "{{done}} de {{total}} módulos terminados",
+    "expand": "Abrir",
+    "collapse": "Cerrar",
+    "inactive": "Cuenta desactivada"
+  },
+  "pending": {
+    "heading": "Invitaciones",
+    "empty": "Todavía no hay invitaciones.",
+    "caption": "Los nombres de usuaria solo aparecen aquí hasta que se canjean. Después, cada alumna se muestra con el nombre que eligió.",
+    "usernameColumn": "Nombre de usuaria",
+    "kindColumn": "Para",
+    "stateColumn": "Estado",
+    "actionColumn": "",
+    "purpose": {
+      "initial": "Cuenta nueva",
+      "password_reset": "Contraseña nueva"
+    },
+    "state": {
+      "live": "Esperando a usarse",
+      "redeemed": "Usada",
+      "revoked": "Anulada",
+      "expired": "Se le acabó el tiempo"
+    },
+    "expires": "hasta el {{date}}",
+    "revoke": "Anularla"
+  },
+  "detail": {
+    "noImages": "Sus fotos no están aquí y no pueden estarlo. Se quedan en el navegador de su propio dispositivo, y esta pantalla no tiene forma de llegar a ellas.",
+    "progressHeading": "Camino de aprendizaje",
+    "modulesDone": "Módulos terminados",
+    "noProgress": "Todavía no ha empezado ningún módulo.",
+    "figuresHeading": "Sus cifras",
+    "noRuns": "Todavía no ha entrenado ningún modelo.",
+    "bestAccuracy": "Lo mejor hasta ahora: {{accuracy}}% en {{runs}} entrenamientos.",
+    "runLine": "{{project}} — {{accuracy}}% el {{date}}",
+    "reflectionsHeading": "Lo que ha escrito",
+    "noReflections": "Todavía no ha contestado ninguna pregunta de reflexión.",
+    "issueReset": "Código de contraseña nueva",
+    "resetTitle": "Un código de contraseña nueva para {{alias}}",
+    "resetNote": "Ella lo introduce en la pantalla de «poner una contraseña nueva» y elige su contraseña. Su nombre y todo su trabajo se quedan igual.",
+    "remove": "Sacar de la clase",
+    "removeTitle": "¿Sacar a {{alias}} de esta clase?",
+    "removeBody": "Dejarás de ver su progreso y sus respuestas. Ella conserva su cuenta, sus proyectos y todo lo que ha escrito: esto solo termina tu vista sobre ella.",
+    "removeConfirm": "Sacarla",
+    "delete": "Borrar la cuenta",
+    "deleteTitle": "¿Borrar la cuenta de {{alias}}?",
+    "deleteBody": "Esto elimina su cuenta y todo lo que el laboratorio ha guardado de ella: su progreso, sus cifras y todas las respuestas que escribió. No se puede deshacer.",
+    "deleteLocalNote": "No toca las fotos ni los modelos entrenados de su propio dispositivo: el laboratorio no puede llegar a ellos desde aquí. Dile que siguen siendo suyos para conservarlos o borrarlos.",
+    "deleteConfirm": "Borrarla definitivamente"
+  },
+  "export": {
+    "action": "Exportar el progreso (CSV)",
+    "note": "La exportación cubre solo esta clase. Las alumnas aparecen con el nombre que eligieron, nunca con su nombre de usuaria, y no contiene ninguna foto. A cualquier respuesta que empiece por =, +, - o @ se le pone una comilla delante, para que tu hoja de cálculo la muestre como texto en vez de ejecutarla como fórmula."
+  }
+}

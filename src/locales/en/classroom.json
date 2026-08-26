@@ -1,1 +1,101 @@
-{}
+{
+  "title": "My classroom",
+  "intro": "Create a classroom, invite your learners, and see how they are getting on. You see their progress, their figures and their answers — never their photos.",
+  "create": {
+    "firstHeading": "Start your first classroom",
+    "firstIntro": "Name it, and you can hand out your first invitation on the next screen. Nothing else is needed.",
+    "nameLabel": "Classroom name",
+    "nameHint": "Whatever you call the group — \"Tuesday club\" or \"Year 9 set 2\". Only you and your learners see it.",
+    "submit": "Create the classroom",
+    "another": "Add another",
+    "pickerHeading": "Choose a classroom",
+    "pickerLabel": "Classroom",
+    "renameLabel": "New name",
+    "archive": "Archive",
+    "unarchive": "Bring it back",
+    "archived": "Archived",
+    "archivedOption": "{{name}} (archived)",
+    "archivedNote": "An archived classroom is out of the way, not gone. Your learners keep their accounts, their projects and their answers, and you can bring it back at any time."
+  },
+  "invite": {
+    "heading": "Invite a learner",
+    "intro": "Choose a username for her. She will use it to sign in, and she chooses her own password when she redeems the code — you never see it.",
+    "usernameLabel": "Username",
+    "usernameHint": "3 to 24 characters: letters, digits, dots, hyphens and underscores. It has to be unused across the whole lab, so something like \"maria-t9\" works better than \"maria\".",
+    "submit": "Make an invitation",
+    "issuing": "Making it…",
+    "issuedHeading": "Hand these over",
+    "shownOnce": "This is the only time you will see the code. Only a scrambled version is stored, so it cannot be looked up again — copy it now.",
+    "codeLabel": "Invitation code",
+    "copyBoth": "Copy the username and code",
+    "copyPayload": "Username: {{username}} · Code: {{code}}",
+    "expiry": "It works for {{hours}} hours and can only be used once.",
+    "inPerson": "Hand it over in person or write it down. The lab holds no email address for a learner and never sends her anything.",
+    "inviteAnother": "Invite someone else",
+    "failure": {
+      "usernameTaken": "That username already belongs to an account. Choose another one.",
+      "invitationExists": "There is already an unused invitation for that username. Revoke it below, then make a new one.",
+      "usernameShape": "A username needs 3 to 24 characters, and only letters, digits, dots, hyphens and underscores.",
+      "notYourClassroom": "That classroom is not yours, or it is archived.",
+      "unconfigured": "This copy of the lab has no account service set up, so invitations cannot be made.",
+      "unknown": "That did not work. Nothing was created — try again."
+    }
+  },
+  "roster": {
+    "heading": "Learners ({{count}})",
+    "empty": "Nobody has joined yet. Make an invitation above and hand it over.",
+    "modulesDone": "{{done}} of {{total}} modules finished",
+    "expand": "Open",
+    "collapse": "Close",
+    "inactive": "Account switched off"
+  },
+  "pending": {
+    "heading": "Invitations",
+    "empty": "No invitations yet.",
+    "caption": "Usernames appear here only until they are redeemed. After that a learner is shown by the name she chose.",
+    "usernameColumn": "Username",
+    "kindColumn": "For",
+    "stateColumn": "State",
+    "actionColumn": "",
+    "purpose": {
+      "initial": "New account",
+      "password_reset": "New password"
+    },
+    "state": {
+      "live": "Waiting to be used",
+      "redeemed": "Used",
+      "revoked": "Cancelled",
+      "expired": "Ran out of time"
+    },
+    "expires": "until {{date}}",
+    "revoke": "Cancel it"
+  },
+  "detail": {
+    "noImages": "Her photos are not here and cannot be. They stay in the browser on her own device, and this screen has no way to reach them.",
+    "progressHeading": "Learning path",
+    "modulesDone": "Modules finished",
+    "noProgress": "She has not started a module yet.",
+    "figuresHeading": "Her figures",
+    "noRuns": "She has not trained a model yet.",
+    "bestAccuracy": "Best so far: {{accuracy}}% across {{runs}} training runs.",
+    "runLine": "{{project}} — {{accuracy}}% on {{date}}",
+    "reflectionsHeading": "What she wrote",
+    "noReflections": "She has not answered a reflection question yet.",
+    "issueReset": "New password code",
+    "resetTitle": "A new password code for {{alias}}",
+    "resetNote": "She enters this on the \"set a new password\" screen and chooses a new password herself. Her name and all her work stay as they are.",
+    "remove": "Remove from classroom",
+    "removeTitle": "Remove {{alias}} from this classroom?",
+    "removeBody": "You will stop seeing her progress and her answers. She keeps her account, her projects and everything she has written — this only ends your view of her.",
+    "removeConfirm": "Remove her",
+    "delete": "Delete account",
+    "deleteTitle": "Delete {{alias}}'s account?",
+    "deleteBody": "This removes her account and everything the lab has stored for her: her progress, her figures and every answer she wrote. It cannot be undone.",
+    "deleteLocalNote": "It does not touch the photos and trained models on her own device — the lab cannot reach those from here. Tell her they are still hers to keep or delete.",
+    "deleteConfirm": "Delete it for good"
+  },
+  "export": {
+    "action": "Export progress (CSV)",
+    "note": "The export covers this classroom only. Learners appear by the name they chose, never by username, and it contains no photos. Any answer starting with =, +, - or @ gets a quote mark in front of it, so your spreadsheet shows it as text instead of running it as a formula."
+  }
+}

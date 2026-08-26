@@ -167,14 +167,18 @@ export function hasChanged(delta: ClassDelta): boolean {
 /**
  * A project name turned into something a filesystem will accept.
  *
- * `\p{L}` keeps accented and non-Latin names intact rather than stripping them to
- * nothing — a learner who names her project "¿fruta o no?" should not get a file
- * called `_______`. The stripping also removes `/`, `\` and `.`, so a name
- * containing `../` cannot become a path the browser resolves somewhere else.
+ * NFC rather than NFKD, and `\p{L}` rather than `[a-z]`. NFKD would decompose `í`
+ * into `i` plus a combining acute, and the combining mark is `\p{Mn}` rather than
+ * `\p{L}`, so it would be stripped and "Sofía" would become "Sofia" — a quiet
+ * mangling of a name in a product whose second locale is Spanish. NFC leaves the
+ * accented letter as one code point, which `\p{L}` keeps.
+ *
+ * The stripping still removes `/`, `\` and `.`, so a name containing `../` cannot
+ * become a path the browser resolves somewhere else.
  */
 export function safeFileName(projectName: string): string {
   const cleaned = projectName
-    .normalize('NFKD')
+    .normalize('NFC')
     .replace(/[^\p{L}\p{N} -]/gu, '')
     .trim()
     .replace(/\s+/g, '-')

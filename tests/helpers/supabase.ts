@@ -67,36 +67,93 @@ export interface ReflectionRow {
   updated_at: string
 }
 
+export interface ClassroomRow {
+  id: string
+  name: string
+  educator_id: string
+  archived_at: string | null
+  created_at: string
+}
+
+export interface InvitationRow {
+  id: string
+  issuer_id: string
+  classroom_id: string | null
+  target: string
+  purpose: 'initial' | 'password_reset'
+  expires_at: string
+  redeemed_at: string | null
+  revoked_at: string | null
+  created_at: string
+}
+
+export interface RosterViewRow {
+  id: string
+  username: string
+  alias: string
+  role: 'learner' | 'educator' | 'administrator'
+  is_active: boolean
+  classroom_id: string | null
+}
+
+export interface TrainingRunRow {
+  id: string
+  project_id: string
+  finished_at: string
+  per_class: unknown[]
+  confusion: number[][]
+  overall_accuracy: number
+  imbalance_ratio: number | null
+  backbone_alpha: number
+  epochs: number
+}
+
+export interface EnrolmentRow {
+  classroom_id: string
+  learner_id: string
+  enrolled_at: string
+}
+
 interface Tables {
   profiles: ProfileRow[]
   projects: ProjectRow[]
   lesson_progress: LessonProgressRow[]
   reflections: ReflectionRow[]
+  classrooms: ClassroomRow[]
+  invitations: InvitationRow[]
+  educator_roster: RosterViewRow[]
+  training_runs: TrainingRunRow[]
+  enrolments: EnrolmentRow[]
+}
+
+interface QueryHooks<T> {
+  readonly onWrite: (kind: 'upsert' | 'insert' | 'update', values: readonly Partial<T>[], options?: unknown) => void
+  readonly onDelete: (rows: readonly T[]) => void
+  readonly onFilter: (filter: readonly [string, unknown]) => void
 }
 
 /**
  * A chainable stand-in for PostgrestFilterBuilder.
  *
- * Only `select`/`eq`/`order`/`maybeSingle` and `upsert` are modelled, because
- * only those are called. A fake that grew a `gte` nobody uses would be a second
- * implementation of PostgREST maintained for nothing.
+ * Only the operators this application actually calls are modelled. A fake that grew
+ * a `gte` nobody uses would be a second implementation of PostgREST maintained for
+ * nothing — and one whose divergence from the real thing nobody would notice.
+ *
+ * Filters are recorded as well as applied, so a test can assert that a query asked
+ * the server to scope the rows rather than fetching everything and filtering in the
+ * client. That distinction is invisible in the rendered output and is exactly the
+ * kind of thing that is one policy change away from leaking.
  */
 class FakeQuery<T extends Record<string, unknown>> implements PromiseLike<{ data: T[]; error: null }> {
   private rows: T[]
   private deleting = false
-  private readonly onUpsert: (values: readonly Partial<T>[], options?: unknown) => void
-  private readonly onDelete: (rows: readonly T[]) => void
+  private readonly hooks: QueryHooks<T>
 
   // Written out rather than as constructor parameter properties: `tsconfig.app.json`
   // sets `erasableSyntaxOnly`, which forbids the shorthand.
-  constructor(
-    rows: readonly T[],
-    onUpsert: (values: readonly Partial<T>[], options?: unknown) => void,
-    onDelete: (rows: readonly T[]) => void = () => undefined,
-  ) {
+  constructor(rows: readonly T[], hooks: QueryHooks<T>) {
     this.rows = [...rows]
-    this.onUpsert = onUpsert
-    this.onDelete = onDelete
+    this.hooks = hooks
   }
 
   select(): this {
@@ -108,15 +165,28 @@ class FakeQuery<T extends Record<string, unknown>> implements PromiseLike<{ data
   }
 
   eq(column: keyof T, value: unknown): this {
+    this.hooks.onFilter([String(column), value])
     this.rows = this.rows.filter((row) => row[column] === value)
     // A delete is terminal only once its filters are applied, so the rows are
     // reported on each `eq` and the last call is the one the test reads.
-    if (this.deleting) this.onDelete(this.rows)
+    if (this.deleting) this.hooks.onDelete(this.rows)
+    return this
+  }
+
+  in(column: keyof T, values: readonly unknown[]): this {
+    this.hooks.onFilter([String(column), values])
+    this.rows = this.rows.filter((row) => values.includes(row[column]))
+    if (this.deleting) this.hooks.onDelete(this.rows)
     return this
   }
 
   delete(): this {
     this.deleting = true
+    return this
+  }
+
+  update(values: Partial<T>): this {
+    this.hooks.onWrite('update', [values])
     return this
   }
 
@@ -128,12 +198,12 @@ class FakeQuery<T extends Record<string, unknown>> implements PromiseLike<{ data
     values: Partial<T> | readonly Partial<T>[],
     options?: unknown,
   ): Promise<{ data: null; error: null }> {
-    this.onUpsert(Array.isArray(values) ? values : [values as Partial<T>], options)
+    this.hooks.onWrite('upsert', Array.isArray(values) ? values : [values as Partial<T>], options)
     return Promise.resolve({ data: null, error: null })
   }
 
   insert(values: Partial<T> | readonly Partial<T>[]): Promise<{ data: null; error: null }> {
-    this.onUpsert(Array.isArray(values) ? values : [values as Partial<T>])
+    this.hooks.onWrite('insert', Array.isArray(values) ? values : [values as Partial<T>])
     return Promise.resolve({ data: null, error: null })
   }
 
@@ -150,7 +220,10 @@ export interface FakeSupabase {
   readonly upserted: Record<string, unknown[]>
   /** The options passed with each upsert, so a test can assert `onConflict`. */
   readonly upsertOptions: Record<string, unknown[]>
+  readonly updated: Record<string, unknown[]>
   readonly deleted: Record<string, unknown[]>
+  /** Every filter applied per table, so a test can assert server-side scoping. */
+  readonly filters: Record<string, [string, unknown][]>
   readonly rpc: ReturnType<typeof vi.fn>
   readonly signInWithPassword: ReturnType<typeof vi.fn>
   readonly signOut: ReturnType<typeof vi.fn>
@@ -170,10 +243,17 @@ export function createFakeSupabase(seed: Partial<Tables> = {}): FakeSupabase {
     projects: seed.projects ?? [],
     lesson_progress: seed.lesson_progress ?? [],
     reflections: seed.reflections ?? [],
+    classrooms: seed.classrooms ?? [],
+    invitations: seed.invitations ?? [],
+    educator_roster: seed.educator_roster ?? [],
+    training_runs: seed.training_runs ?? [],
+    enrolments: seed.enrolments ?? [],
   }
   const upserted: Record<string, unknown[]> = {}
   const upsertOptions: Record<string, unknown[]> = {}
+  const updated: Record<string, unknown[]> = {}
   const deleted: Record<string, unknown[]> = {}
+  const filters: Record<string, [string, unknown][]> = {}
 
   interface PostgresError {
     message: string
@@ -192,7 +272,9 @@ export function createFakeSupabase(seed: Partial<Tables> = {}): FakeSupabase {
     tables,
     upserted,
     upsertOptions,
+    updated,
     deleted,
+    filters,
     rpc,
     signInWithPassword,
     signOut,
@@ -252,18 +334,24 @@ export function createFakeSupabase(seed: Partial<Tables> = {}): FakeSupabase {
     },
     rpc,
     from: (table: keyof Tables) =>
-      new FakeQuery(
-        tables[table] as unknown as Record<string, unknown>[],
-        (values, options) => {
+      new FakeQuery(tables[table] as unknown as Record<string, unknown>[], {
+        onWrite: (kind, values, options) => {
+          if (kind === 'update') {
+            updated[table] = [...(updated[table] ?? []), ...values]
+            return
+          }
           upserted[table] = [...(upserted[table] ?? []), ...values]
           if (options !== undefined) {
             upsertOptions[table] = [...(upsertOptions[table] ?? []), options]
           }
         },
-        (rows) => {
+        onDelete: (rows) => {
           deleted[table] = [...rows]
         },
-      ),
+        onFilter: (filter) => {
+          filters[table] = [...(filters[table] ?? []), [filter[0], filter[1]]]
+        },
+      }),
   }
 
   ;(fake as { client?: unknown }).client = client

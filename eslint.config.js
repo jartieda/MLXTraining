@@ -71,6 +71,17 @@ export default tseslint.config(
     },
   },
 
+  // FR-041: the educator's and administrator's screens may not reach the on-device
+  // sample store. Structural rather than reviewed, because the failure only appears on
+  // a shared classroom device — the one place it matters most.
+  {
+    files: ['src/features/classroom/**/*.{ts,tsx}', 'src/features/admin/**/*.{ts,tsx}'],
+    plugins: { ml4g },
+    rules: {
+      'ml4g/no-local-store-in-classroom': 'error',
+    },
+  },
+
   // The colormap is the one deliberate exemption: Principle V exempts heat maps so they
   // can use a perceptually uniform ramp instead of brand accents.
   {
