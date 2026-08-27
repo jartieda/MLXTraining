@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { SEED, UNAVAILABLE_REASON, accountsAvailable, query } from './helpers/accounts'
-import { assertNothingEscaped, watchForEscapes } from './network.spec'
+import { assertNothingEscaped, watchForEscapes } from './helpers/egress'
 
 /**
  * T092 / US5 — module 1 end to end, then the fairness module's before-and-after.

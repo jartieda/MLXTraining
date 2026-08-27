@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { assertNothingEscaped, watchForEscapes } from './network.spec'
+import { assertNothingEscaped, watchForEscapes } from './helpers/egress'
 
 /**
  * T082 / US7 — FR-009, FR-010, FR-021, Scenario 7.2 and 7.3.

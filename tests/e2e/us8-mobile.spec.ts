@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { assertNothingEscaped, watchForEscapes } from './network.spec'
+import { assertNothingEscaped, watchForEscapes } from './helpers/egress'
 
 /**
  * T111 / US8 — SC-004, FR-045, FR-046. The complete journey at 360×740.

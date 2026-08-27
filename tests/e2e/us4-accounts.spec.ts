@@ -9,7 +9,7 @@ import {
   seedInvitation,
   seedResetCode,
 } from './helpers/accounts'
-import { assertNothingEscaped, watchForEscapes } from './network.spec'
+import { assertNothingEscaped, watchForEscapes } from './helpers/egress'
 
 /**
  * T071 / US4 — Scenarios 4.1 to 4.8.

@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { SEED, UNAVAILABLE_REASON, accountsAvailable, query, removeAccount } from './helpers/accounts'
-import { assertNothingEscaped, watchForEscapes } from './network.spec'
+import { assertNothingEscaped, watchForEscapes } from './helpers/egress'
 
 /**
  * T103 / US6 — Scenarios 6.1 to 6.7, SC-011, SC-013, SC-016, FR-041.
