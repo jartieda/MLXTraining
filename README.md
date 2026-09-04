@@ -35,6 +35,18 @@ npm run fetch:backbone   # ~11 MB of MobileNet weights into public/models/
 npm run dev
 ```
 
+To build and run the production image with Docker:
+
+```bash
+docker build -t ml4g-xai-lab .
+docker run --rm -p 8080:80 ml4g-xai-lab
+```
+
+Open `http://localhost:8080`. Supabase is optional; when it is needed, pass the Vite
+variables at build time with `--build-arg VITE_SUPABASE_URL=...` and
+`--build-arg VITE_SUPABASE_ANON_KEY=...`. Vite embeds these values in the static bundle,
+so do not pass service-role credentials.
+
 The lab works completely with no account and no Supabase configuration — that is FR-023, not a
 degraded mode. For the signed-in half you also need a local Supabase:
 
