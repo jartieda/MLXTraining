@@ -8,7 +8,7 @@ import type { FrozenFrame } from '@/features/testing/FreezeFrame'
 import * as db from '@/lib/db'
 import { gradCam, summariseHeatMap, type HeatMapSummary } from '@/ml/explain/gradcam'
 import { applyColormap, legendStops } from '@/ml/explain/colormap'
-import type { HeatMap, TargetLayer } from '@/ml/types'
+import type { ClassProbability, HeatMap, TargetLayer } from '@/ml/types'
 
 /**
  * T056, T057, T058 / FR-016, FR-017, FR-018, FR-019, D8, Principle III.
@@ -51,6 +51,7 @@ export function HeatmapView({ frozen }: HeatmapViewProps) {
   const [computing, setComputing] = useState(false)
   const [fromCache, setFromCache] = useState(false)
   const [failed, setFailed] = useState(false)
+  const [frozenProbabilities, setFrozenProbabilities] = useState<readonly ClassProbability[] | null>(null)
 
   const explainedClass = classes[classIndex] ?? null
 
@@ -62,6 +63,27 @@ export function HeatmapView({ frozen }: HeatmapViewProps) {
     setFromCache(false)
     setFailed(false)
   }, [frozen?.hash, classIndex, targetLayer])
+
+  useEffect(() => {
+    if (!frozen || !model || !backbone) {
+      setFrozenProbabilities(null)
+      return
+    }
+
+    let live = true
+    void model
+      .predict(frozen.image, backbone)
+      .then((scores) => {
+        if (live) setFrozenProbabilities(scores)
+      })
+      .catch(() => {
+        if (live) setFrozenProbabilities(null)
+      })
+
+    return () => {
+      live = false
+    }
+  }, [frozen?.hash, model, backbone])
 
   const explain = useCallback(async () => {
     if (!frozen || !model || !backbone || !explainedClass) return
@@ -147,6 +169,8 @@ export function HeatmapView({ frozen }: HeatmapViewProps) {
 
   const overlay = useMemo(() => (map ? applyColormap(map, opacity) : null), [map, opacity])
   const stops = useMemo(() => legendStops(LEGEND_STOPS), [])
+  const selectedConfidence =
+    explainedClass && frozenProbabilities ? frozenProbabilities[classIndex]?.probability ?? null : null
 
   if (!model) return <p className="text-sm text-ink-muted">{t('needModel')}</p>
   if (!frozen) return <p className="text-sm text-ink-muted">{t('needFrame')}</p>
@@ -170,6 +194,14 @@ export function HeatmapView({ frozen }: HeatmapViewProps) {
           ))}
         </select>
         <span className="text-sm text-ink-muted">{t('classSelector.hint')}</span>
+        {selectedConfidence !== null ? (
+          <span className="text-sm text-ink-muted">
+            {t('classSelector.confidence', {
+              name: explainedClass?.name ?? '',
+              percent: Math.round(selectedConfidence * 100),
+            })}
+          </span>
+        ) : null}
       </label>
 
       <Button onClick={() => void explain()} busy={computing} block>

@@ -1,5 +1,5 @@
 {
-  "panelTitle": "3. Try it out",
+  "panelTitle": "4. Try it out",
   "panelIntro": "Hold something up to the camera. The bars show how sure the computer is about each class.",
   "notTrained": "Train the model first, then come back here.",
   "start": "Start guessing",
@@ -8,6 +8,7 @@
   "paused": "Paused",
   "leading": "It thinks: {{name}}",
   "leadingConfidence": "{{name}}, {{percent}}% sure",
+  "cameraPreview": "Camera preview for model testing",
   "noCamera": "Turn on the camera above to try it live, or freeze a photo you uploaded.",
   "confidence": {
     "heading": "How sure it is",
@@ -19,6 +20,5 @@
     "frozen": "Frame frozen",
     "hint": "Freeze a frame to look at why it decided that.",
     "alt": "The frozen frame being explained"
-  },
-  "close": "It is close between {{first}} and {{second}}. When two are nearly level, the model is not really distinguishing them."
+  }
 }

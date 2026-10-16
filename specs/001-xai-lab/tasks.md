@@ -172,9 +172,9 @@ disagreement is stated rather than hidden.
 - [X] T063 [P] [US3] `tests/e2e/us3-compare.spec.ts` — both maps render, agreement band shown, occlusion cancellable, SC-003 5 s budget on the reference laptop
 - [X] T064 [US3] `src/ml/explain/occlusion.ts` — port `computeOcclusionHeatmap`, `normalizeHeatmap` from `docs/prototype/occlusion-prototype.js` (vendored in T009b) to TypeScript, replacing the detector confidence with the classifier's class probability and **stacking all variants in a batched forward pass**, chunked at 24. Stride is one full cell — **no overlap** — so a 12×12 grid is exactly 144 variants (FR-014, R4)
 - [X] T065 [P] [US3] `src/ml/explain/agreement.ts` — resample both maps to 14×14, Spearman correlation, top-k IoU, three-band classification (FR-015, R5)
-- [X] T066 [US3] `src/features/explaining/CompareView.tsx` — both maps for the same class side by side below `md`, columns above, with the agreement figure (FR-015); per-method progress; cancel control
-- [X] T067 [US3] Agreement presentation in `src/features/explaining/` — the plain-language band sentence, and an **explicit statement on disagreement that neither map is guaranteed correct**; must not blend the two maps (FR-018)
-- [X] T068 [P] [US3] `en` and `es` strings in `src/locales/{en,es}/` for the comparison view and the three bands (FR-044, SC-005)
+- [X] T066 [US3] `src/features/explaining/CompareView.tsx` — both maps for the same class side by side below `md`, columns above, with the agreement figure (FR-015); per-method progress; cancel control; final verdict section that says whether the model got it right and, if it missed, explains the failure from the visible heat-map evidence
+- [X] T067 [US3] Agreement presentation in `src/features/explaining/` — the plain-language band sentence, and an **explicit statement on disagreement that neither map is guaranteed correct**; must not blend the two maps (FR-018). The final verdict also states whether the model was correct and explains a miss from the heat-map evidence rather than simply naming a class.
+- [X] T068 [P] [US3] `en` and `es` strings in `src/locales/{en,es}/` for the comparison view, the three bands, and the final model-verdict wording (FR-044, SC-005)
 
 **Checkpoint**: The full XAI experience works without an account. Validate against W3, including the
 induced-disagreement case.

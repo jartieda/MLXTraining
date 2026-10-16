@@ -58,20 +58,21 @@
   },
   "export": {
     "heading": "Export the model",
-    "intro": "Save the trained model as a file on this device — to keep it, or to look at what training actually produced.",
+    "intro": "Save the trained model as a lightweight browser package on this device, including instructions for using it.",
     "open": "Export the model…",
     "dialogTitle": "What you are about to download",
     "contains": "The file contains:",
     "itemWeights": "The numbers the model learned during training — the part that does the deciding.",
     "itemClasses": "The names of your {{count}} classes, in the order the model uses them: {{names}}.",
-    "itemFiles": "Two files, {{fileName}}.json and {{fileName}}.weights.bin, saved together.",
+    "itemFiles": "Four files, {{fileName}}.tflite-web.model.json, {{fileName}}.tflite-web.weights.bin, {{fileName}}.tflite-web.labels.json and {{fileName}}.tflite-web.README.md.",
+    "itemInstructions": "A README with step-by-step instructions and browser code to run the exported package.",
     "notContains": "It does not contain:",
     "noPhotos": "None of your photos. They stay in this browser and are not in the file.",
-    "noBackbone": "Not the large pretrained model underneath, so the file only works with this lab.",
+    "noBackbone": "Not the large pretrained backbone underneath. You must pair this head with the same embedding pipeline to run it on images.",
     "destination": "It goes to this device's downloads folder. Nothing is uploaded anywhere.",
     "confirm": "Download it",
-    "producing": "Making the file…",
-    "done": "Saved as {{fileName}}.json and {{fileName}}.weights.bin.",
+    "producing": "Making the package…",
+    "done": "Saved as the package {{packageName}}.* with model, weights, labels and instructions.",
     "failed": "The file could not be made. Nothing was lost — try again."
   }
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import * as tf from '@tensorflow/tfjs'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/Button'
 import { Dialog } from '@/components/Dialog'
@@ -43,11 +44,103 @@ export function ExportModel({
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [problem, setProblem] = useState(false)
-  const [done, setDone] = useState(false)
+  const [donePackage, setDonePackage] = useState<string | null>(null)
 
   if (!model) return null
 
   const fileName = safeFileName(projectName)
+
+  function downloadBlob(file: string, blob: Blob): void {
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = file
+    link.rel = 'noopener'
+    link.click()
+    requestAnimationFrame(() => URL.revokeObjectURL(url))
+  }
+
+  function buildReadme(baseName: string, classes: readonly string[]): string {
+    return [
+      `# ${baseName} browser package`,
+      '',
+      'This export is a lightweight TensorFlow.js package for browser inference.',
+      'It includes only the trained classification head (the decision layer), not photos.',
+      '',
+      '## Files',
+      '',
+      `- ${baseName}.model.json`,
+      `- ${baseName}.weights.bin`,
+      `- ${baseName}.labels.json`,
+      '',
+      '## Class order used by the model',
+      '',
+      ...classes.map((name, index) => `${String(index)}. ${name}`),
+      '',
+      '## Use in a browser',
+      '',
+      '```ts',
+      "import * as tf from '@tensorflow/tfjs'",
+      '',
+      `const model = await tf.loadLayersModel('/models/${baseName}.model.json')`,
+      `const labels = await fetch('/models/${baseName}.labels.json').then((r) => r.json())`,
+      '',
+      '// The head expects one embedding vector per sample, not raw pixels.',
+      '// Build embeddings with the same MobileNet backbone and preprocessing',
+      '// used by this lab, then pass a tensor shaped [N, embeddingSize].',
+      'const embeddingBatch = tf.tensor2d([[/* ...embedding values... */]])',
+      'const scores = model.predict(embeddingBatch) as tf.Tensor2D',
+      'const values = await scores.array()',
+      '',
+      '// Highest score index maps to labels.classNames[index]',
+      'console.log(values[0], labels.classNames)',
+      '```',
+      '',
+      '## Important',
+      '',
+      '- This package does not contain the frozen backbone.',
+      '- It does not contain any training photos.',
+      '- Use the same backbone alpha and preprocessing as training to get consistent results.',
+      '',
+    ].join('\n')
+  }
+
+  function weightDataByteLength(weightData: tf.io.WeightData | undefined): number {
+    if (!weightData) return 0
+    if (weightData instanceof ArrayBuffer) return weightData.byteLength
+    return weightData.reduce((sum, chunk) => sum + chunk.byteLength, 0)
+  }
+
+  async function weightDataToArrayBuffer(weightData: tf.io.WeightData): Promise<ArrayBuffer> {
+    if (weightData instanceof ArrayBuffer) return weightData
+    return new Blob(weightData).arrayBuffer()
+  }
+
+  async function captureHeadArtifacts(trainedModel: TrainedModel): Promise<tf.io.ModelArtifacts> {
+    let captured: tf.io.ModelArtifacts | null = null
+
+    await trainedModel.head.pooled.save(
+      tf.io.withSaveHandler(async (artifacts) => {
+        captured = artifacts
+        return {
+          modelArtifactsInfo: {
+            dateSaved: new Date(),
+            modelTopologyType: 'JSON',
+            modelTopologyBytes: JSON.stringify(artifacts.modelTopology ?? {}).length,
+            weightSpecsBytes: JSON.stringify(artifacts.weightSpecs ?? []).length,
+            weightDataBytes: weightDataByteLength(artifacts.weightData),
+          },
+        }
+      }),
+    )
+
+    const artifacts = captured
+    if (!artifacts || !artifacts.modelTopology || !artifacts.weightSpecs || !artifacts.weightData) {
+      throw new Error('Could not capture model artifacts for export.')
+    }
+
+    return artifacts
+  }
 
   async function produce() {
     if (!model || busy) return
@@ -57,8 +150,44 @@ export function ExportModel({
       // `pooled` is the inference path — the one an importer would use. Saving
       // `spatial` would export the Grad-CAM variant, which shares these weights
       // but takes a different input shape and would confuse anyone who opened it.
-      await model.head.pooled.save(`downloads://${fileName}`)
-      setDone(true)
+      const artifacts = await captureHeadArtifacts(model)
+
+      const packageName = `${fileName}.tflite-web`
+      const modelFile = `${packageName}.model.json`
+      const weightsFile = `${packageName}.weights.bin`
+      const labelsFile = `${packageName}.labels.json`
+      const readmeFile = `${packageName}.README.md`
+
+      const modelJson = {
+        format: 'layers-model',
+        generatedBy: 'ml4g-xai-lab',
+        convertedBy: 'browser-export',
+        modelTopology: artifacts.modelTopology,
+        weightsManifest: [{ paths: [weightsFile], weights: artifacts.weightSpecs }],
+      }
+
+      const classes = perClass.map((entry) => entry.className)
+      const labelsJson = {
+        classNames: classes,
+        exportedAt: new Date().toISOString(),
+      }
+
+      downloadBlob(
+        modelFile,
+        new Blob([JSON.stringify(modelJson, null, 2)], { type: 'application/json;charset=utf-8' }),
+      )
+      const weightsBuffer = await weightDataToArrayBuffer(artifacts.weightData)
+      downloadBlob(weightsFile, new Blob([weightsBuffer], { type: 'application/octet-stream' }))
+      downloadBlob(
+        labelsFile,
+        new Blob([JSON.stringify(labelsJson, null, 2)], { type: 'application/json;charset=utf-8' }),
+      )
+      downloadBlob(
+        readmeFile,
+        new Blob([buildReadme(packageName, classes)], { type: 'text/markdown;charset=utf-8' }),
+      )
+
+      setDonePackage(packageName)
       setOpen(false)
     } catch {
       setProblem(true)
@@ -78,7 +207,7 @@ export function ExportModel({
         <Button
           variant="secondary"
           onClick={() => {
-            setDone(false)
+            setDonePackage(null)
             setOpen(true)
           }}
         >
@@ -87,7 +216,7 @@ export function ExportModel({
       </div>
 
       <p aria-live="polite" className="text-sm text-ink-muted">
-        {done ? t('export.done', { fileName }) : null}
+        {donePackage ? t('export.done', { packageName: donePackage }) : null}
       </p>
       {problem ? (
         <p role="alert" className="text-sm text-magenta">
@@ -131,6 +260,7 @@ export function ExportModel({
               })}
             </li>
             <li>{t('export.itemFiles', { fileName })}</li>
+            <li>{t('export.itemInstructions')}</li>
           </ul>
 
           {/* The absences, which are the part she would otherwise assume. */}

@@ -1,6 +1,7 @@
 {
   "title": "Mis proyectos",
   "intro": "Un proyecto es una cosa que estás enseñando al ordenador a reconocer. Cada uno guarda sus propias clases, fotos y su modelo entrenado.",
+  "storageLocation": "Se guarda localmente en la base de datos IndexedDB de tu navegador en este dispositivo. No se sincroniza con ninguna cuenta ni se sube a ningún sitio.",
   "empty": "Todavía no tienes proyectos. Crea uno y empieza a enseñar.",
   "create": "Nuevo proyecto",
   "createTitle": "Ponle nombre a tu proyecto",

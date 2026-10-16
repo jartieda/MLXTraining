@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import {useParams} from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { TextLink } from '@/components/TextLink'
 import { useTranslation } from 'react-i18next'
 import { LabLayout } from '@/routes/AppShell'
@@ -33,6 +33,7 @@ import * as db from '@/lib/db'
  */
 export function LabPage() {
   const { projectId } = useParams<{ projectId?: string }>()
+  const navigate = useNavigate()
   const { t } = useTranslation(['capture', 'training', 'testing', 'explaining'])
   const ownerId = useOwnerId()
 
@@ -49,8 +50,34 @@ export function LabPage() {
   const [cameraActive, setCameraActive] = useState(false)
   const [denied, setDenied] = useState(false)
   const [frozen, setFrozen] = useState<FrozenFrame | null>(null)
+  const [resolvingDefaultProject, setResolvingDefaultProject] = useState(false)
 
   useBackbone(settings.backboneAlpha)
+
+  useEffect(() => {
+    if (projectId) {
+      setResolvingDefaultProject(false)
+      return
+    }
+
+    let live = true
+    setResolvingDefaultProject(true)
+
+    void (async () => {
+      const projects = await db.listProjects(ownerId)
+      if (!live) return
+      const latest = projects[0]
+      if (latest) {
+        void navigate(`/lab/${latest.id}`, { replace: true })
+        return
+      }
+      setResolvingDefaultProject(false)
+    })()
+
+    return () => {
+      live = false
+    }
+  }, [projectId, ownerId, navigate])
 
   useEffect(() => {
     if (!projectId) return
@@ -79,6 +106,14 @@ export function LabPage() {
   useEffect(() => closeProject, [closeProject])
 
   if (!projectId) {
+    if (resolvingDefaultProject) {
+      return (
+        <p aria-live="polite" className="text-sm text-ink-muted">
+          {t('common:action.loading', { ns: 'common' })}
+        </p>
+      )
+    }
+
     return (
       <div className="flex flex-col gap-3">
         <h1 className="font-display text-2xl">{t('capture:panelTitle')}</h1>
@@ -147,38 +182,40 @@ export function LabPage() {
             <SampleGrid />
           </div>
         }
-        testing={
+        training={
           <div className="flex flex-col gap-4">
-            <h2 id="panel-testing" className="font-display text-lg">
+            <h2 id="panel-training" className="font-display text-lg">
               {t('training:panelTitle', { ns: 'training' })}
             </h2>
             <p className="text-sm text-ink-muted">{t('training:panelIntro', { ns: 'training' })}</p>
             <TrainPanel />
-
-            {/* US7. In the training column rather than a route of its own: the
-                figures are what a learner reads immediately after pressing Train,
-                and a separate page would put a navigation step between the run and
-                its result — which is exactly where she stops looking. */}
-            <hr className="border-border-subtle" />
+          </div>
+        }
+        results={
+          <div className="flex flex-col gap-4">
             <ResultsPanel />
+          </div>
+        }
+        testing={
+          <div className="flex flex-col gap-4">
+            <h2 id="panel-testing" className="font-display text-lg">
+              {t('testing:panelTitle', { ns: 'testing' })}
+            </h2>
+            <p className="text-sm text-ink-muted">{t('testing:panelIntro', { ns: 'testing' })}</p>
+            <LivePrediction video={cameraActive ? videoRef.current : null} />
           </div>
         }
         explaining={
           <div className="flex flex-col gap-4">
             <h2 id="panel-explaining" className="font-display text-lg">
-              {t('testing:panelTitle', { ns: 'testing' })}
+              {t('explaining:panelTitle', { ns: 'explaining' })}
             </h2>
-            <p className="text-sm text-ink-muted">{t('testing:panelIntro', { ns: 'testing' })}</p>
-            <LivePrediction video={cameraActive ? videoRef.current : null} />
+            <p className="text-sm text-ink-muted">{t('explaining:panelIntro', { ns: 'explaining' })}</p>
 
             {/* US2. Freezing comes before explaining because an explanation of a
                 live frame would describe a picture that no longer exists by the
                 time it renders. */}
             <hr className="border-border-subtle" />
-            <h3 className="font-display text-base">{t('explaining:panelTitle', { ns: 'explaining' })}</h3>
-            <p className="text-sm text-ink-muted">
-              {t('explaining:panelIntro', { ns: 'explaining' })}
-            </p>
             <FreezeFrame
               video={cameraActive ? videoRef.current : null}
               frozen={frozen}

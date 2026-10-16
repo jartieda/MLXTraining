@@ -58,20 +58,21 @@
   },
   "export": {
     "heading": "Exporta el modelo",
-    "intro": "Guarda el modelo entrenado como un archivo en este dispositivo, para conservarlo o para ver qué ha producido el entrenamiento.",
+    "intro": "Guarda el modelo entrenado como un paquete ligero para navegador en este dispositivo, con instrucciones de uso incluidas.",
     "open": "Exportar el modelo…",
     "dialogTitle": "Lo que estás a punto de descargar",
     "contains": "El archivo contiene:",
     "itemWeights": "Los números que el modelo aprendió durante el entrenamiento: la parte que toma la decisión.",
     "itemClasses": "Los nombres de tus {{count}} clases, en el orden que usa el modelo: {{names}}.",
-    "itemFiles": "Dos archivos, {{fileName}}.json y {{fileName}}.weights.bin, guardados juntos.",
+    "itemFiles": "Cuatro archivos, {{fileName}}.tflite-web.model.json, {{fileName}}.tflite-web.weights.bin, {{fileName}}.tflite-web.labels.json y {{fileName}}.tflite-web.README.md.",
+    "itemInstructions": "Un README con pasos y código de navegador para ejecutar el paquete exportado.",
     "notContains": "No contiene:",
     "noPhotos": "Ninguna de tus fotos. Se quedan en este navegador y no van en el archivo.",
-    "noBackbone": "Tampoco el modelo grande preentrenado que hay debajo, así que el archivo solo funciona con este laboratorio.",
+    "noBackbone": "Tampoco la backbone grande preentrenada que hay debajo. Debes combinar esta cabeza con el mismo pipeline de embeddings para usarla con imágenes.",
     "destination": "Va a la carpeta de descargas de este dispositivo. No se sube nada a ningún sitio.",
     "confirm": "Descargarlo",
-    "producing": "Creando el archivo…",
-    "done": "Guardado como {{fileName}}.json y {{fileName}}.weights.bin.",
+    "producing": "Creando el paquete…",
+    "done": "Guardado como el paquete {{packageName}}.* con modelo, pesos, etiquetas e instrucciones.",
     "failed": "No se pudo crear el archivo. No se ha perdido nada: vuelve a probar."
   }
 }

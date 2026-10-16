@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import type { BackendReport } from '@/ml/types'
 import type { LoadedBackbone } from '@/ml/backbone'
-import type { TrainedModel } from '@/ml/train'
+import { loadModel, type TrainedModel } from '@/ml/train'
 import type { EvaluationResult } from '@/ml/metrics'
 import * as db from '@/lib/db'
 
@@ -151,11 +151,28 @@ export const useLab = create<LabState>((set, get) => ({
     const classes = await db.listClasses(projectId)
     const sampleCounts = await db.countSamplesByClass(projectId)
     const stale = await db.listStaleEmbeddingSamples(projectId)
+    const activeRunId = project?.activeRunId ?? null
 
     // A trained model belongs to the project it was trained on. Carrying one over
     // would let a learner "test" project B against project A's model and get
     // confident nonsense.
     get().model?.dispose()
+
+    let restoredModel: TrainedModel | null = null
+    let restoredRunId: string | null = null
+
+    if (activeRunId) {
+      const record = await db.loadModelRecord(activeRunId)
+      if (record) {
+        try {
+          restoredModel = await loadModel(record.artifactKey, record.classOrder.length)
+          restoredRunId = record.runId
+        } catch {
+          restoredModel = null
+          restoredRunId = null
+        }
+      }
+    }
 
     set({
       projectId,
@@ -163,8 +180,8 @@ export const useLab = create<LabState>((set, get) => ({
       classes,
       sampleCounts,
       selectedClassId: classes[0]?.id ?? null,
-      model: null,
-      runId: null,
+      model: restoredModel,
+      runId: restoredRunId,
       evaluation: null,
       progress: IDLE_PROGRESS,
       staleEmbeddings: stale.length,

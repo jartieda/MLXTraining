@@ -1,5 +1,5 @@
 {
-  "panelTitle": "¿Por qué ha dicho eso?",
+  "panelTitle": "5. ¿Por qué ha dicho eso?",
   "panelIntro": "Congela una imagen y el laboratorio te mostrará qué partes de la foto han empujado la respuesta hacia una clase.",
   "needFrame": "Congela primero una imagen y pide después la explicación.",
   "needModel": "Entrena primero el modelo. No hay nada que explicar hasta que haya aprendido algo.",
@@ -14,13 +14,14 @@
     "coarse": "El mapa de calor se calcula sobre una cuadrícula de {{size}}×{{size}} y luego se estira sobre la foto, así que está borroso a propósito. Puede decirte más o menos dónde, no exactamente qué."
   },
   "legend": {
-    "low": "menos pruebas",
-    "high": "más pruebas",
+    "low": "menos evidencia",
+    "high": "más evidencia",
     "caption": "Dónde eran más fuertes las pruebas de esta clase."
   },
   "classSelector": {
     "label": "Qué clase explicar",
-    "hint": "Puedes preguntar por cualquier clase, no solo por la que ha elegido. Preguntar por qué NO ha elegido la otra suele ser más interesante."
+    "hint": "Puedes preguntar por cualquier clase, no solo por la que ha elegido. Preguntar por qué NO ha elegido la otra suele ser más interesante.",
+    "confidence": "Para esta imagen congelada, seguridad en «{{name}}»: {{percent}}%."
   },
   "opacity": {
     "label": "Intensidad del mapa de calor",
@@ -76,5 +77,34 @@
     },
     "budget": "Tapar cosas tarda unos segundos porque hace al modelo {{count}} preguntas distintas. Puedes detenerlo cuando quieras.",
     "coarseGrid": "Este dispositivo usa el modo más lento, o tiene una pantalla pequeña, así que el mapa de tapar usa una rejilla de {{size}}×{{size}} en vez de 12×12. Las dos explicaciones siguen funcionando: la segunda es solo un poco más gruesa."
+  },
+  "verdict": {
+    "heading": "¿Ha acertado el modelo?",
+    "prompt": "Elige si crees que el modelo ha acertado o se ha equivocado.",
+    "answerYes": "Sí",
+    "answerNo": "No",
+    "yes": "Sí: el modelo ha acertado y ha elegido «{{name}}».",
+    "no": "No: el modelo ha elegido «{{predicted}}» en lugar de «{{expected}}».",
+    "userSummary": {
+      "yes": "Sí: tú has decidido que el modelo ha acertado y ha elegido «{{name}}».",
+      "no": "No: tú has decidido que el modelo no ha acertado. Esperabas «{{expected}}», pero ha elegido «{{predicted}}»."
+    },
+    "reason": {
+      "correct": "La evidencia se concentra en la zona correcta y los dos mapas apuntan en la misma dirección.",
+      "disagreement": "Los dos mapas no coinciden; la evidencia se mezcla y no está claramente enfocada en la clase esperada.",
+      "diffuse": "La evidencia está repartida por casi toda la foto, así que no estaba señalando realmente a la clase correcta.",
+      "degenerate": "No se ha podido extraer una evidencia clara: el modelo casi no distinguía esta clase en esa imagen.",
+      "wrong-area": "La zona más fuerte del mapa está en un sitio distinto del objeto o la clase esperada, por eso el modelo ha respondido a otra parte de la escena.",
+      "weak-evidence": "El mapa es débil y poco concentrado, así que el modelo no tenía una pista fiable para esa clase."
+    },
+    "analysis": {
+      "heading": "Análisis inferido",
+      "loading": "Analizando con LLM…",
+      "unavailable": "No se pudo obtener análisis del LLM para este veredicto.",
+      "gradcamMissing": "No hay mapa de gradientes disponible para este veredicto.",
+      "occlusionMissing": "No hay mapa por oclusión disponible para este veredicto.",
+      "agreementMissing": "No hay medida de acuerdo entre métodos todavía.",
+      "body": "Has marcado «{{answer}}». Para la clase esperada «{{expected}}» y la predicha «{{predicted}}», la inferencia principal es: {{reason}}. Señal del mapa de gradientes: {{gradcam}}. Señal del mapa por oclusión: {{occlusion}}. Lectura conjunta entre métodos: {{agreement}}."
+    }
   }
 }

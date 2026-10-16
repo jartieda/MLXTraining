@@ -20,8 +20,12 @@ FROM nginx:1.27-alpine AS runtime
 
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/nginx-security-headers.conf /etc/nginx/snippets/nginx-security-headers.conf
+COPY docker/entrypoint.sh /entrypoint.sh
 COPY --from=build /app/dist /usr/share/nginx/html
 
-EXPOSE 80
+RUN chmod +x /entrypoint.sh
 
-CMD ["nginx", "-g", "daemon off;"]
+ENV PORT=8080
+EXPOSE 8080
+
+CMD ["/entrypoint.sh"]

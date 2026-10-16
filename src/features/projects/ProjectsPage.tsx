@@ -159,6 +159,7 @@ export function ProjectsPage() {
       <header className="flex flex-col gap-2">
         <h1 className="font-display text-2xl">{t('title')}</h1>
         <p className="max-w-prose text-ink-muted">{t('intro')}</p>
+        <p className="text-xs text-ink-muted">{t('storageLocation')}</p>
       </header>
 
       {/* FR-023: stated plainly rather than nagging. An anonymous session is a

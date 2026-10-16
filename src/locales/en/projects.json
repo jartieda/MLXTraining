@@ -1,6 +1,7 @@
 {
   "title": "My projects",
   "intro": "A project is one thing you are teaching the computer to recognise. Each one keeps its own classes, photos and trained model.",
+  "storageLocation": "Stored locally in your browser's IndexedDB database on this device. It is not synced to an account or uploaded anywhere.",
   "empty": "You have no projects yet. Make one and start teaching.",
   "create": "New project",
   "createTitle": "Name your project",

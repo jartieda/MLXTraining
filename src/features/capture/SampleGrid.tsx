@@ -59,7 +59,7 @@ export function SampleGrid() {
 
   return (
     <div className="flex flex-col gap-2">
-      <h3 className="text-base font-semibold">
+      <h3 className="text-sm font-semibold">
         {t('samples.heading', { name: selectedClass.name })}
       </h3>
 
@@ -67,7 +67,7 @@ export function SampleGrid() {
         <p className="text-sm text-ink-muted">{t('samples.empty')}</p>
       ) : (
         <>
-          <ul role="list" className="grid list-none grid-cols-3 gap-2 p-0 sm:grid-cols-4">
+          <ul role="list" className="grid list-none grid-cols-4 gap-1.5 p-0 sm:grid-cols-5">
             {visible.map((sample, index) => (
               <SampleThumb
                 key={sample.id}
@@ -141,7 +141,7 @@ function SampleThumb({
         // mistake to recover from by taking another, and a dialogue per deletion
         // would make pruning a burst unbearable. Deleting a whole CLASS is
         // confirmed, because that is not recoverable.
-        className="absolute top-1 right-1 flex size-8 items-center justify-center rounded-full bg-navy/70 text-ink-inverse"
+        className="absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-navy/70 text-[11px] text-ink-inverse"
       >
         <span aria-hidden="true">✕</span>
       </button>

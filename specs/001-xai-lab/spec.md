@@ -66,7 +66,8 @@ On the same frozen frame the learner views two explanations side by side. One is
 
 1. **Given** a frozen frame with a prediction, **When** the learner opens the comparison view, **Then** both explanations render for the same class alongside an agreement score and a plain-language reading of that score.
 2. **Given** the two explanations highlight different regions, **When** the comparison is shown, **Then** the lab states that they disagree and explains that neither is guaranteed correct.
-3. **Given** the slower explanation method is running, **When** the learner waits, **Then** progress is shown and the interface stays responsive, and she can cancel.
+3. **Given** a model decision on a frozen frame, **When** the learner reaches the final verdict section, **Then** the lab says whether the model got it right or not and, if it missed, explains the likely reason using the evidence visible in the heat maps — for example that the evidence is diffuse, weak, concentrated in the wrong area, or that the two methods disagree.
+4. **Given** the slower explanation method is running, **When** the learner waits, **Then** progress is shown and the interface stays responsive, and she can cancel.
 
 ---
 

@@ -260,100 +260,104 @@ export function CameraCapture({ videoRef, onActiveChange }: CameraCaptureProps) 
 
       {failure ? <CameraFailure kind={failure} onRetry={() => void start()} /> : null}
 
-      <div className="relative overflow-hidden rounded border border-border-subtle bg-navy">
-        <video
-          ref={videoRef}
-          playsInline
-          muted
-          aria-label={t('camera.preview')}
-          className="aspect-square w-full object-cover"
-        />
-        {!active ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <p className="px-4 text-center text-sm text-ink-inverse">
-              {starting ? t('camera.starting') : ''}
-            </p>
-          </div>
-        ) : null}
-      </div>
-
-      {!active ? (
-        <Button onClick={() => void start()} busy={starting} block>
-          {t('camera.start')}
-        </Button>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {selectedClass ? (
-            <p className="text-sm text-ink-muted">
-              {t('classes.selected', { name: selectedClass.name })}
-            </p>
-          ) : (
-            <p role="alert" className="text-sm text-magenta">
-              {t('classes.selectFirst')}
-            </p>
-          )}
-
-          <Button onClick={() => void captureOne()} disabled={!canCapture} block>
-            {t('camera.capture')}
-          </Button>
-
-          <Button
-            variant="secondary"
-            disabled={!canCapture}
-            block
-            // Pointer events, not mouse events: the same handler then serves a
-            // finger, a stylus and a mouse, which is what FR-045 and Scenario 8.4
-            // both need. `onPointerLeave` and `onPointerCancel` matter as much as
-            // `onPointerUp` — a finger sliding off the button must end the burst,
-            // not leave it running invisibly.
-            onPointerDown={() => void startBurst()}
-            onPointerUp={endBurst}
-            onPointerLeave={endBurst}
-            onPointerCancel={endBurst}
-            // Keyboard equivalent, because press-and-hold has none. Space or Enter
-            // starts, and a second press stops (SC-009, FR-046).
-            onKeyDown={(event) => {
-              if (event.key === ' ' || event.key === 'Enter') {
-                event.preventDefault()
-                if (bursting) endBurst()
-                else void startBurst()
-              }
-            }}
-          >
-            {bursting ? t('camera.capturing', { count: burstCount }) : t('camera.burst')}
-          </Button>
-
-          <p className="text-sm text-ink-muted">{t('camera.burstHint')}</p>
-
-          <div className="flex flex-wrap gap-2">
-            <Button variant="ghost" onClick={() => void flip()} busy={starting}>
-              {t('camera.switch')}
-            </Button>
-            <Button variant="ghost" onClick={stop}>
-              {t('camera.stop')}
-            </Button>
-          </div>
-
-          {devices.length > 1 ? (
-            <label className="flex flex-col gap-1 text-sm">
-              <span className="text-ink-muted">{t('camera.chooseDevice')}</span>
-              <select
-                onChange={(event) => void start(event.target.value)}
-                className="min-h-touch rounded border border-border-subtle bg-surface px-2"
-              >
-                {devices.map((device, index) => (
-                  <option key={device.deviceId} value={device.deviceId}>
-                    {/* Labels are empty before permission is granted, so a fallback
-                        is required rather than optional — otherwise the picker
-                        renders as a list of blank options. */}
-                    {device.label || t('camera.deviceFallback', { index: index + 1 })}
-                  </option>
-                ))}
-              </select>
-            </label>
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
+        <div className="relative mx-auto w-full max-w-[15rem] overflow-hidden rounded border border-border-subtle bg-navy sm:max-w-[18rem] md:mx-0 md:w-[18rem] md:max-w-none">
+          <video
+            ref={videoRef}
+            playsInline
+            muted
+            aria-label={t('camera.preview')}
+            className="aspect-square w-full object-cover"
+          />
+          {!active ? (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <p className="px-4 text-center text-sm text-ink-inverse">
+                {starting ? t('camera.starting') : ''}
+              </p>
+            </div>
           ) : null}
         </div>
-      )}
+
+        {!active ? (
+          <div className="md:flex md:flex-1 md:items-start md:justify-center">
+            <Button onClick={() => void start()} busy={starting} block className="md:max-w-[16rem]">
+              {t('camera.start')}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-1 flex-col gap-2">
+            {selectedClass ? (
+              <p className="text-sm text-ink-muted">
+                {t('classes.selected', { name: selectedClass.name })}
+              </p>
+            ) : (
+              <p role="alert" className="text-sm text-magenta">
+                {t('classes.selectFirst')}
+              </p>
+            )}
+
+            <Button onClick={() => void captureOne()} disabled={!canCapture} block>
+              {t('camera.capture')}
+            </Button>
+
+            <Button
+              variant="secondary"
+              disabled={!canCapture}
+              block
+              // Pointer events, not mouse events: the same handler then serves a
+              // finger, a stylus and a mouse, which is what FR-045 and Scenario 8.4
+              // both need. `onPointerLeave` and `onPointerCancel` matter as much as
+              // `onPointerUp` — a finger sliding off the button must end the burst,
+              // not leave it running invisibly.
+              onPointerDown={() => void startBurst()}
+              onPointerUp={endBurst}
+              onPointerLeave={endBurst}
+              onPointerCancel={endBurst}
+              // Keyboard equivalent, because press-and-hold has none. Space or Enter
+              // starts, and a second press stops (SC-009, FR-046).
+              onKeyDown={(event) => {
+                if (event.key === ' ' || event.key === 'Enter') {
+                  event.preventDefault()
+                  if (bursting) endBurst()
+                  else void startBurst()
+                }
+              }}
+            >
+              {bursting ? t('camera.capturing', { count: burstCount }) : t('camera.burst')}
+            </Button>
+
+            <p className="text-sm text-ink-muted">{t('camera.burstHint')}</p>
+
+            <div className="flex flex-wrap gap-2">
+              <Button variant="ghost" onClick={() => void flip()} busy={starting}>
+                {t('camera.switch')}
+              </Button>
+              <Button variant="ghost" onClick={stop}>
+                {t('camera.stop')}
+              </Button>
+            </div>
+
+            {devices.length > 1 ? (
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="text-ink-muted">{t('camera.chooseDevice')}</span>
+                <select
+                  onChange={(event) => void start(event.target.value)}
+                  className="min-h-touch rounded border border-border-subtle bg-surface px-2"
+                >
+                  {devices.map((device, index) => (
+                    <option key={device.deviceId} value={device.deviceId}>
+                      {/* Labels are empty before permission is granted, so a fallback
+                          is required rather than optional — otherwise the picker
+                          renders as a list of blank options. */}
+                      {device.label || t('camera.deviceFallback', { index: index + 1 })}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+          </div>
+        )}
+      </div>
 
       {/* aria-live: a learner using a screen reader gets no feedback from a
           thumbnail appearing, so the count has to be announced. */}

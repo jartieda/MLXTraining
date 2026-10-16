@@ -149,26 +149,35 @@ export function AppShell() {
 }
 
 /**
- * The lab's three panels: capture, test, explain.
+ * The lab's five-step flow: capture, train, review, test, explain.
  *
- * Stacked in one column below `md` and three across above it (FR-045). The
- * stacking order is the order of the work — capture, then test, then explain — so
- * that scrolling down a phone follows what a learner is actually doing rather
- * than a desktop column order that happens to read left to right.
+ * Stacked in one column below `md` so that scrolling down a phone follows the
+ * exact learning sequence rather than a desktop column order that happens to
+ * read left to right.
  */
 export function LabLayout({
   capture,
+  training,
+  results,
   testing,
   explaining,
 }: {
   readonly capture: React.ReactNode
+  readonly training: React.ReactNode
+  readonly results: React.ReactNode
   readonly testing: React.ReactNode
   readonly explaining: React.ReactNode
 }) {
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <div className="flex flex-col gap-6">
       <section aria-labelledby="panel-capture" className="min-w-0">
         {capture}
+      </section>
+      <section aria-labelledby="panel-training" className="min-w-0">
+        {training}
+      </section>
+      <section aria-labelledby="panel-results" className="min-w-0">
+        {results}
       </section>
       <section aria-labelledby="panel-testing" className="min-w-0">
         {testing}

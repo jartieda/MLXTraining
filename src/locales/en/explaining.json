@@ -1,5 +1,5 @@
 {
-  "panelTitle": "Why did it say that?",
+  "panelTitle": "5. Why did it say that?",
   "panelIntro": "Freeze a frame and the lab will show you which parts of the picture pushed the answer towards a class.",
   "needFrame": "Freeze a frame first, then ask for an explanation.",
   "needModel": "Train the model first. There is nothing to explain until it has learned something.",
@@ -20,7 +20,8 @@
   },
   "classSelector": {
     "label": "Explain which class",
-    "hint": "You can ask about any class, not only the one it chose. Asking why it did NOT pick the other class is often more interesting."
+    "hint": "You can ask about any class, not only the one it chose. Asking why it did NOT pick the other class is often more interesting.",
+    "confidence": "For this frozen frame, confidence for \"{{name}}\": {{percent}}%."
   },
   "opacity": {
     "label": "Heat map strength",
@@ -76,5 +77,34 @@
     },
     "budget": "Covering up takes a few seconds because it asks the model {{count}} separate questions. You can stop it at any time.",
     "coarseGrid": "This device is running the slower fallback, or has a small screen, so the covering-up map uses a {{size}}×{{size}} grid instead of 12×12. Both explanations still run — the second one is just a little chunkier."
+  },
+  "verdict": {
+    "heading": "Did the model get it right?",
+    "prompt": "Choose whether you think the model was right or wrong.",
+    "answerYes": "Yes",
+    "answerNo": "No",
+    "yes": "Yes: the model got it right and chose «{{name}}».",
+    "no": "No: the model chose «{{predicted}}» instead of «{{expected}}».",
+    "userSummary": {
+      "yes": "Yes: you decided the model got it right and chose «{{name}}».",
+      "no": "No: you decided the model missed it. You expected «{{expected}}», but it chose «{{predicted}}»."
+    },
+    "reason": {
+      "correct": "The evidence is focused in the right place and both maps point in the same direction.",
+      "disagreement": "The two maps do not agree; the evidence is mixed and is not clearly anchored on the class you expected.",
+      "diffuse": "The evidence is spread across much of the picture, so it was not really pointing at the correct class.",
+      "degenerate": "No clear evidence could be extracted: the model barely distinguished this class in that image.",
+      "wrong-area": "The strongest clues are in a different place from the object or class you expected, so the model responded to the wrong part of the scene.",
+      "weak-evidence": "The heat map is weak and not concentrated, so the model did not have a reliable cue for that class."
+    },
+    "analysis": {
+      "heading": "Inferred analysis",
+      "loading": "Analysing with the LLM…",
+      "unavailable": "No LLM analysis could be returned for this verdict.",
+      "gradcamMissing": "There is no gradient map available for this verdict.",
+      "occlusionMissing": "There is no occlusion map available for this verdict.",
+      "agreementMissing": "There is no cross-method agreement score yet.",
+      "body": "You answered \"{{answer}}\". For expected class \"{{expected}}\" and predicted class \"{{predicted}}\", the main inference is: {{reason}}. Gradient-map evidence: {{gradcam}}. Occlusion-map evidence: {{occlusion}}. Joint reading across methods: {{agreement}}."
+    }
   }
 }

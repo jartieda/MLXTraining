@@ -122,7 +122,7 @@ export function ClassList() {
 
       {/* A radiogroup, because choosing the capture target is exactly a
           single-choice question, and it gives arrow-key navigation for free. */}
-      <ul role="radiogroup" aria-label={t('classes.heading')} className="flex list-none flex-col gap-2 p-0">
+      <ul role="radiogroup" aria-label={t('classes.heading')} className="flex list-none flex-col gap-1.5 p-0">
         {classes.map((klass, index) => {
           const count = sampleCounts[klass.id] ?? 0
           const isSelected = klass.id === selectedClassId
@@ -138,7 +138,7 @@ export function ClassList() {
               // is a layout wrapper around the real radio inside it.
               role="presentation"
               className={[
-                'flex flex-col gap-2 rounded border p-2',
+                'flex flex-col gap-1.5 rounded border p-2',
                 isSelected ? 'border-blue bg-sky-100' : 'border-border-subtle bg-surface',
               ].join(' ')}
             >
@@ -151,7 +151,7 @@ export function ClassList() {
                   onCancel={cancelEditing}
                 />
               ) : (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <button
                     type="button"
                     role="radio"
@@ -169,14 +169,14 @@ export function ClassList() {
                       ].join(' ')}
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate font-medium">{klass.name}</span>
-                      <span className="block text-sm text-ink-muted">
+                      <span className="block truncate text-sm font-medium">{klass.name}</span>
+                      <span className="block text-[11px] leading-4 text-ink-muted">
                         {count === 0 ? t('classes.countZero') : t('classes.count', { count })}
                       </span>
                     </span>
                   </button>
 
-                  <div className="flex shrink-0 items-center">
+                  <div className="flex shrink-0 items-center gap-1">
                     {index > 0 ? (
                       <IconButton
                         label={t('classes.moveUp', { name: klass.name })}

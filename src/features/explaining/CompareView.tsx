@@ -13,7 +13,9 @@ import { occlusionSensitivity } from '@/ml/explain/occlusion'
 import { chooseDeviceBudget, variantCount } from '@/features/lab/deviceBudget'
 import { agreement, type Agreement } from '@/ml/explain/agreement'
 import { applyColormap, legendStops } from '@/ml/explain/colormap'
+import { topClass } from '@/ml/predict'
 import { isMlError, type HeatMap } from '@/ml/types'
+import { requestLlmVerdictAnalysis } from './llmVerdict'
 
 /**
  * T066, T067 / FR-015, FR-018, Principle III.
@@ -41,6 +43,80 @@ const DEFAULT_OPACITY = 0.65
 
 type Phase = 'idle' | 'gradcam' | 'occlusion' | 'done' | 'cancelled' | 'failed'
 
+export type ModelVerdictReason =
+  | 'correct'
+  | 'disagreement'
+  | 'diffuse'
+  | 'degenerate'
+  | 'wrong-area'
+  | 'weak-evidence'
+
+export interface ModelVerdict {
+  readonly correct: boolean
+  readonly predictedIndex: number | null
+  readonly expectedIndex: number | null
+  readonly reason: ModelVerdictReason
+}
+
+export type UserVerdictChoice = 'yes' | 'no'
+
+export interface UserVerdict {
+  readonly userChoice: UserVerdictChoice
+  readonly summary: string
+  readonly reason: ModelVerdictReason
+}
+
+export function buildModelVerdict(
+  predictedIndex: number | null,
+  expectedIndex: number | null,
+  _classNames: readonly string[],
+  summary: { diffuse: boolean; degenerate: boolean } | null,
+  agreementBand: Agreement['band'] | null,
+): ModelVerdict {
+  if (predictedIndex !== null && expectedIndex !== null && predictedIndex === expectedIndex) {
+    return { correct: true, predictedIndex, expectedIndex, reason: 'correct' }
+  }
+
+  if (agreementBand === 'disagreement') {
+    return { correct: false, predictedIndex, expectedIndex, reason: 'disagreement' }
+  }
+
+  if (summary?.degenerate) {
+    return { correct: false, predictedIndex, expectedIndex, reason: 'degenerate' }
+  }
+
+  if (summary?.diffuse) {
+    return { correct: false, predictedIndex, expectedIndex, reason: 'diffuse' }
+  }
+
+  if (predictedIndex !== null && expectedIndex !== null) {
+    return { correct: false, predictedIndex, expectedIndex, reason: 'wrong-area' }
+  }
+
+  return { correct: false, predictedIndex, expectedIndex, reason: 'weak-evidence' }
+}
+
+export function buildUserVerdict(
+  userChoice: UserVerdictChoice,
+  verdict: ModelVerdict,
+  expectedName: string,
+  predictedName: string,
+): UserVerdict {
+  if (userChoice === 'yes') {
+    return {
+      userChoice,
+      summary: `Yes: you decided the model got it right and chose "${expectedName}".`,
+      reason: verdict.reason,
+    }
+  }
+
+  return {
+    userChoice,
+    summary: `No: you decided the model missed it. You expected "${expectedName}", but it chose "${predictedName}".`,
+    reason: verdict.reason,
+  }
+}
+
 export interface CompareViewProps {
   readonly frozen: FrozenFrame | null
 }
@@ -66,6 +142,10 @@ export function CompareView({ frozen }: CompareViewProps) {
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
   const [gradcamMap, setGradcamMap] = useState<HeatMap | null>(null)
   const [occlusionMap, setOcclusionMap] = useState<HeatMap | null>(null)
+  const [predictedClassIndex, setPredictedClassIndex] = useState<number | null>(null)
+  const [userChoice, setUserChoice] = useState<UserVerdictChoice | null>(null)
+  const [llmAnalysis, setLlmAnalysis] = useState<string | null>(null)
+  const [llmLoading, setLlmLoading] = useState(false)
 
   const explainedClass = classes[classIndex] ?? null
 
@@ -78,6 +158,27 @@ export function CompareView({ frozen }: CompareViewProps) {
     setPhase('idle')
     setProgress(null)
   }, [frozen?.hash, classIndex])
+
+  useEffect(() => {
+    let cancelled = false
+
+    if (!frozen || !model || !backbone) {
+      setPredictedClassIndex(null)
+      return () => {
+        cancelled = true
+      }
+    }
+
+    void (async () => {
+      const probabilities = await model.predict(frozen.image, backbone)
+      if (cancelled) return
+      setPredictedClassIndex(topClass(probabilities)?.classIndex ?? null)
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [frozen, model, backbone])
 
   useEffect(() => () => abortRef.current?.abort(), [])
 
@@ -190,6 +291,123 @@ export function CompareView({ frozen }: CompareViewProps) {
     () => (gradcamMap && occlusionMap ? agreement(gradcamMap, occlusionMap) : null),
     [gradcamMap, occlusionMap],
   )
+
+  const selectedSummary = useMemo(
+    () => (gradcamMap ? summariseHeatMap(gradcamMap) : occlusionMap ? summariseHeatMap(occlusionMap) : null),
+    [gradcamMap, occlusionMap],
+  )
+
+  const verdict = useMemo(
+    () =>
+      buildModelVerdict(
+        predictedClassIndex,
+        classIndex,
+        classes.map((klass) => klass.name),
+        selectedSummary,
+        scores?.band ?? null,
+      ),
+    [predictedClassIndex, classIndex, classes, selectedSummary, scores?.band],
+  )
+
+  const userVerdict = useMemo(() => {
+    if (userChoice === null || predictedClassIndex === null) return null
+
+    return buildUserVerdict(
+      userChoice,
+      verdict,
+      classes[classIndex]?.name ?? '',
+      classes[predictedClassIndex]?.name ?? '',
+    )
+  }, [userChoice, verdict, predictedClassIndex, classIndex, classes])
+
+  const inferredVerdictAnalysis = useMemo(() => {
+    if (!userVerdict || predictedClassIndex === null) return null
+
+    const expected = classes[classIndex]?.name ?? ''
+    const predicted = classes[predictedClassIndex]?.name ?? ''
+    const reason = t(`verdict.reason.${userVerdict.reason}`, {
+      expected,
+      predicted,
+    })
+
+    const gradcamEvidence = gradcamMap ? describe(gradcamMap) : t('verdict.analysis.gradcamMissing')
+    const occlusionEvidence = occlusionMap ? describe(occlusionMap) : t('verdict.analysis.occlusionMissing')
+    const agreementEvidence = scores
+      ? t(`compare.agreement.${scores.band}`)
+      : t('verdict.analysis.agreementMissing')
+
+    return t('verdict.analysis.body', {
+      answer: userVerdict.userChoice === 'yes' ? t('verdict.answerYes') : t('verdict.answerNo'),
+      expected,
+      predicted,
+      reason,
+      gradcam: gradcamEvidence,
+      occlusion: occlusionEvidence,
+      agreement: agreementEvidence,
+    })
+  }, [
+    userVerdict,
+    predictedClassIndex,
+    classes,
+    classIndex,
+    t,
+    gradcamMap,
+    occlusionMap,
+    scores,
+  ])
+
+  useEffect(() => {
+    let cancelled = false
+
+    if (!userVerdict || predictedClassIndex === null) {
+      setLlmAnalysis(null)
+      setLlmLoading(false)
+      return () => {
+        cancelled = true
+      }
+    }
+
+    const expected = classes[classIndex]?.name ?? ''
+    const predicted = classes[predictedClassIndex]?.name ?? ''
+    const gradcamEvidence = gradcamMap ? describe(gradcamMap) : t('verdict.analysis.gradcamMissing')
+    const occlusionEvidence = occlusionMap ? describe(occlusionMap) : t('verdict.analysis.occlusionMissing')
+
+    setLlmLoading(true)
+    void requestLlmVerdictAnalysis({
+      userChoice: userVerdict.userChoice,
+      expectedClass: expected,
+      predictedClass: predicted,
+      classNames: classes.map((klass) => klass.name),
+      reason: userVerdict.reason,
+      gradcamEvidence,
+      occlusionEvidence,
+      agreementBand: scores?.band ?? null,
+    })
+      .then((analysis) => {
+        if (cancelled) return
+        setLlmAnalysis(analysis)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setLlmAnalysis(null)
+      })
+      .finally(() => {
+        if (!cancelled) setLlmLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    userVerdict,
+    predictedClassIndex,
+    classes,
+    classIndex,
+    gradcamMap,
+    occlusionMap,
+    scores?.band,
+    t,
+  ])
 
   const stops = useMemo(() => legendStops(LEGEND_STOPS), [])
   const gradcamOverlay = useMemo(
@@ -401,6 +619,57 @@ export function CompareView({ frozen }: CompareViewProps) {
           ) : null}
 
           <p className="text-ink-muted">{t('compare.agreement.noBlend')}</p>
+        </section>
+      ) : null}
+
+      {predictedClassIndex !== null ? (
+        <section data-testid="model-verdict" className="flex flex-col gap-2 rounded border border-border-subtle p-3 text-sm">
+          <h4 className="font-semibold">{t('verdict.heading')}</h4>
+
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={userChoice === 'yes' ? 'primary' : 'secondary'}
+              onClick={() => setUserChoice('yes')}
+            >
+              {t('verdict.answerYes')}
+            </Button>
+            <Button
+              variant={userChoice === 'no' ? 'primary' : 'secondary'}
+              onClick={() => setUserChoice('no')}
+            >
+              {t('verdict.answerNo')}
+            </Button>
+          </div>
+
+          {userVerdict ? (
+            <>
+              <p>
+                {userVerdict.userChoice === 'yes'
+                  ? t('verdict.userSummary.yes', { name: classes[classIndex]?.name ?? '' })
+                  : t('verdict.userSummary.no', {
+                      expected: classes[classIndex]?.name ?? '',
+                      predicted: classes[predictedClassIndex]?.name ?? '',
+                    })}
+              </p>
+              {userVerdict.userChoice === 'yes' && gradcamMap ? (
+                <p className="text-ink-muted">{describe(gradcamMap)}</p>
+              ) : null}
+              <p className="text-ink-muted">
+                {t(`verdict.reason.${userVerdict.reason}`, {
+                  expected: classes[classIndex]?.name ?? '',
+                  predicted: classes[predictedClassIndex]?.name ?? '',
+                })}
+              </p>
+              <p data-testid="llm-verdict-analysis" className="rounded bg-surface-sunken p-2 text-ink-muted">
+                {t('verdict.analysis.heading')}:{' '}
+                {llmLoading
+                  ? t('verdict.analysis.loading')
+                  : (llmAnalysis ?? inferredVerdictAnalysis ?? t('verdict.analysis.unavailable'))}
+              </p>
+            </>
+          ) : (
+            <p className="text-ink-muted">{t('verdict.prompt')}</p>
+          )}
         </section>
       ) : null}
     </section>
