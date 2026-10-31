@@ -1,0 +1,46 @@
+{
+  "title": "Lab LLM",
+  "intro": "Prueba un prompt y compara tres palabras completas construidas con predicciones reales del modelo.",
+  "chat": {
+    "title": "Sandbox de chat",
+    "intro": "Elige un modelo local, escribe cualquier prompt y compara hasta tres palabras completas.",
+    "modelLabel": "Modelo",
+    "loading": "Cargando el modelo local en tu navegador…",
+    "loadingProgress": "Cargando el modelo local en tu navegador… {{percent}} %",
+    "modelUnavailable": "El modelo local todavía no está listo.",
+    "modelError": "WebLLM no pudo cargar el modelo: {{error}}",
+    "retry": "Reintentar",
+    "modelReady": "WebLLM listo: {{model}}",
+    "modelReadyCpu": "Sin GPU compatible: {{model}} se ejecuta en la CPU con una versión reducida del modelo. Será más lento.",
+    "generationFailed": "WebLLM no pudo generar una respuesta. Inténtalo de nuevo.",
+    "processing": "Procesando prompt…",
+    "status": {
+      "label": "Estado del modelo",
+      "loading": "Cargando",
+      "error": "Error",
+      "ready": "Listo",
+      "waiting": "En espera"
+    },
+    "promptLabel": "Tu prompt",
+    "promptPlaceholder": "Escribe cualquier prompt para el modelo…",
+    "send": "Enviar al modelo",
+    "userLabel": "Tú",
+    "why": "Ver análisis de palabra",
+    "empty": "Envía un prompt y el modelo responderá aquí.",
+    "replyPrefix": "El modelo responde:",
+    "noOutput": "El modelo no devolvió texto.",
+    "wordOptionsTitle": "Tres palabras candidatas y su cálculo",
+    "noCompleteWords": "No se completó ninguna palabra; se muestra el prefijo que devolvió el modelo, si lo hay.",
+    "partialOutput": "Resultado parcial",
+    "traceCalls": "Consultas al modelo: {{count}}",
+    "traceWord": "Palabra completa: {{word}}",
+    "tracePartial": "Prefijo en curso «{{text}}»",
+    "wordAnalysisDescription": "Cada ruta muestra las probabilidades de los tokens devueltas por el modelo y su producto. Si varias rutas forman la misma palabra, se suman. Como la API de chat exige una nueva consulta con el prefijo parcial —no permite continuar exactamente el flujo interno de tokens—, el producto es una puntuación aproximada, no una probabilidad conjunta exacta. Se exploran como máximo tres tokens por paso, nueve rutas activas, ocho tokens por palabra y 36 consultas; la suma cubre solo las rutas exploradas, no toda la masa de probabilidad de la palabra.",
+    "mergedWordScore": "Suma de rutas: {{calculation}} = {{total}}%",
+    "models": {
+      "gemma": "Gemma",
+      "llama": "Llama",
+      "qwen": "Qwen (Alibaba)"
+    }
+  }
+}

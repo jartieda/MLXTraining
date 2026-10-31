@@ -1,0 +1,46 @@
+{
+  "title": "LLM Lab",
+  "intro": "Try a prompt and compare three complete words built from real model predictions.",
+  "chat": {
+    "title": "Chat sandbox",
+    "intro": "Choose a local model, send any prompt, and compare up to three complete words.",
+    "modelLabel": "Model",
+    "loading": "Loading the local model in your browser…",
+    "loadingProgress": "Loading the local model in your browser… {{percent}}%",
+    "modelUnavailable": "The local model is not ready yet.",
+    "modelError": "WebLLM could not load the model: {{error}}",
+    "retry": "Retry",
+    "modelReady": "WebLLM ready: {{model}}",
+    "modelReadyCpu": "No compatible GPU: {{model}} runs on the CPU with a reduced model. It will be slower.",
+    "generationFailed": "WebLLM could not generate a response. Try again.",
+    "processing": "Processing prompt…",
+    "status": {
+      "label": "Model status",
+      "loading": "Loading",
+      "error": "Error",
+      "ready": "Ready",
+      "waiting": "Waiting"
+    },
+    "promptLabel": "Your prompt",
+    "promptPlaceholder": "Write any prompt for the model…",
+    "send": "Send to model",
+    "userLabel": "You",
+    "why": "Show word analysis",
+    "empty": "Send a prompt and the model will answer here.",
+    "replyPrefix": "Model replies:",
+    "noOutput": "The model returned no text.",
+    "wordOptionsTitle": "Three candidate words and their calculations",
+    "noCompleteWords": "No word was completed; the prefix returned by the model is shown if available.",
+    "partialOutput": "Partial result",
+    "traceCalls": "Model queries: {{count}}",
+    "traceWord": "Complete word: {{word}}",
+    "tracePartial": "Prefix in progress “{{text}}”",
+    "wordAnalysisDescription": "Each path shows token probabilities returned by the model and their product. If multiple paths form the same word, their scores are added. Because the chat API requires a new request containing the partial prefix—it cannot continue the exact internal token stream—the product is an approximate score, not an exact joint probability. Search explores at most three tokens per step, nine active paths, eight tokens per word, and 36 queries; the sum covers explored paths only, not all probability mass for the word.",
+    "mergedWordScore": "Sum of paths: {{calculation}} = {{total}}%",
+    "models": {
+      "gemma": "Gemma",
+      "llama": "Llama",
+      "qwen": "Qwen (Alibaba)"
+    }
+  }
+}
