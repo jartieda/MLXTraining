@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/Button'
-import { createLlmEngine, type LlmEngine } from './llmEngine'
+import { createLlmEngine, WebGpuUnavailableError, type LlmBackend, type LlmEngine } from './llmEngine'
+import { ReasoningChat } from './ReasoningChat'
 import {
   buildWordCompletionPrompt,
   findWordCandidates,
@@ -28,6 +29,10 @@ interface ChatMessage {
 }
 
 const MODEL_ORDER: readonly ModelId[] = ['gemma', 'llama', 'qwen']
+const BACKEND_ORDER: readonly LlmBackend[] = ['gpu', 'cpu']
+
+/** Sentinel stored in `engineError` so the message is translated when rendered. */
+const WEBGPU_UNAVAILABLE = 'webgpu-unavailable:'
 
 // Engine creation and unloading share one WebGPU device. Running them concurrently
 // (StrictMode double effects, switching models quickly) makes requestAdapter fail with
@@ -38,6 +43,7 @@ export function LlmLabPage() {
   const { t } = useTranslation(['llm', 'common'])
 
   const [selectedModel, setSelectedModel] = useState<ModelId>('gemma')
+  const [selectedBackend, setSelectedBackend] = useState<LlmBackend>('gpu')
   const [loadingModel, setLoadingModel] = useState(false)
   const [engine, setEngine] = useState<LlmEngine | null>(null)
   const [engineError, setEngineError] = useState<string | null>(null)
@@ -62,7 +68,7 @@ export function LlmLabPage() {
     async function initializeEngine() {
       if (!active) return
       try {
-        const nextEngine = await createLlmEngine(selectedModel, (progress) => {
+        const nextEngine = await createLlmEngine(selectedModel, selectedBackend, (progress) => {
           if (active) setLoadProgress(progress)
         })
         createdEngine = nextEngine
@@ -74,7 +80,13 @@ export function LlmLabPage() {
         console.warn('WebLLM engine could not start:', error)
         if (active) {
           setEngine(null)
-          setEngineError(error instanceof Error ? error.message : 'WebLLM failed to initialize')
+          setEngineError(
+            error instanceof WebGpuUnavailableError
+              ? `${WEBGPU_UNAVAILABLE}${error.reason}`
+              : error instanceof Error
+                ? error.message
+                : 'WebLLM failed to initialize',
+          )
         }
       } finally {
         if (active) {
@@ -92,7 +104,7 @@ export function LlmLabPage() {
         if (createdEngine) await createdEngine.unload().catch(() => undefined)
       })
     }
-  }, [selectedModel, retryKey])
+  }, [selectedModel, selectedBackend, retryKey])
 
   async function handleSubmitPrompt() {
     const trimmed = prompt.trim()
@@ -157,7 +169,7 @@ export function LlmLabPage() {
         text: t('chat.loadingProgress', { percent: Math.round((loadProgress ?? 0) * 100) }),
       }
     : engineError
-      ? { label: t('chat.status.error'), tone: 'bg-red-500', text: t('chat.modelError', { error: engineError }) }
+      ? { label: t('chat.status.error'), tone: 'bg-red-500', text: engineError.startsWith(WEBGPU_UNAVAILABLE) ? t(`chat.webGpuUnavailable.${engineError.slice(WEBGPU_UNAVAILABLE.length)}`) : t('chat.modelError', { error: engineError }) }
       : engine
         ? { label: t('chat.status.ready'), tone: 'bg-emerald-500', text: t(engine.backend === 'cpu' ? 'chat.modelReadyCpu' : 'chat.modelReady', { model: t(`chat.models.${selectedModel}`) }) }
         : { label: t('chat.status.waiting'), tone: 'bg-slate-400', text: t('chat.loading') }
@@ -193,6 +205,24 @@ export function LlmLabPage() {
                 </Button>
               ))}
             </div>
+            <p className="mb-2 mt-4 text-sm font-medium text-ink">{t('chat.backendLabel')}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {BACKEND_ORDER.map((backendId) => (
+                <Button
+                  key={backendId}
+                  type="button"
+                  variant={selectedBackend === backendId ? 'primary' : 'secondary'}
+                  aria-pressed={selectedBackend === backendId}
+                  disabled={isProcessingPrompt}
+                  onClick={() => {
+                    setSelectedBackend(backendId)
+                  }}
+                >
+                  {t(`chat.backends.${backendId}`)}
+                </Button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-ink-muted">{t(`chat.backendHint.${selectedBackend}`)}</p>
             <div
               aria-live="polite"
               className="mt-3 flex items-center gap-2 rounded-full border border-border-subtle bg-surface-sunken px-2.5 py-1.5"
@@ -294,6 +324,31 @@ export function LlmLabPage() {
         </div>
       </section>
 
+      <ReasoningChat key={`${selectedModel}-${selectedBackend}-${retryKey}`} engine={engine} loadingModel={loadingModel} />
+      <ReasoningChat
+        key={`sentiment-${selectedModel}-${selectedBackend}-${retryKey}`}
+        variant="sentiment"
+        engine={engine}
+        loadingModel={loadingModel}
+      />
+      <ReasoningChat
+        key={`bias-${selectedModel}-${selectedBackend}-${retryKey}`}
+        variant="bias"
+        engine={engine}
+        loadingModel={loadingModel}
+      />
+      <ReasoningChat
+        key={`tutor-${selectedModel}-${selectedBackend}-${retryKey}`}
+        variant="tutor"
+        engine={engine}
+        loadingModel={loadingModel}
+      />
+      <ReasoningChat
+        key={`deception-${selectedModel}-${selectedBackend}-${retryKey}`}
+        variant="deception"
+        engine={engine}
+        loadingModel={loadingModel}
+      />
     </div>
   )
 }
@@ -434,7 +489,7 @@ async function buildChatTurn(
 ) {
   let latestProgress: WordSearchProgress = { modelCalls: 0, candidates: [], partials: [] }
   const candidates = await findWordCandidates(async (partialWord) => {
-    return engine.nextTokenAlternatives(buildWordCompletionPrompt(prompt, partialWord))
+    return engine.nextTokenAlternatives(buildWordCompletionPrompt(prompt), partialWord)
   }, {
     onProgress: (progress) => {
       latestProgress = progress

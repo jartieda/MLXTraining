@@ -27,6 +27,9 @@ const Projects = lazy(() =>
   import('@/features/projects/ProjectsPage').then((m) => ({ default: m.ProjectsPage })),
 )
 const Lab = lazy(() => import('@/features/capture/LabPage').then((m) => ({ default: m.LabPage })))
+const LlmLab = lazy(() =>
+  import('@/features/llmLab/LlmLabPage').then((m) => ({ default: m.LlmLabPage })),
+)
 const Lessons = lazy(() =>
   import('@/features/lessons/LessonsPage').then((m) => ({ default: m.LessonsPage })),
 )
@@ -57,6 +60,7 @@ export const router = createBrowserRouter([
       { path: 'projects/:projectId', element: <LearnerRoute>{<Projects />}</LearnerRoute> },
       { path: 'lab/:projectId', element: <LearnerRoute>{<Lab />}</LearnerRoute> },
       { path: 'lab', element: <LearnerRoute>{<Lab />}</LearnerRoute> },
+      { path: 'lab-llm', element: <LearnerRoute>{<LlmLab />}</LearnerRoute> },
 
       { path: 'lessons', element: <LearnerRoute>{<Lessons />}</LearnerRoute> },
       { path: 'lessons/:moduleId', element: <LearnerRoute>{<Lessons />}</LearnerRoute> },

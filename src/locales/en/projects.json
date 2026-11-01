@@ -1,6 +1,20 @@
 {
   "title": "My projects",
   "intro": "A project is one thing you are teaching the computer to recognise. Each one keeps its own classes, photos and trained model.",
+  "xaiWhy": "Explainable AI (XAI) matters because it helps you understand why a model decided something and spot errors, bias, or hallucinations before trusting an answer.",
+  "tracksTitle": "Two XAI lessons by technology",
+  "tracks": {
+    "cv": {
+      "title": "Lab CV",
+      "body": "Learn XAI in computer vision: capture images, train, and inspect heat maps to see where the model is looking.",
+      "cta": "Go to Lab CV"
+    },
+    "llm": {
+      "title": "Lab LLM",
+      "body": "Learn XAI in language models: chat with the model, review probabilities, and inspect word attention with an ethics lens.",
+      "cta": "Go to Lab LLM"
+    }
+  },
   "storageLocation": "Stored locally in your browser's IndexedDB database on this device. It is not synced to an account or uploaded anywhere.",
   "empty": "You have no projects yet. Make one and start teaching.",
   "create": "New project",

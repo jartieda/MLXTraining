@@ -159,9 +159,42 @@ export function ProjectsPage() {
       <header className="flex flex-col gap-2">
         <h1 className="font-display text-2xl">{t('title')}</h1>
         <p className="max-w-prose text-ink-muted">{t('intro')}</p>
+        <p className="max-w-prose text-sm text-ink-muted">{t('xaiWhy')}</p>
         <p className="text-xs text-ink-muted">{t('storageLocation')}</p>
       </header>
 
+        <section aria-labelledby="xai-tracks" className="flex flex-col gap-3">
+          <h2 id="xai-tracks" className="font-display text-xl">
+            {t('tracksTitle')}
+          </h2>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <article className="flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-4">
+              <h3 className="font-display text-lg">{t('tracks.cv.title')}</h3>
+              <p className="max-w-prose text-sm text-ink-muted">{t('tracks.cv.body')}</p>
+              <div className="mt-auto">
+                <Link
+                  to="/lab"
+                  className="flex min-h-touch w-fit items-center rounded bg-blue px-4 text-sm font-medium text-ink-inverse no-underline"
+                >
+                  {t('tracks.cv.cta')}
+                </Link>
+              </div>
+            </article>
+
+            <article className="flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-4">
+              <h3 className="font-display text-lg">{t('tracks.llm.title')}</h3>
+              <p className="max-w-prose text-sm text-ink-muted">{t('tracks.llm.body')}</p>
+              <div className="mt-auto">
+                <Link
+                  to="/lab-llm"
+                  className="flex min-h-touch w-fit items-center rounded bg-magenta px-4 text-sm font-medium text-ink-inverse no-underline"
+                >
+                  {t('tracks.llm.cta')}
+                </Link>
+              </div>
+            </article>
+          </div>
+        </section>
       {/* FR-023: stated plainly rather than nagging. An anonymous session is a
           supported way to use the whole lab, not a degraded one — but a learner
           must know before she captures forty photos that they live only here. */}

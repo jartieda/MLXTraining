@@ -1,49 +1,92 @@
 import { CreateMLCEngine } from '@mlc-ai/web-llm'
-import { getCpuModelId, getWebLlmModelId, type WebLlmModelId } from './webllm'
+import { buildRawChatPrompt, CPU_DTYPE_MAP, getCpuModelId, getWebLlmModelId, type WebLlmModelId } from './webllm'
 import type { ModelTokenAlternative } from './wordCompletion'
 
 export type LlmBackend = 'gpu' | 'cpu'
 
-/** The only thing the lab needs from a model: the top next-token alternatives for a prompt. */
+export interface ChatTurn {
+  readonly role: 'user' | 'assistant'
+  readonly content: string
+}
+
+/** What the lab needs from a model: next-token alternatives and free-text chat replies. */
 export interface LlmEngine {
   readonly backend: LlmBackend
-  nextTokenAlternatives(userMessage: string): Promise<readonly ModelTokenAlternative[]>
+  /** Next-token alternatives after `assistantPrefix`, which is the start of the assistant's reply. */
+  nextTokenAlternatives(userMessage: string, assistantPrefix?: string): Promise<readonly ModelTokenAlternative[]>
+  /** Generate a reply (greedy-ish, at most `maxTokens` new tokens) for a conversation. */
+  generate(messages: readonly ChatTurn[], maxTokens: number): Promise<string>
   unload(): Promise<void>
 }
 
 const TOP_K = 3
 
 interface GpuNavigator {
-  readonly gpu?: { requestAdapter(): Promise<unknown> }
+  readonly gpu?: {
+    requestAdapter(options?: { powerPreference?: 'low-power' | 'high-performance' }): Promise<unknown>
+  }
 }
 
-async function hasUsableWebGpu(): Promise<boolean> {
-  try {
-    const gpu = (navigator as unknown as GpuNavigator).gpu
-    if (!gpu) return false
-    return (await gpu.requestAdapter()) != null
-  } catch {
-    return false
+export type WebGpuProblem = 'insecure' | 'unsupported' | 'noAdapter'
+
+/** Returns why WebGPU cannot be used, or `null` when an adapter is available. */
+async function findWebGpuProblem(): Promise<WebGpuProblem | null> {
+  const gpu = (navigator as unknown as GpuNavigator).gpu
+  if (!gpu) return window.isSecureContext ? 'unsupported' : 'insecure'
+  // Chrome can hide the discrete GPU from a default request when the integrated one is
+  // the active display adapter, so ask explicitly for the high-performance adapter too.
+  for (const options of [{ powerPreference: 'high-performance' as const }, undefined]) {
+    try {
+      if ((await gpu.requestAdapter(options)) != null) return null
+    } catch {
+      // try the next option
+    }
+  }
+  return 'noAdapter'
+}
+
+/** Thrown when the user picks the GPU engine but the browser exposes no usable WebGPU adapter. */
+export class WebGpuUnavailableError extends Error {
+  readonly reason: WebGpuProblem
+
+  constructor(reason: WebGpuProblem) {
+    super(`No usable WebGPU adapter (${reason})`)
+    this.name = 'WebGpuUnavailableError'
+    this.reason = reason
   }
 }
 
 /**
- * Prefer WebGPU (WebLLM). When the browser has no usable GPU adapter, or the GPU engine
- * fails to start, fall back to a smaller model running on the CPU through WebAssembly.
+ * Create the engine for the backend the user chose: WebGPU (WebLLM) or a smaller model on
+ * the CPU through WebAssembly. There is no automatic fallback; failures are reported so
+ * the user can switch backend explicitly.
  */
 export async function createLlmEngine(
   model: WebLlmModelId,
+  backend: LlmBackend,
   onProgress: (progress: number) => void,
 ): Promise<LlmEngine> {
-  if (await hasUsableWebGpu()) {
-    try {
-      return await createGpuEngine(model, onProgress)
-    } catch (error) {
-      console.warn('WebGPU engine failed, falling back to CPU:', error)
-      onProgress(0)
-    }
+  if (backend === 'cpu') return serialize(await createCpuEngine(model, onProgress))
+  const problem = await findWebGpuProblem()
+  if (problem) throw new WebGpuUnavailableError(problem)
+  return serialize(await createGpuEngine(model, onProgress))
+}
+
+/** One model, one request at a time: the lab's sections share a single engine. */
+function serialize(engine: LlmEngine): LlmEngine {
+  let tail: Promise<unknown> = Promise.resolve()
+  const enqueue = <T>(task: () => Promise<T>): Promise<T> => {
+    const run = tail.then(task, task)
+    tail = run.catch(() => undefined)
+    return run
   }
-  return createCpuEngine(model, onProgress)
+  return {
+    backend: engine.backend,
+    nextTokenAlternatives: (userMessage, assistantPrefix) =>
+      enqueue(() => engine.nextTokenAlternatives(userMessage, assistantPrefix)),
+    generate: (messages, maxTokens) => enqueue(() => engine.generate(messages, maxTokens)),
+    unload: () => engine.unload(),
+  }
 }
 
 async function createGpuEngine(
@@ -58,9 +101,9 @@ async function createGpuEngine(
 
   return {
     backend: 'gpu',
-    async nextTokenAlternatives(userMessage) {
-      const completion = await engine.chat.completions.create({
-        messages: [{ role: 'user', content: userMessage }],
+    async nextTokenAlternatives(userMessage, assistantPrefix = '') {
+      const completion = await engine.completions.create({
+        prompt: buildRawChatPrompt(model, userMessage, assistantPrefix),
         // WebLLM clamps temperature 0 to 1e-6, which turns the softmax into a one-hot
         // distribution (every token reported at 100%). Temperature 1 keeps the model's
         // real probabilities; only the first token's top_logprobs are used, not the sample.
@@ -71,6 +114,15 @@ async function createGpuEngine(
         top_logprobs: TOP_K,
       })
       return completion.choices[0]?.logprobs?.content?.[0]?.top_logprobs ?? []
+    },
+    async generate(messages, maxTokens) {
+      const completion = await engine.chat.completions.create({
+        messages: messages.map((turn) => ({ role: turn.role, content: turn.content })),
+        temperature: 0.3,
+        top_p: 0.95,
+        max_tokens: maxTokens,
+      })
+      return completion.choices[0]?.message.content?.trim() ?? ''
     },
     async unload() {
       await engine.unload()
@@ -115,8 +167,10 @@ async function createCpuEngine(
   }
 
   const tokenizer = await AutoTokenizer.from_pretrained(modelId, { progress_callback: progressCallback })
+  // See CPU_DTYPE_MAP: q4 builds (and Gemma's q8) use GatherBlockQuantized, which the
+  // onnxruntime-web WebAssembly backend does not implement.
   const causalLm = await AutoModelForCausalLM.from_pretrained(modelId, {
-    dtype: 'q4',
+    dtype: CPU_DTYPE_MAP[model],
     device: 'wasm',
     progress_callback: progressCallback,
   })
@@ -124,11 +178,12 @@ async function createCpuEngine(
 
   return {
     backend: 'cpu',
-    async nextTokenAlternatives(userMessage) {
-      const inputs = tokenizer.apply_chat_template(
+    async nextTokenAlternatives(userMessage, assistantPrefix = '') {
+      const prompt = tokenizer.apply_chat_template(
         [{ role: 'user', content: userMessage }],
-        { add_generation_prompt: true, return_dict: true },
+        { add_generation_prompt: true, tokenize: false },
       )
+      const inputs = tokenizer(`${prompt}${assistantPrefix}`, { add_special_tokens: false })
       const { logits } = (await causalLm(inputs)) as {
         logits: { dims: number[]; data: ArrayLike<number>; dispose(): void }
       }
@@ -163,6 +218,26 @@ async function createCpuEngine(
       } finally {
         logits.dispose()
       }
+    },
+    async generate(messages, maxTokens) {
+      const prompt = tokenizer.apply_chat_template(
+        messages.map((turn) => ({ role: turn.role, content: turn.content })),
+        { add_generation_prompt: true, tokenize: false },
+      )
+      const inputs = tokenizer(prompt, { add_special_tokens: false }) as {
+        input_ids: { dims: number[] }
+      }
+      const promptLength = inputs.input_ids.dims[1] ?? 0
+      const output = (await causalLm.generate({
+        ...inputs,
+        max_new_tokens: maxTokens,
+        do_sample: false,
+        repetition_penalty: 1.1,
+      })) as unknown as {
+        tolist(): (number | bigint)[][]
+      }
+      const generated = (output.tolist()[0] ?? []).slice(promptLength).map(Number)
+      return tokenizer.decode(generated, { skip_special_tokens: true }).trim()
     },
     async unload() {
       await causalLm.dispose()

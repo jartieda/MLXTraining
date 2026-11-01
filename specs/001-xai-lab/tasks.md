@@ -368,7 +368,7 @@ from any administration screen.
 - [X] T120 [P] WebGL-disabled suite — `npm run test:e2e:nowebgl` proving the SC-012 4× budget on the reference Chromebook (R7, FR-047)
 - [X] T121 [P] Storage-pressure suite — the 80% warning, the 95% refusal, and the D7 mid-burst quota error preserving already-written samples (FR-049)
 - [X] T122 [P] Offline behaviour — local projects remain fully usable with an expired session (Edge Cases)
-- [X] T123 Netlify deployment with the strict CSP from R14: `connect-src` limited to the Supabase project, `wasm-unsafe-eval` for the WASM backend, no third-party origins
+- [X] T123 Netlify deployment with the CSP from R14: `connect-src *` for model downloads from any origin, `wasm-unsafe-eval` for browser WASM execution; broad `connect-src` also permits arbitrary outbound requests
 - [X] T124 [P] `README.md` and `CONTRIBUTING.md` — setup, the `src/ml/` import boundary, the token rules, and the fact that there is no self-registration so a seeded administrator is the only way in (Principle VII)
 - [ ] T125 [P] **BLOCKED — needs a person, not a commit.** Classroom review of all seven modules by someone with teaching experience; a technically correct lesson that does not teach is a defect (Constitution → Quality Gates)
 - [ ] T125b **BLOCKED — needs 8–12 real participants.** Pilot session with 8–12 real participants, measuring the three learner-outcome criteria that only observation can establish: unaided completion of module 1 (SC-007), correct identification of the induced background shortcut and of the imbalance effect (SC-006), and time to first prediction (SC-001). Feed the failures back as new tasks rather than treating the numbers as met

@@ -9,6 +9,8 @@
     "home": "Inicio",
     "projects": "Mis proyectos",
     "lab": "Laboratorio",
+    "labCv": "Lab CV",
+    "labLlm": "Lab LLM",
     "lessons": "Ruta de aprendizaje",
     "classroom": "Clase",
     "admin": "Administración",
@@ -27,7 +29,8 @@
     "save": "Guardar",
     "delete": "Eliminar",
     "rename": "Cambiar el nombre",
-    "retry": "Inténtalo de nuevo",
+    "clearPrompt": "Borrar prompt",
+    "retry": "Reiniciar",
     "copy": "Copiar",
     "copied": "Copiado",
     "copyFailed": "No se ha podido copiar: selecciona el texto y cópialo a mano.",
@@ -64,6 +67,7 @@
   },
   "privacy": {
     "onDevice": "Tus fotos, tu modelo entrenado y tus mapas de calor se quedan en este dispositivo. Nunca se suben a ningún sitio.",
+    "llmOnDevice": "Tus prompts se procesan en este dispositivo. Nunca se suben a ningún sitio.",
     "shortOnDevice": "Se queda en este dispositivo"
   },
   "a11y": {

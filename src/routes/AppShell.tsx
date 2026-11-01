@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { NavLink, Outlet } from 'react-router'
+import { NavLink, Outlet, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { OfflineNotice } from '@/components/OfflineNotice'
@@ -30,7 +30,8 @@ const NAV: readonly NavItem[] = [
   // FR-023: the lab and projects are reachable with no account at all, and they
   // come first because for an anonymous visitor they are the entire product.
   { to: '/projects', labelKey: 'nav.projects', roles: null },
-  { to: '/lab', labelKey: 'nav.lab', roles: null },
+  { to: '/lab', labelKey: 'nav.labCv', roles: null },
+  { to: '/lab-llm', labelKey: 'nav.labLlm', roles: null },
   { to: '/lessons', labelKey: 'nav.lessons', roles: ['learner', 'educator'] },
   { to: '/classroom', labelKey: 'nav.classroom', roles: ['educator'] },
   { to: '/admin', labelKey: 'nav.admin', roles: ['administrator'] },
@@ -39,6 +40,10 @@ const NAV: readonly NavItem[] = [
 export function AppShell() {
   const { t } = useTranslation('common')
   const { status, account } = useSession()
+  const { pathname } = useLocation()
+  const footerPrivacyKey = pathname.startsWith('/lab-llm')
+    ? 'privacy.llmOnDevice'
+    : 'privacy.onDevice'
 
   const visible = NAV.filter((item) => {
     if (item.roles === null) {
@@ -142,7 +147,7 @@ export function AppShell() {
       </main>
 
       <footer className="border-t border-border-subtle px-4 py-4">
-        <p className="mx-auto max-w-6xl text-sm text-ink-muted">{t('privacy.onDevice')}</p>
+        <p className="mx-auto max-w-6xl text-sm text-ink-muted">{t(footerPrivacyKey)}</p>
       </footer>
     </div>
   )

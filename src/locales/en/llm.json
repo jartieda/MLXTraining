@@ -5,13 +5,27 @@
     "title": "Chat sandbox",
     "intro": "Choose a local model, send any prompt, and compare up to three complete words.",
     "modelLabel": "Model",
+    "backendLabel": "Execution engine",
+    "backends": {
+      "gpu": "GPU (WebGPU)",
+      "cpu": "CPU (WebAssembly)"
+    },
+    "backendHint": {
+      "gpu": "Faster and runs the full model. Requires a browser with WebGPU.",
+      "cpu": "Works in any browser, but uses a reduced version of the model and is slower."
+    },
+    "webGpuUnavailable": {
+      "insecure": "WebGPU only works in secure contexts. Open the app from http://localhost:5173 (or HTTPS), not from a network IP. Meanwhile, choose the CPU engine.",
+      "unsupported": "This browser does not expose WebGPU. Update it or choose the CPU engine.",
+      "noAdapter": "The browser supports WebGPU but returned no GPU adapter. Check chrome://gpu or choose the CPU engine."
+    },
     "loading": "Loading the local model in your browser…",
     "loadingProgress": "Loading the local model in your browser… {{percent}}%",
     "modelUnavailable": "The local model is not ready yet.",
     "modelError": "WebLLM could not load the model: {{error}}",
     "retry": "Retry",
     "modelReady": "WebLLM ready: {{model}}",
-    "modelReadyCpu": "No compatible GPU: {{model}} runs on the CPU with a reduced model. It will be slower.",
+    "modelReadyCpu": "CPU engine ready: {{model}} runs as a reduced version of the model. It will be slower.",
     "generationFailed": "WebLLM could not generate a response. Try again.",
     "processing": "Processing prompt…",
     "status": {
@@ -35,12 +49,57 @@
     "traceCalls": "Model queries: {{count}}",
     "traceWord": "Complete word: {{word}}",
     "tracePartial": "Prefix in progress “{{text}}”",
-    "wordAnalysisDescription": "Each path shows token probabilities returned by the model and their product. If multiple paths form the same word, their scores are added. Because the chat API requires a new request containing the partial prefix—it cannot continue the exact internal token stream—the product is an approximate score, not an exact joint probability. Search explores at most three tokens per step, nine active paths, eight tokens per word, and 36 queries; the sum covers explored paths only, not all probability mass for the word.",
+    "wordAnalysisDescription": "Each path shows token probabilities returned by the model and their product. If multiple paths form the same word, their scores are added. Because the partial word is sent again as the start of the reply and re-tokenized, the product is a near-exact score: it can differ slightly if the tokenizer groups the pieces differently. Search explores at most three tokens per step, nine active paths, eight tokens per word, and 36 queries; the sum covers explored paths only, not all probability mass for the word.",
     "mergedWordScore": "Sum of paths: {{calculation}} = {{total}}%",
     "models": {
       "gemma": "Gemma",
       "llama": "Llama",
       "qwen": "Qwen (Alibaba)"
     }
+  },
+  "reasoning": {
+    "title": "Ask the model and have it explain itself",
+    "intro": "Ask the selected model a question. Once it answers, press “Why did the model say this?” to have it describe the reasoning it followed.",
+    "questionLabel": "Your question",
+    "example": "Rate from 1 to 10 how scientific this movie is: Avengers",
+    "examplePrefix": "For example:",
+    "useExample": "Use the example",
+    "ask": "Ask",
+    "asking": "The model is answering…",
+    "thinking": "The model is thinking… this can take a few seconds.",
+    "answerLabel": "Model answer",
+    "why": "Why did the model say this?",
+    "unavailable": "The model did not include its reasoning in this answer. Try asking again.",
+    "explanationTitle": "Model reasoning",
+    "hiddenInstruction": "Reply in two sections, in this order, using exactly these labels. {{answerTag}} followed by your answer. {{reasoningTag}} followed by a numbered list of 3 to 5 short steps with the reasoning you followed to reach that answer.",
+    "caveat": "Note: the model wrote this reasoning itself after answering. It is a plausible explanation, not a readout of its internal computation, and it may be wrong or made up. Compare it with the word analysis above and with reliable sources.",
+    "failed": "The model could not generate the text. Try again."  },
+  "sentiment": {
+    "title": "Ask the model to judge the sentiment of a text",
+    "intro": "Write a short text, such as a message to a friend or an opinion about a game. The question \"Is the sentiment positive, negative or neutral?\" is added automatically, you do not need to write it. Then press \"Why did the model say this?\" to see which words it focused on. Try tricky sentences, such as sarcasm or a sentence with \"not\".",
+    "questionLabel": "Your text",
+    "example": "Today I lost my favorite jacket, but my friend helped me find it and now I am happy.",
+    "hiddenQuestion": "Is the sentiment positive, negative or neutral?"
+  },
+  "bias": {
+    "title": "Ask the model to analyze the biases in a text",
+    "intro": "A bias is an unfair or poorly justified idea about a group of people. Write a text; the question \"Is there any bias in this text?\" is added automatically, you do not need to write it. Then press \"Why did the model say this?\". Does it find all the biases or does it miss some? Does it invent one that is not there?",
+    "questionLabel": "Your text",
+    "example": "Historic victory! Our spectacular team from UpperTown completely crushed the cheating players from LowerTown in an exciting match. The referee clearly tried to favor the rival, but our superior talent shone on the field. We are the best, no question!",
+    "hiddenQuestion": "Is there any bias in this text?"
+  },
+  "tutor": {
+    "title": "Help me reason through this problem",
+    "intro": "Write a math problem. The model will try to help in one response: it will suggest a mathematical strategy, give you a small hint, help you think about a common mistake, and encourage you to try. It should not give you the solution.",
+    "questionLabel": "Your problem",
+    "example": "Five friends meet in the street and greet each other with a hug. How many hugs are there in total?",
+    "answerLabel": "Model's help",
+    "hiddenInstruction": "Act as a Socratic mathematical-reasoning tutor for children. Reply once, in a single message with exactly these four numbered parts: 1. Strategy: briefly explain a concrete mathematical strategy and what to count, compare, or represent; you may suggest a drawing, table, or starting with a smaller case. 2. First hint: offer only the first useful step without solving the problem. 3. Key question: ask a question that helps spot a common mistake. If the problem is about pairs of people greeting one another, prompt me to consider whether each pair is counted only once and whether I am confusing people with greetings. 4. My first attempt: end by encouraging me to write my first attempt at a solution. Do not give the final result, finish the operation, or reveal the solution, even if asked."
+  },
+  "deception": {
+    "title": "Try to trick the model",
+    "intro": "Write a question that includes a false claim, or that asks for something the model cannot know, and see whether it believes it, corrects you or makes up an answer. Then press \"Why did the model say this?\" to see how it justifies the answer. Can you make it change its mind if you insist?",
+    "questionLabel": "Your attempt to trick it",
+    "example": "How old is Rosalía exactly today and in what year was she born?"
   }
 }

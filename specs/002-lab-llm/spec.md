@@ -4,11 +4,32 @@
 
 **Created**: 2026-10-16
 
-**Status**: Draft
+**Status**: Implemented baseline; original roadmap items remain deferred
 
-**Input**: User description: "Nueva funcionalidad como pestaña junto a Laboratorio, renombrando Laboratorio a Lab CV. Nueva pestaña Lab LLM con chat sandbox interactivo (Lexi), botón '¿Por qué dijiste esto?' y panel de explicabilidad con heatmap de atención/palabras clave, confianza y fuentes. Ruta de 9 ejercicios progresivos para aprender XAI con LLMs y contenido ético."
+**Input**: Actual code in `src/features/llmLab/` as of 2026-11-01. The original product vision below remains the roadmap where not yet implemented.
 
-## User Scenarios & Testing *(mandatory)*
+## Current Implementation Snapshot *(verified against code)*
+
+This section is the source of truth for what the application currently does. The original nine-exercise vision and its requirements below are not claims of shipped functionality; they are deferred scope unless explicitly listed here.
+
+- The `/lab-llm` page has a prompt sandbox, a user-selectable local model (Gemma, Llama, Qwen), and a user-selectable GPU (WebGPU/WebLLM) or CPU (Transformers.js + ONNX WebAssembly) engine. The GPU engine is the default, there is no automatic CPU fallback, and loading/error/readiness status is displayed.
+- The sandbox explores up to three next-token alternatives per step, searches a bounded set of token paths, and displays up to three complete-word candidates with path products. It does not produce a normal free-form chat response. The path score is approximate: requests are made again with partial prefixes, and only explored paths are summed.
+- Five independent prompt exercises are rendered: general question + generated explanation; sentiment classification; text-bias analysis; math tutoring; and deceptive/unknowable-question testing. Each keeps only its current turn in component state. The sentiment and bias questions are appended automatically; their user-provided text remains separate. Their examples can be inserted with a button. The math tutor uses an internal prompt that is not displayed; it requests one Socratic response with a concrete mathematical strategy, initial hint, common-mistake question, and encouragement to make a first attempt, without giving the final answer. Other exercises request an answer and a separately tagged explanation in one generation; the explanation is hidden until revealed and is explicitly caveated as model-written, not an internal trace.
+- The deception example asks for Rosalía's exact age today and birth year, illustrating a question that may require current/reliable data. Exercises do not retain conversation context across submissions.
+- The UI is localized in English and Spanish. Unit tests cover word completion, model ID mapping, deployment policy, and locale parity.
+- Not implemented: the original nine-step progress path, progress/reflection persistence, attention heatmap, confidence score, sources/RAG panel, prompt-injection lesson, comic chain-of-thought lesson, and LLM-specific E2E/accessibility flows. The “why” controls expand inline content; they are not a side panel. No model-internal reasoning, attention weights, confidence, or source retrieval is exposed.
+
+### Current Acceptance Scenarios
+
+1. **Choose a local engine and model**: model/backend controls are visible, readiness and loading progress are conveyed, and an unavailable WebGPU engine reports a recoverable error without silently switching backend.
+2. **Inspect next-word alternatives**: a prompt yields the leading complete-word candidate and up to two alternatives, with explored token paths, probabilities, and bounded-search progress where available.
+3. **Run an explanatory exercise**: the general, sentiment, bias, and deception variants return a visible answer and allow the separately generated explanation to be revealed. The interface warns that explanation text is not an internal model trace.
+4. **Get math tutoring**: the tutor variant asks for mathematical setup and reasoning while instructing the model not to provide the final numeric answer; the response is shown as guidance.
+5. **Use examples and translations**: each exercise has a localized example and a “use example” action; English and Spanish strings remain key-compatible.
+
+## Original User Scenarios *(deferred product vision; not current acceptance criteria)*
+
+The following scenarios were written for the initial product proposal. They describe future scope where they conflict with the Current Implementation Snapshot.
 
 ### User Story 1 - Navegar entre Lab CV y Lab LLM (Priority: P1)
 
@@ -125,7 +146,7 @@ Como estudiante, quiero practicar casos de alucinación, sesgo, prompt injection
 
 ---
 
-## Learning Path Content *(mandatory)*
+## Original Learning Path Proposal *(deferred roadmap; not implemented)*
 
 La ruta inicial incluye los 9 ejercicios solicitados:
 
@@ -158,7 +179,7 @@ Ejercicios opcionales propuestos (extensión futura):
 - **E10 - Consistencia temporal**: comprobar si el modelo se contradice en turnos largos.
 - **E11 - Privacidad y datos sensibles**: detectar y evitar fuga de datos personales en prompts.
 
-## Edge Cases
+## Original Edge Cases *(roadmap considerations)*
 
 - Respuesta de Lexi sin metadatos de explicación: el panel debe mostrar estado degradado y mensaje claro, nunca vacío.
 - Confianza alta en respuesta incorrecta: el sistema debe explicitar que confianza no implica veracidad.
@@ -166,9 +187,11 @@ Ejercicios opcionales propuestos (extensión futura):
 - Modo offline o fallo de red: sandbox disponible con ejemplos locales y aviso de limitaciones.
 - Mensajes ofensivos o inseguros del usuario: aplicar guardrails pedagógicos y redirección segura.
 
-## Requirements *(mandatory)*
+## Original Requirements *(deferred roadmap unless covered by the Current Implementation Snapshot)*
 
 ### Functional Requirements
+
+The following requirements capture the original target. They are not acceptance claims for the current implementation; use the Current Implementation Snapshot above to determine shipped behavior.
 
 **Navigation and IA lab structure**
 
@@ -229,7 +252,7 @@ Ejercicios opcionales propuestos (extensión futura):
 - **NFR-LLM-003**: Cumplir WCAG 2.1 AA en navegación, foco, contraste y lector de pantalla.
 - **NFR-LLM-004**: Modo degradado funcional con contenido local cuando no haya proveedor LLM disponible.
 
-## Success Criteria *(mandatory)*
+## Original Success Criteria *(not yet validated; deferred roadmap)*
 
 ### Measurable Outcomes
 

@@ -1,6 +1,20 @@
 {
   "title": "Mis proyectos",
   "intro": "Un proyecto es una cosa que estás enseñando al ordenador a reconocer. Cada uno guarda sus propias clases, fotos y su modelo entrenado.",
+  "xaiWhy": "La IA explicable (XAI) es importante porque te ayuda a entender por que un modelo decide algo y a detectar errores, sesgos o alucinaciones antes de confiar en su respuesta.",
+  "tracksTitle": "Dos lecciones de XAI segun la tecnologia",
+  "tracks": {
+    "cv": {
+      "title": "Lab CV",
+      "body": "Aprende XAI en vision por computador: captura imagenes, entrena y analiza mapas de calor para ver donde mira el modelo.",
+      "cta": "Ir a Lab CV"
+    },
+    "llm": {
+      "title": "Lab LLM",
+      "body": "Aprende XAI en modelos de lenguaje: conversa con el modelo, revisa probabilidades y observa atención por palabras con enfoque ético.",
+      "cta": "Ir a Lab LLM"
+    }
+  },
   "storageLocation": "Se guarda localmente en la base de datos IndexedDB de tu navegador en este dispositivo. No se sincroniza con ninguna cuenta ni se sube a ningún sitio.",
   "empty": "Todavía no tienes proyectos. Crea uno y empieza a enseñar.",
   "create": "Nuevo proyecto",

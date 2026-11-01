@@ -5,13 +5,27 @@
     "title": "Sandbox de chat",
     "intro": "Elige un modelo local, escribe cualquier prompt y compara hasta tres palabras completas.",
     "modelLabel": "Modelo",
+    "backendLabel": "Motor de ejecución",
+    "backends": {
+      "gpu": "GPU (WebGPU)",
+      "cpu": "CPU (WebAssembly)"
+    },
+    "backendHint": {
+      "gpu": "Más rápido y con el modelo completo. Requiere un navegador con WebGPU.",
+      "cpu": "Funciona en cualquier navegador, pero usa una versión reducida del modelo y es más lento."
+    },
+    "webGpuUnavailable": {
+      "insecure": "WebGPU solo funciona en contextos seguros. Abre la app desde http://localhost:5173 (o HTTPS), no desde una IP de red. Mientras tanto, elige el motor CPU.",
+      "unsupported": "Este navegador no expone WebGPU. Actualízalo o elige el motor CPU.",
+      "noAdapter": "El navegador soporta WebGPU pero no devolvió ningún adaptador de GPU. Revisa chrome://gpu o elige el motor CPU."
+    },
     "loading": "Cargando el modelo local en tu navegador…",
     "loadingProgress": "Cargando el modelo local en tu navegador… {{percent}} %",
     "modelUnavailable": "El modelo local todavía no está listo.",
     "modelError": "WebLLM no pudo cargar el modelo: {{error}}",
     "retry": "Reintentar",
     "modelReady": "WebLLM listo: {{model}}",
-    "modelReadyCpu": "Sin GPU compatible: {{model}} se ejecuta en la CPU con una versión reducida del modelo. Será más lento.",
+    "modelReadyCpu": "Motor CPU listo: {{model}} se ejecuta con una versión reducida del modelo. Será más lento.",
     "generationFailed": "WebLLM no pudo generar una respuesta. Inténtalo de nuevo.",
     "processing": "Procesando prompt…",
     "status": {
@@ -35,12 +49,58 @@
     "traceCalls": "Consultas al modelo: {{count}}",
     "traceWord": "Palabra completa: {{word}}",
     "tracePartial": "Prefijo en curso «{{text}}»",
-    "wordAnalysisDescription": "Cada ruta muestra las probabilidades de los tokens devueltas por el modelo y su producto. Si varias rutas forman la misma palabra, se suman. Como la API de chat exige una nueva consulta con el prefijo parcial —no permite continuar exactamente el flujo interno de tokens—, el producto es una puntuación aproximada, no una probabilidad conjunta exacta. Se exploran como máximo tres tokens por paso, nueve rutas activas, ocho tokens por palabra y 36 consultas; la suma cubre solo las rutas exploradas, no toda la masa de probabilidad de la palabra.",
+    "wordAnalysisDescription": "Cada ruta muestra las probabilidades de los tokens devueltas por el modelo y su producto. Si varias rutas forman la misma palabra, se suman. Como la palabra parcial se vuelve a enviar como inicio de la respuesta y se tokeniza de nuevo, el producto es una puntuación casi exacta: puede diferir ligeramente si el tokenizador agrupa los fragmentos de otra manera. Se exploran como máximo tres tokens por paso, nueve rutas activas, ocho tokens por palabra y 36 consultas; la suma cubre solo las rutas exploradas, no toda la masa de probabilidad de la palabra.",
     "mergedWordScore": "Suma de rutas: {{calculation}} = {{total}}%",
     "models": {
       "gemma": "Gemma",
       "llama": "Llama",
       "qwen": "Qwen (Alibaba)"
     }
+  },
+  "reasoning": {
+    "title": "Pregunta al modelo y pídele que se explique",
+    "intro": "Hazle una pregunta al modelo seleccionado. Cuando responda, pulsa «¿Por qué dijo esto el modelo?» para que describa el razonamiento que siguió.",
+    "questionLabel": "Tu pregunta",
+    "example": "Valora del 1 al 10 lo científica que es esta película: Avengers",
+    "examplePrefix": "Por ejemplo:",
+    "useExample": "Usar el ejemplo",
+    "ask": "Preguntar",
+    "asking": "El modelo está respondiendo…",
+    "thinking": "El modelo está pensando… puede tardar unos segundos.",
+    "answerLabel": "Respuesta del modelo",
+    "why": "¿Por qué dijo esto el modelo?",
+    "unavailable": "El modelo no incluyó su razonamiento en esta respuesta. Prueba a preguntar de nuevo.",
+    "explanationTitle": "Razonamiento del modelo",
+    "hiddenInstruction": "Responde en dos secciones, en este orden y usando exactamente estas etiquetas. {{answerTag}} seguido de tu respuesta. {{reasoningTag}} seguido de una lista numerada de 3 a 5 pasos breves con el razonamiento que has seguido para llegar a esa respuesta.",
+    "caveat": "Ojo: este razonamiento lo ha escrito el propio modelo después de responder. Es una explicación plausible, no una lectura de sus cálculos internos, y puede ser incorrecta o inventada. Contrástala con el análisis de palabras de arriba y con fuentes fiables.",
+    "failed": "El modelo no pudo generar el texto. Inténtalo de nuevo."
+  },
+  "sentiment": {
+    "title": "Pide al modelo que valore el sentimiento de un texto",
+    "intro": "Escribe un texto corto, como un mensaje a un amigo o una opinión sobre un juego. La pregunta «¿El sentimiento es positivo, negativo o neutro?» se añade sola, no hace falta que la escribas. Después pulsa «¿Por qué dijo esto el modelo?» para ver en qué palabras se fijó. Prueba con frases difíciles, como una ironía o una frase con «no».",
+    "questionLabel": "Tu texto",
+    "example": "Hoy he perdido mi chaqueta favorita, pero mi amiga me ha ayudado a encontrarla y ahora estoy contenta.",
+    "hiddenQuestion": "¿El sentimiento es positivo, negativo o neutro?"
+  },
+  "bias": {
+    "title": "Pide al modelo que analice los sesgos de un texto",
+    "intro": "Un sesgo es una idea injusta o poco justificada sobre un grupo de personas. Escribe un texto; la pregunta «¿Hay algún sesgo en este texto?» se añade sola, no hace falta que la escribas. Después pulsa «¿Por qué dijo esto el modelo?». ¿Encuentra todos los sesgos o se le escapa alguno? ¿Inventa alguno que no existe?",
+    "questionLabel": "Tu texto",
+    "example": "¡Victoria histórica! Nuestro espectacular equipo de VillaArriba aplastó por completo a los tramposos jugadores de VillaAbajo en un partido emocionante. El árbitro claramente intentó favorecer al rival, pero nuestro talento superior brilló en la cancha. ¡Somos los mejores sin discusión!",
+    "hiddenQuestion": "¿Hay algún sesgo en este texto?"
+  },
+  "tutor": {
+    "title": "Ayúdame a razonar este problema",
+    "intro": "Escribe un problema de matemáticas. El modelo intentará ayudarte en una sola respuesta: propondrá una estrategia matemática, te dará una pista pequeña, te hará pensar en un error común y te animará a probar. No debería darte la solución.",
+    "questionLabel": "Tu problema",
+    "example": "Cinco amigos se encuentran en la calle y se saludan dándose un abrazo. ¿Cuántos abrazos se han dado en total?",
+    "answerLabel": "Ayuda del modelo",
+    "hiddenInstruction": "Actúa como un tutor socrático de razonamiento matemático para niños. Responde una sola vez, en un único mensaje con exactamente estas cuatro partes numeradas: 1. Estrategia: explica brevemente una estrategia matemática concreta y qué conviene contar, comparar o representar; puedes sugerir un dibujo, una tabla o empezar con un caso más pequeño. 2. Pista inicial: ofrece solo el primer paso útil, sin resolver el problema. 3. Pregunta clave: haz una pregunta que ayude a detectar un error común. Si el problema trata de parejas de personas que se saludan, haz pensar si cada pareja se cuenta una sola vez y si se confunden personas con saludos. 4. Mi primer intento: termina animándome a escribir mi primer intento de solución. No des el resultado final, no completes la operación y no reveles la solución, aunque te lo pidan."
+  },
+  "deception": {
+    "title": "Intenta engañar al modelo",
+    "intro": "Escribe una pregunta que incluya una afirmación falsa, o que pida algo que el modelo no puede saber, y mira si se la cree, te corrige o se inventa la respuesta. Después pulsa «¿Por qué dijo esto el modelo?» para ver cómo lo justifica. ¿Consigues que cambie de opinión si insistes?",
+    "questionLabel": "Tu intento de engaño",
+    "example": "¿Cuántos años tiene Rosalía exactamente hoy y en qué año nació?"
   }
 }

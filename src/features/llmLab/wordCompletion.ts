@@ -50,12 +50,12 @@ interface WordSearchOptions {
   readonly onProgress?: (progress: WordSearchProgress) => void
 }
 
-/** Prefix every model request with the required instruction and continue a partial word when supplied. */
-export function buildWordCompletionPrompt(prompt: string, partialWord = ''): string {
-  const base = `${WORD_COMPLETION_INSTRUCTION}: ${prompt.trim()}\nResponde únicamente con una palabra.`
-  if (partialWord.length === 0) return base
-
-  return `${base}\nPrefijo parcial de la palabra que estás generando: «${partialWord}». Responde únicamente con la continuación que falta para terminar esa palabra, sin repetir el prefijo; si la palabra ya está completa, devuelve un espacio.`
+/**
+ * User message for a word-completion request. The partial word is not part of it: engines
+ * feed the partial word as the start of the assistant reply, so the model really continues it.
+ */
+export function buildWordCompletionPrompt(prompt: string): string {
+  return `${WORD_COMPLETION_INSTRUCTION}: ${prompt.trim()}\nResponde únicamente con una palabra.`
 }
 
 /**
@@ -161,21 +161,9 @@ export async function findWordCandidates(
           continue
         }
 
-        // Chat requests restart generation from the user message. If the model echoes the
-        // partial word instead of emitting its next piece, do not append the echo to itself
-        // (e.g. "azul" + "azul" -> "azulazul"); the model is signalling the word is done.
-        if (!atStart && piece.trim() === state.text) {
-          addCompletedPath(completed, state)
-          completedOrEnded = true
-          continue
-        }
-
-        // A longer echo means this request restarted the word rather than continuing it,
-        // so restart this branch from the returned token to keep the path coherent.
-        const restarted = !atStart && piece.startsWith(state.text)
-        const nextText = restarted ? piece : `${state.text}${piece}`
-        const nextTokens = restarted ? [tokenScore] : [...state.tokens, tokenScore]
-        const nextProbability = restarted ? probability : state.probability * probability
+        const nextText = `${state.text}${piece}`
+        const nextTokens = [...state.tokens, tokenScore]
+        const nextProbability = state.probability * probability
 
         const boundaryIndex = findWordBoundary(nextText)
         if (boundaryIndex >= 0) {

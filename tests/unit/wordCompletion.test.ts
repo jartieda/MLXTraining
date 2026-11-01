@@ -14,8 +14,8 @@ describe('word completion prompt', () => {
     )
   })
 
-  it('includes a partial word as context for the next model query', () => {
-    expect(buildWordCompletionPrompt('La luna', 'deslumbr')).toContain('«deslumbr»')
+  it('does not put the partial word in the user message (it is prefilled in the reply)', () => {
+    expect(buildWordCompletionPrompt('La luna')).not.toContain('«')
   })
 })
 
@@ -53,28 +53,15 @@ describe('word candidate search', () => {
     expect(candidates.map(({ word }) => word)).toEqual(['one', 'two', 'three'])
   })
 
-  it('treats a repeated full-word prediction as completion instead of duplicating it', async () => {
+  it('appends a continuation that repeats the prefix text, as in "pa" + "pa"', async () => {
     const candidates = await findWordCandidates(async (partial) => {
-      if (partial === '') return [{ token: 'azul', logprob: 0 }]
-      if (partial === 'azul') return [{ token: 'azul', logprob: 0 }]
-      return [{ token: 'az', logprob: 0 }]
-    })
-
-    expect(candidates[0]?.word).toBe('azul')
-    expect(candidates[0]?.paths[0]?.tokens.map(({ token }) => token)).toEqual(['azul'])
-  })
-
-  it('restarts a path when the model re-emits a longer version of its prefix', async () => {
-    const candidates = await findWordCandidates(async (partial) => {
-      if (partial === '') return [{ token: 'az', logprob: Math.log(0.8) }]
-      if (partial === 'az') return [{ token: 'azul', logprob: Math.log(0.6) }]
-      if (partial === 'azul') return [{ token: 'azul', logprob: Math.log(0.5) }]
+      if (partial === '') return [{ token: 'pa', logprob: Math.log(0.8) }]
+      if (partial === 'pa') return [{ token: 'pa ', logprob: Math.log(0.5) }]
       return []
     })
 
-    expect(candidates[0]?.word).toBe('azul')
-    expect(candidates[0]?.paths[0]?.tokens.map(({ token }) => token)).toEqual(['azul'])
-    expect(candidates[0]?.probability).toBeCloseTo(0.6)
+    expect(candidates[0]?.word).toBe('papa')
+    expect(candidates[0]?.probability).toBeCloseTo(0.4)
   })
 
   it('does not treat a partial word at the depth limit as complete', async () => {

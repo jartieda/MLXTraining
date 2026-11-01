@@ -22,11 +22,10 @@
 
 # ─────────────────────────────────────────────────────────────── security headers
 #
-# The CSP is **a second, independent enforcement of Principle I**. The application is
-# written not to transmit an image; this makes it unable to. With `connect-src` limited
-# to the Supabase project and `self`, there is no destination an image could be
-# exfiltrated to even if the application code were compromised — an attacker who got
-# script execution would find every outbound origin closed.
+# The CSP limits script execution and embeds. `connect-src *` is deliberately broad so
+# browser runtimes such as WebLLM can download model artifacts from any host. It also
+# permits JavaScript to send requests to any origin; do not treat CSP as an egress
+# boundary while this directive is enabled.
 #
 # Two directives are worth their explanation:
 #
@@ -35,9 +34,8 @@
 #   compilation and nothing else; it is not `unsafe-eval` and does not allow
 #   `eval()` of JavaScript.
 #
-#   `connect-src` — the one directive a reviewer should check on every change. Adding
-#   an analytics or error-reporting origin here would open exactly the channel this
-#   project spent its whole architecture closing, which is why there is none.
+#   `connect-src` — deliberately set to `*` to allow model downloads from any origin.
+#   This permits arbitrary outbound requests as well as downloads.
 #
 # `style-src` needs `unsafe-inline` because Tailwind's arbitrary values and React's
 # `style` prop both emit inline declarations — including the confusion matrix's ramp
@@ -52,7 +50,7 @@
       img-src 'self' blob: data:;
       media-src 'self' blob:;
       font-src 'self';
-      connect-src 'self' https://*.supabase.co https://*.supabase.in;
+      connect-src *;
       worker-src 'self' blob:;
       frame-ancestors 'none';
       base-uri 'self';

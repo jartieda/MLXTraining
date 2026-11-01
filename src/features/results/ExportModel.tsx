@@ -121,7 +121,7 @@ export function ExportModel({
 
     await trainedModel.head.pooled.save(
       tf.io.withSaveHandler(async (artifacts) => {
-        captured = artifacts
+        captured = artifacts as tf.io.ModelArtifacts
         return {
           modelArtifactsInfo: {
             dateSaved: new Date(),
@@ -134,12 +134,23 @@ export function ExportModel({
       }),
     )
 
-    const artifacts = captured
-    if (!artifacts || !artifacts.modelTopology || !artifacts.weightSpecs || !artifacts.weightData) {
+    const artifacts = captured as tf.io.ModelArtifacts | null
+    const modelTopology = artifacts?.modelTopology as any
+    const weightSpecs = artifacts?.weightSpecs as any[] | undefined
+    const weightData = artifacts?.weightData as tf.io.WeightData | undefined
+
+    if (!artifacts || !modelTopology || !weightSpecs || !weightData) {
       throw new Error('Could not capture model artifacts for export.')
     }
 
-    return artifacts
+    const safeWeightData = weightData as tf.io.WeightData
+
+    return {
+      ...artifacts,
+      modelTopology,
+      weightSpecs,
+      weightData: safeWeightData,
+    } as tf.io.ModelArtifacts
   }
 
   async function produce() {
@@ -151,6 +162,7 @@ export function ExportModel({
       // `spatial` would export the Grad-CAM variant, which shares these weights
       // but takes a different input shape and would confuse anyone who opened it.
       const artifacts = await captureHeadArtifacts(model)
+      const weightData = artifacts.weightData as tf.io.WeightData
 
       const packageName = `${fileName}.tflite-web`
       const modelFile = `${packageName}.model.json`
@@ -176,7 +188,7 @@ export function ExportModel({
         modelFile,
         new Blob([JSON.stringify(modelJson, null, 2)], { type: 'application/json;charset=utf-8' }),
       )
-      const weightsBuffer = await weightDataToArrayBuffer(artifacts.weightData)
+      const weightsBuffer = await weightDataToArrayBuffer(weightData)
       downloadBlob(weightsFile, new Blob([weightsBuffer], { type: 'application/octet-stream' }))
       downloadBlob(
         labelsFile,

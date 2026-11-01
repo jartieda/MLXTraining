@@ -21,8 +21,9 @@ Everything else follows from it:
   pixel and never a weight.
 - The remote schema has no `bytea` column and no column that could hold a learner's email address,
   date of birth or real name. That is asserted by a structural test, not by review.
-- The Content-Security-Policy limits `connect-src` to Supabase and `self`, so there is no destination
-  an image could be sent to even if the application code were compromised.
+- The Content-Security-Policy uses `connect-src *` so browser runtimes can download WebLLM models
+  from any origin. This also permits outbound requests from the browser to any host; CSP is no longer
+  an egress boundary. Prompts and inference remain local in the current application code.
 
 If a feature proposal needs a round trip to compute a prediction or an explanation, it gets rejected
 or redesigned. That is Principle II, and it is why the project can be free to run for schools.

@@ -9,6 +9,8 @@
     "home": "Home",
     "projects": "My projects",
     "lab": "Lab",
+    "labCv": "Lab CV",
+    "labLlm": "Lab LLM",
     "lessons": "Learning path",
     "classroom": "Classroom",
     "admin": "Administration",
@@ -27,7 +29,8 @@
     "save": "Save",
     "delete": "Delete",
     "rename": "Rename",
-    "retry": "Try again",
+    "clearPrompt": "Clear prompt",
+    "retry": "Reset",
     "copy": "Copy",
     "copied": "Copied",
     "copyFailed": "Copy did not work — select the text and copy it by hand.",
@@ -64,6 +67,7 @@
   },
   "privacy": {
     "onDevice": "Your photos, your trained model and your heat maps stay on this device. They are never uploaded.",
+    "llmOnDevice": "Your prompts are processed on this device. They are never uploaded.",
     "shortOnDevice": "Stays on this device"
   },
   "a11y": {

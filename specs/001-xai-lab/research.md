@@ -370,15 +370,16 @@ nothing tests the real integration. Requiring a physical camera in CI — not re
 ## R14. Deployment
 
 **Decision**: Static build deployed to Netlify. Supabase URL and anon key injected as build-time
-`VITE_`-prefixed variables. A strict Content-Security-Policy allowing `connect-src` to the Supabase
-project only, `wasm-unsafe-eval` for the TensorFlow.js WASM backend, and no third-party origins.
-Backbone weights and `@fontsource` files served as immutable, long-cached same-origin assets.
+`VITE_`-prefixed variables. `connect-src *` allows model downloads from any origin. Inference remains
+local; model downloads provide public artifacts, not inference services. The `wasm-unsafe-eval`
+directive is used for browser WASM execution. Backbone weights and `@fontsource` files are served as
+immutable, long-cached same-origin assets.
 
-**Rationale**: The CSP is a second, independent enforcement of Principle I: with `connect-src`
-restricted to Supabase and no other origin, there is no destination an image could be exfiltrated
-to even if application code were compromised. `wasm-unsafe-eval` is unavoidable for the WASM
-fallback and is scoped to that need. Netlify over GitHub Pages because Pages cannot serve custom
-CSP headers, which this design depends on.
+**Rationale**: The broad connection policy supports arbitrary public model hosts. It also permits
+arbitrary outbound requests, so CSP is no longer an egress boundary. Application code must continue
+to keep prompts, captured images, and trained weights local. `wasm-unsafe-eval` is unavoidable for
+browser WASM execution and is scoped to that need. Netlify over GitHub Pages because Pages cannot
+serve custom CSP headers, which this design depends on.
 
 **Alternatives considered**: GitHub Pages — free and simple, but no custom headers, so no CSP.
 Vercel or Cloudflare Pages — equally capable; the choice is not load-bearing and can change without
