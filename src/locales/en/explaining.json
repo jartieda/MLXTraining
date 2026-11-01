@@ -61,7 +61,7 @@
     "cancelled": "Stopped. Nothing was lost.",
     "gradcamTitle": "Method 1: gradients",
     "gradcamHow": "Asks the model which parts of the picture, if nudged, would change its score the most. Fast, but it works on a coarse grid.",
-    "occlusionTitle": "Method 2: covering things up",
+    "occlusionTitle": "Method 2: occlusion",
     "occlusionHow": "Covers one square at a time and measures how much the score drops. Slower, but it makes no assumptions about how the model works — it just asks it {{count}} times.",
     "progressGradcam": "Working out the gradient map…",
     "progressOcclusion": "Covering square {{done}} of {{total}}…",

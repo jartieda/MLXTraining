@@ -1,17 +1,21 @@
 {
   "title": "Mis proyectos",
   "intro": "Un proyecto es una cosa que estás enseñando al ordenador a reconocer. Cada uno guarda sus propias clases, fotos y su modelo entrenado.",
-  "xaiWhy": "La IA explicable (XAI) es importante porque te ayuda a entender por que un modelo decide algo y a detectar errores, sesgos o alucinaciones antes de confiar en su respuesta.",
-  "tracksTitle": "Dos lecciones de XAI segun la tecnologia",
+  "xaiTitle": "¿Por qué importa la IA explicable (XAI)?",
+  "xaiQuote": "No creas a la IA a ciegas: aprende a mirar cómo funciona por dentro.",
+  "xaiWhy": "La IA explicable (XAI) te ayuda a entender por qué un modelo decide algo. Así puedes detectar errores, sesgos o alucinaciones antes de confiar en su respuesta y tomar decisiones transparentes y responsables.",
+  "tracksTitle": "Elige tu ruta de aprendizaje",
   "tracks": {
     "cv": {
       "title": "Lab CV",
-      "body": "Aprende XAI en vision por computador: captura imagenes, entrena y analiza mapas de calor para ver donde mira el modelo.",
+      "subtitle": "Visión por computador",
+      "body": "Clasificación de imágenes, mapas de calor y oclusión.",
       "cta": "Ir a Lab CV"
     },
     "llm": {
       "title": "Lab LLM",
-      "body": "Aprende XAI en modelos de lenguaje: conversa con el modelo, revisa probabilidades y observa atención por palabras con enfoque ético.",
+      "subtitle": "Modelos de lenguaje",
+      "body": "Probabilidades token a token, atención, sesgos y alucinaciones.",
       "cta": "Ir a Lab LLM"
     }
   },

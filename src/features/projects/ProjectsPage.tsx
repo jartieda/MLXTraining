@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/Button'
 import { Dialog } from '@/components/Dialog'
-import { Meter } from '@/components/Meter'
 import { useOwnerId, useSession } from '@/features/auth/session'
 import * as db from '@/lib/db'
 import {
@@ -27,8 +26,8 @@ import {
  * **The storage budget is visible before it bites** (FR-049). A learner losing
  * forty captured photos to a silent quota error mid-lesson is the worst failure
  * this product can have, because the loss is unrecoverable: nothing was backed up,
- * by design. So the indicator is on the page she starts from, and the delete
- * dialogue states exactly what will go.
+ * by design. The device-wide indicator lives on Inicio; this page keeps the
+ * estimate only to prevent starting a project when storage is critically low.
  */
 
 export function ProjectsPage() {
@@ -159,80 +158,7 @@ export function ProjectsPage() {
       <header className="flex flex-col gap-2">
         <h1 className="font-display text-2xl">{t('title')}</h1>
         <p className="max-w-prose text-ink-muted">{t('intro')}</p>
-        <p className="max-w-prose text-sm text-ink-muted">{t('xaiWhy')}</p>
-        <p className="text-xs text-ink-muted">{t('storageLocation')}</p>
       </header>
-
-        <section aria-labelledby="xai-tracks" className="flex flex-col gap-3">
-          <h2 id="xai-tracks" className="font-display text-xl">
-            {t('tracksTitle')}
-          </h2>
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <article className="flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-4">
-              <h3 className="font-display text-lg">{t('tracks.cv.title')}</h3>
-              <p className="max-w-prose text-sm text-ink-muted">{t('tracks.cv.body')}</p>
-              <div className="mt-auto">
-                <Link
-                  to="/lab"
-                  className="flex min-h-touch w-fit items-center rounded bg-blue px-4 text-sm font-medium text-ink-inverse no-underline"
-                >
-                  {t('tracks.cv.cta')}
-                </Link>
-              </div>
-            </article>
-
-            <article className="flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-4">
-              <h3 className="font-display text-lg">{t('tracks.llm.title')}</h3>
-              <p className="max-w-prose text-sm text-ink-muted">{t('tracks.llm.body')}</p>
-              <div className="mt-auto">
-                <Link
-                  to="/lab-llm"
-                  className="flex min-h-touch w-fit items-center rounded bg-magenta px-4 text-sm font-medium text-ink-inverse no-underline"
-                >
-                  {t('tracks.llm.cta')}
-                </Link>
-              </div>
-            </article>
-          </div>
-        </section>
-      {/* FR-023: stated plainly rather than nagging. An anonymous session is a
-          supported way to use the whole lab, not a degraded one — but a learner
-          must know before she captures forty photos that they live only here. */}
-      {status === 'anonymous' ? (
-        <section className="rounded-lg border border-amber bg-surface p-4">
-          <h2 className="text-base font-semibold">{t('anonymousTitle')}</h2>
-          <p className="mt-1 max-w-prose text-sm">{t('anonymousBody')}</p>
-        </section>
-      ) : null}
-
-      {/* FR-049: the 80% warning and the 95% refusal, where she can act on them. */}
-      {estimate?.known && estimate.ratio !== null ? (
-        <section className="flex flex-col gap-2">
-          <Meter
-            label={t('common:storage.label')}
-            value={estimate.ratio}
-            tone={estimate.shouldRefuse ? 'warn' : estimate.shouldWarn ? 'warn' : 'neutral'}
-            valueText={t('common:storage.used', {
-              used: formatBytes(estimate.usage ?? 0),
-              total: formatBytes(estimate.quota ?? 0),
-            })}
-          />
-          {estimate.shouldRefuse ? (
-            <p role="alert" className="text-sm text-magenta">
-              {t('common:storage.refuse')}
-            </p>
-          ) : estimate.shouldWarn ? (
-            <p className="text-sm text-orange">
-              {t('common:storage.warn', { percent: Math.round(estimate.ratio * 100) })}
-            </p>
-          ) : null}
-        </section>
-      ) : estimate && !estimate.known ? (
-        // D6: where the API is unavailable it says so rather than pretending to
-        // know. Guessing would either block a learner with plenty of room or teach
-        // her to ignore the warning that matters.
-        <p className="text-sm text-ink-muted">{t('common:storage.unknown')}</p>
-      ) : null}
 
       <section className="flex flex-col gap-3">
         {projects.length === 0 ? <p className="text-ink-muted">{t('empty')}</p> : null}
@@ -412,16 +338,4 @@ interface ProjectSummary {
   readonly samples: number
   /** `'none'` rather than `null`, so it maps straight onto a locale key. */
   readonly model: db.ModelStatus | 'none'
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${String(bytes)} B`
-  const units = ['KB', 'MB', 'GB']
-  let value = bytes / 1024
-  let unit = 0
-  while (value >= 1024 && unit < units.length - 1) {
-    value /= 1024
-    unit++
-  }
-  return `${value.toFixed(value < 10 ? 1 : 0)} ${units[unit] ?? 'GB'}`
 }

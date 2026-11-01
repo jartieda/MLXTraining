@@ -50,9 +50,9 @@
   "storage": {
     "label": "Espacio usado en este dispositivo",
     "used": "{{used}} de {{total}} en uso",
-    "unknown": "Este navegador no indica cuánto espacio queda. Vigila cuántos proyectos guardas.",
-    "warn": "Has usado el {{percent}}% del espacio que este navegador da al laboratorio. Elimina un proyecto que ya hayas terminado para hacer sitio.",
-    "refuse": "No queda espacio suficiente para capturar más. Elimina un proyecto que ya hayas terminado y vuelve a intentarlo.",
+    "unknown": "Este navegador no indica cuánto espacio ocupa este sitio.",
+    "warn": "Este sitio ha usado el {{percent}}% del espacio que el navegador le asigna. Revisa el almacenamiento del navegador si necesitas liberar espacio.",
+    "refuse": "No queda espacio suficiente para guardar más datos de este sitio. Libera espacio en el almacenamiento del navegador y vuelve a intentarlo.",
     "persistRequested": "Se ha pedido al navegador que conserve tu trabajo en lugar de borrarlo automáticamente."
   },
   "error": {

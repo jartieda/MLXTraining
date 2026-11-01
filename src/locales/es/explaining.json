@@ -61,7 +61,7 @@
     "cancelled": "Detenido. No se ha perdido nada.",
     "gradcamTitle": "Método 1: gradientes",
     "gradcamHow": "Pregunta al modelo qué partes de la foto, si se movieran un poco, cambiarían más su puntuación. Es rápido, pero trabaja sobre una cuadrícula gruesa.",
-    "occlusionTitle": "Método 2: tapar cosas",
+    "occlusionTitle": "Método 2: oclusión",
     "occlusionHow": "Tapa un cuadrado cada vez y mide cuánto baja la puntuación. Es más lento, pero no da nada por supuesto sobre cómo funciona el modelo: simplemente le pregunta {{count}} veces.",
     "progressGradcam": "Calculando el mapa de gradientes…",
     "progressOcclusion": "Tapando el cuadrado {{done}} de {{total}}…",

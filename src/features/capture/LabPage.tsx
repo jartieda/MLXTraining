@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { Button } from '@/components/Button'
 import { TextLink } from '@/components/TextLink'
 import { useTranslation } from 'react-i18next'
 import { LabLayout } from '@/routes/AppShell'
@@ -47,10 +48,31 @@ export function LabPage() {
     backboneError,
   } = useLab()
   const videoRef = useRef<HTMLVideoElement>(null)
+  const startCameraRef = useRef<(() => void) | null>(null)
   const [cameraActive, setCameraActive] = useState(false)
   const [denied, setDenied] = useState(false)
   const [frozen, setFrozen] = useState<FrozenFrame | null>(null)
   const [resolvingDefaultProject, setResolvingDefaultProject] = useState(false)
+  const [draftName, setDraftName] = useState('')
+  const [createProblem, setCreateProblem] = useState<string | null>(null)
+  const registerStartCamera = useCallback((start: (() => void) | null) => {
+    startCameraRef.current = start
+  }, [])
+
+  async function createFirstProject() {
+    try {
+      const created = await db.createProject(draftName.trim(), ownerId)
+      void navigate(`/lab/${created.id}`)
+    } catch (error) {
+      if (error instanceof db.StorageError && error.code === 'INVALID_NAME') {
+        setCreateProblem(
+          draftName.trim().length === 0 ? t('projects:nameTooShort') : t('projects:nameTooLong'),
+        )
+      } else {
+        setCreateProblem(t('common:error.generic', { ns: 'common' }))
+      }
+    }
+  }
 
   useBackbone(settings.backboneAlpha)
 
@@ -118,9 +140,35 @@ export function LabPage() {
       <div className="flex flex-col gap-3">
         <h1 className="font-display text-2xl">{t('capture:panelTitle')}</h1>
         <p className="text-ink-muted">{t('projects:empty', { ns: 'projects' })}</p>
-        <TextLink to="/projects">
-          {t('common:nav.projects', { ns: 'common' })}
-        </TextLink>
+        <form
+          className="flex max-w-md flex-col gap-2"
+          onSubmit={(event) => {
+            event.preventDefault()
+            void createFirstProject()
+          }}
+        >
+          <label className="flex flex-col gap-1">
+            <span className="font-medium">{t('projects:nameLabel', { ns: 'projects' })}</span>
+            <input
+              value={draftName}
+              maxLength={60}
+              placeholder={t('projects:namePlaceholder', { ns: 'projects' })}
+              onChange={(event) => {
+                setDraftName(event.target.value)
+              }}
+              className="min-h-touch rounded border border-border-subtle bg-surface px-2"
+            />
+          </label>
+          {createProblem ? (
+            <p role="alert" className="text-sm text-magenta">
+              {createProblem}
+            </p>
+          ) : null}
+          <div>
+            <Button type="submit">{t('projects:create', { ns: 'projects' })}</Button>
+          </div>
+        </form>
+        <TextLink to="/projects">{t('common:nav.projects', { ns: 'common' })}</TextLink>
       </div>
     )
   }
@@ -140,6 +188,7 @@ export function LabPage() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
+        <TextLink to="/projects">{t('common:nav.projects', { ns: 'common' })}</TextLink>
         <h1 className="font-display text-2xl">{project?.name ?? ''}</h1>
         <p className="text-sm text-ink-muted">{t('common:privacy.onDevice', { ns: 'common' })}</p>
       </header>
@@ -177,7 +226,11 @@ export function LabPage() {
             </h2>
             <p className="text-sm text-ink-muted">{t('capture:panelIntro')}</p>
             <ClassList />
-            <CameraCapture videoRef={videoRef} onActiveChange={setCameraActive} />
+            <CameraCapture
+              videoRef={videoRef}
+              onActiveChange={setCameraActive}
+              onStartReady={registerStartCamera}
+            />
             <UploadSamples />
             <SampleGrid />
           </div>
@@ -202,7 +255,10 @@ export function LabPage() {
               {t('testing:panelTitle', { ns: 'testing' })}
             </h2>
             <p className="text-sm text-ink-muted">{t('testing:panelIntro', { ns: 'testing' })}</p>
-            <LivePrediction video={cameraActive ? videoRef.current : null} />
+            <LivePrediction
+              video={cameraActive ? videoRef.current : null}
+              onStartCamera={() => startCameraRef.current?.()}
+            />
           </div>
         }
         explaining={

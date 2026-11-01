@@ -9,7 +9,8 @@
   "leading": "It thinks: {{name}}",
   "leadingConfidence": "{{name}}, {{percent}}% sure",
   "cameraPreview": "Camera preview for model testing",
-  "noCamera": "Turn on the camera above to try it live, or freeze a photo you uploaded.",
+  "noCamera": "Turn on the camera to try the model live, or freeze a photo you uploaded.",
+  "turnOnCamera": "Turn on camera",
   "confidence": {
     "heading": "How sure it is",
     "sumNote": "These always add up to 100%. The computer never says \"I don't know\" — it always picks the closest class it was given, even for something it has never seen."

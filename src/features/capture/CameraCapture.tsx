@@ -58,9 +58,11 @@ export interface CameraCaptureProps {
   readonly videoRef: React.RefObject<HTMLVideoElement | null>
   /** Lets the lab page enable the panels that need a live frame. */
   readonly onActiveChange?: (active: boolean) => void
+  /** Exposes the existing start flow to the testing panel. */
+  readonly onStartReady?: (start: (() => void) | null) => void
 }
 
-export function CameraCapture({ videoRef, onActiveChange }: CameraCaptureProps) {
+export function CameraCapture({ videoRef, onActiveChange, onStartReady }: CameraCaptureProps) {
   const { t } = useTranslation('capture')
   const {
     projectId,
@@ -103,7 +105,7 @@ export function CameraCapture({ videoRef, onActiveChange }: CameraCaptureProps) 
   // her — and is the single most alarming bug this feature could ship with.
   useEffect(() => stop, [stop])
 
-  async function start(deviceId?: string) {
+  const start = useCallback(async (deviceId?: string) => {
     setStarting(true)
     setFailure(null)
     try {
@@ -128,7 +130,14 @@ export function CameraCapture({ videoRef, onActiveChange }: CameraCaptureProps) 
     } finally {
       setStarting(false)
     }
-  }
+  }, [videoRef])
+
+  useEffect(() => {
+    onStartReady?.(() => {
+      void start()
+    })
+    return () => onStartReady?.(null)
+  }, [onStartReady, start])
 
   async function flip() {
     const camera = cameraRef.current

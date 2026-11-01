@@ -29,7 +29,7 @@ interface NavItem {
 const NAV: readonly NavItem[] = [
   // FR-023: the lab and projects are reachable with no account at all, and they
   // come first because for an anonymous visitor they are the entire product.
-  { to: '/projects', labelKey: 'nav.projects', roles: null },
+  { to: '/', labelKey: 'nav.home', roles: null },
   { to: '/lab', labelKey: 'nav.labCv', roles: null },
   { to: '/lab-llm', labelKey: 'nav.labLlm', roles: null },
   { to: '/lessons', labelKey: 'nav.lessons', roles: ['learner', 'educator'] },
@@ -93,6 +93,7 @@ export function AppShell() {
                   <li key={item.to}>
                     <NavLink
                       to={item.to}
+                      end={item.to === '/'}
                       className={({ isActive }) =>
                         [
                           'flex min-h-touch items-center rounded px-3 text-sm font-medium whitespace-nowrap no-underline',
@@ -126,14 +127,7 @@ export function AppShell() {
                   {t('nav.logout')}
                 </button>
               </div>
-            ) : (
-              <NavLink
-                to="/login"
-                className="flex min-h-touch shrink-0 items-center rounded px-3 text-sm font-medium text-blue-ink no-underline"
-              >
-                {t('nav.login')}
-              </NavLink>
-            )}
+            ) : null}
           </div>
         </div>
       </header>

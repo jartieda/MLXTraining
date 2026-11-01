@@ -50,9 +50,9 @@
   "storage": {
     "label": "Space used on this device",
     "used": "{{used}} of {{total}} used",
-    "unknown": "This browser will not say how much space is left. Keep an eye on how many projects you hold.",
-    "warn": "You have used {{percent}}% of the space this browser gives the lab. Delete a project you have finished with to make room.",
-    "refuse": "There is not enough space left to capture more. Delete a project you have finished with, then try again.",
+    "unknown": "This browser does not report how much space this site is using.",
+    "warn": "This site has used {{percent}}% of the space allocated by the browser. Check your browser storage if you need to free up space.",
+    "refuse": "There is not enough space left to save more data for this site. Free up browser storage, then try again.",
     "persistRequested": "Asked the browser to keep your work rather than clearing it automatically."
   },
   "error": {
