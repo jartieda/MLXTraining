@@ -1,17 +1,21 @@
 {
   "title": "My projects",
   "intro": "A project is one thing you are teaching the computer to recognise. Each one keeps its own classes, photos and trained model.",
-  "xaiWhy": "Explainable AI (XAI) matters because it helps you understand why a model decided something and spot errors, bias, or hallucinations before trusting an answer.",
-  "tracksTitle": "Two XAI lessons by technology",
+  "xaiTitle": "Why does Explainable AI (XAI) matter?",
+  "xaiQuote": "Don't trust AI blindly: learn to see how it works inside.",
+  "xaiWhy": "Explainable AI (XAI) helps you understand why a model decides something. That way you can spot errors, bias, or hallucinations before trusting an answer and make transparent, responsible decisions.",
+  "tracksTitle": "Choose your learning path",
   "tracks": {
     "cv": {
       "title": "Lab CV",
-      "body": "Learn XAI in computer vision: capture images, train, and inspect heat maps to see where the model is looking.",
+      "subtitle": "Computer vision",
+      "body": "Image classification, heat maps and occlusion.",
       "cta": "Go to Lab CV"
     },
     "llm": {
       "title": "Lab LLM",
-      "body": "Learn XAI in language models: chat with the model, review probabilities, and inspect word attention with an ethics lens.",
+      "subtitle": "Language models",
+      "body": "Token-by-token probabilities, attention, bias and hallucinations.",
       "cta": "Go to Lab LLM"
     }
   },

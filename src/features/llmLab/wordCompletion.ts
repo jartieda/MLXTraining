@@ -1,5 +1,3 @@
-export const WORD_COMPLETION_INSTRUCTION = 'completa la frase con una palabra'
-
 export interface ModelTokenAlternative {
   readonly token: string
   readonly logprob: number
@@ -54,8 +52,12 @@ interface WordSearchOptions {
  * User message for a word-completion request. The partial word is not part of it: engines
  * feed the partial word as the start of the assistant reply, so the model really continues it.
  */
-export function buildWordCompletionPrompt(prompt: string): string {
-  return `${WORD_COMPLETION_INSTRUCTION}: ${prompt.trim()}\nResponde únicamente con una palabra.`
+export function buildWordCompletionPrompt(
+  prompt: string,
+  instruction: string,
+  outputInstruction: string,
+): string {
+  return `${instruction}: ${prompt.trim()}\n${outputInstruction}`
 }
 
 /**

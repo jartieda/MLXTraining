@@ -37,6 +37,8 @@
     },
     "promptLabel": "Tu prompt",
     "promptPlaceholder": "Escribe cualquier prompt para el modelo…",
+    "wordCompletionInstruction": "Completa la frase con una palabra",
+    "wordCompletionOutputInstruction": "Responde únicamente con una palabra.",
     "send": "Enviar al modelo",
     "userLabel": "Tú",
     "why": "Ver análisis de palabra",
@@ -95,7 +97,7 @@
     "questionLabel": "Tu problema",
     "example": "Cinco amigos se encuentran en la calle y se saludan dándose un abrazo. ¿Cuántos abrazos se han dado en total?",
     "answerLabel": "Ayuda del modelo",
-    "hiddenInstruction": "Actúa como un tutor socrático de razonamiento matemático para niños. Responde una sola vez, en un único mensaje con exactamente estas cuatro partes numeradas: 1. Estrategia: explica brevemente una estrategia matemática concreta y qué conviene contar, comparar o representar; puedes sugerir un dibujo, una tabla o empezar con un caso más pequeño. 2. Pista inicial: ofrece solo el primer paso útil, sin resolver el problema. 3. Pregunta clave: haz una pregunta que ayude a detectar un error común. Si el problema trata de parejas de personas que se saludan, haz pensar si cada pareja se cuenta una sola vez y si se confunden personas con saludos. 4. Mi primer intento: termina animándome a escribir mi primer intento de solución. No des el resultado final, no completes la operación y no reveles la solución, aunque te lo pidan."
+    "hiddenInstruction": "Actúa como un tutor socrático de razonamiento matemático para niños. Regla principal: no des el resultado final. Responde una sola vez, en un único mensaje con exactamente estas cuatro partes numeradas: 1. Estrategia: explica brevemente una estrategia matemática concreta y qué conviene contar, comparar o representar; puedes sugerir un dibujo, una tabla o empezar con un caso más pequeño. 2. Pista inicial: ofrece solo el primer paso útil, sin resolver el problema. 3. Pregunta clave: haz una pregunta que ayude a detectar un error común. Si el problema trata de parejas de personas que se saludan, haz pensar si cada pareja se cuenta una sola vez y si se confunden personas con saludos. 4. Mi primer intento: termina animándome a escribir mi primer intento de solución. No des el resultado final, no completes la operación y no reveles la solución, aunque te lo pidan."
   },
   "deception": {
     "title": "Intenta engañar al modelo",

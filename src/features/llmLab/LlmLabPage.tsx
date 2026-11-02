@@ -120,7 +120,7 @@ export function LlmLabPage() {
     setIsProcessingPrompt(true)
 
     try {
-      const generated = await buildChatTurn(trimmed, engine, setGenerationProgress)
+      const generated = await buildChatTurn(trimmed, engine, t, setGenerationProgress)
       const userMessage: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'user',
@@ -485,11 +485,19 @@ function visibleToken(token: string): string {
 async function buildChatTurn(
   prompt: string,
   engine: LlmEngine,
+  t: TFunction<'llm'>,
   onProgress: (progress: WordSearchProgress) => void,
 ) {
   let latestProgress: WordSearchProgress = { modelCalls: 0, candidates: [], partials: [] }
   const candidates = await findWordCandidates(async (partialWord) => {
-    return engine.nextTokenAlternatives(buildWordCompletionPrompt(prompt), partialWord)
+    return engine.nextTokenAlternatives(
+      buildWordCompletionPrompt(
+        prompt,
+        t('chat.wordCompletionInstruction'),
+        t('chat.wordCompletionOutputInstruction'),
+      ),
+      partialWord,
+    )
   }, {
     onProgress: (progress) => {
       latestProgress = progress

@@ -35,9 +35,11 @@ const FRAME_INTERVAL_MS = 1000 / TARGET_FPS
 export interface LivePredictionProps {
   /** The live preview to sample. `null` while the camera is off. */
   readonly video: HTMLVideoElement | null
+  /** Starts the shared camera stream from the testing panel. */
+  readonly onStartCamera: () => void
 }
 
-export function LivePrediction({ video }: LivePredictionProps) {
+export function LivePrediction({ video, onStartCamera }: LivePredictionProps) {
   const { t } = useTranslation('testing')
   const { classes, model, backbone } = useLab()
 
@@ -78,6 +80,8 @@ export function LivePrediction({ video }: LivePredictionProps) {
     if (!preview || !video) return
 
     let raf = 0
+    preview.width = MODEL_INPUT_SIZE
+    preview.height = MODEL_INPUT_SIZE
 
     const draw = () => {
       if (!previewRef.current || !video || video.videoWidth === 0 || video.videoHeight === 0) {
@@ -90,9 +94,6 @@ export function LivePrediction({ video }: LivePredictionProps) {
         raf = requestAnimationFrame(draw)
         return
       }
-
-      previewRef.current.width = MODEL_INPUT_SIZE
-      previewRef.current.height = MODEL_INPUT_SIZE
 
       const side = Math.min(video.videoWidth, video.videoHeight)
       context.drawImage(
@@ -195,10 +196,11 @@ export function LivePrediction({ video }: LivePredictionProps) {
   return (
     <div className="flex flex-col gap-3">
       {/* Heading and intro come from LabPage; see the note in TrainPanel. */}
-      {!model ? (
-        <p className="text-sm text-ink-muted">{t('notTrained')}</p>
-      ) : !video ? (
-        <p className="text-sm text-ink-muted">{t('noCamera')}</p>
+      {!video ? (
+        <div className="flex flex-col items-start gap-2">
+          <p className="text-sm text-ink-muted">{t('noCamera')}</p>
+          <Button onClick={onStartCamera}>{t('turnOnCamera')}</Button>
+        </div>
       ) : (
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
           <div className="relative mx-auto w-full max-w-[15rem] overflow-hidden rounded border border-border-subtle bg-navy sm:max-w-[18rem] md:mx-0 md:w-[18rem] md:max-w-none">
@@ -209,53 +211,57 @@ export function LivePrediction({ video }: LivePredictionProps) {
             />
           </div>
 
-          <div className="flex flex-1 flex-col gap-3">
-            <Button
-              onClick={() => {
-                if (running) stop()
-                else start()
-              }}
-              block
-            >
-              {running ? t('stop') : t('start')}
-            </Button>
+          {!model ? (
+            <p className="text-sm text-ink-muted">{t('notTrained')}</p>
+          ) : (
+            <div className="flex flex-1 flex-col gap-3">
+              <Button
+                onClick={() => {
+                  if (running) stop()
+                  else start()
+                }}
+                block
+              >
+                {running ? t('stop') : t('start')}
+              </Button>
 
-            {/* The headline reading, announced. A screen-reader user gets nothing
-                from the bars moving, so the leading class and its confidence are the
-                only route to the result — and `polite` rather than `assertive`
-                because ten updates a second must never interrupt her. */}
-            <p aria-live="polite" className="text-lg font-semibold">
-              {leader && classes[leader.classIndex]
-                ? t('leadingConfidence', {
-                    name: classes[leader.classIndex]?.name ?? '',
-                    percent: percentages[leader.classIndex] ?? 0,
-                  })
-                : running
-                  ? t('live')
-                  : t('paused')}
-            </p>
+              {/* The headline reading, announced. A screen-reader user gets nothing
+                  from the bars moving, so the leading class and its confidence are the
+                  only route to the result — and `polite` rather than `assertive`
+                  because ten updates a second must never interrupt her. */}
+              <p aria-live="polite" className="text-lg font-semibold">
+                {leader && classes[leader.classIndex]
+                  ? t('leadingConfidence', {
+                      name: classes[leader.classIndex]?.name ?? '',
+                      percent: percentages[leader.classIndex] ?? 0,
+                    })
+                  : running
+                    ? t('live')
+                    : t('paused')}
+              </p>
 
-            <div className="flex flex-col gap-2">
-              <h4 className="text-sm font-semibold">{t('confidence.heading')}</h4>
-              {/* Every class, always — including the ones near zero. FR-011 asks for
-                  each class's confidence, and a filtered list would also break the
-                  index alignment between a bar and its class name. */}
-              {classes.map((klass, index) => (
-                <Meter
-                  key={klass.id}
-                  label={klass.name}
-                  value={probabilities[index]?.probability ?? 0}
-                  valueText={`${String(percentages[index] ?? 0)}%`}
-                  tone={leader?.classIndex === index ? 'leading' : 'neutral'}
-                />
-              ))}
+              <div className="flex flex-col gap-2">
+                <h4 className="text-sm font-semibold">{t('confidence.heading')}</h4>
+                {/* Every class, always — including the ones near zero. FR-011 asks for
+                    each class's confidence, and a filtered list would also break the
+                    index alignment between a bar and its class name. */}
+                {classes.map((klass, index) => (
+                  <Meter
+                    key={klass.id}
+                    label={klass.name}
+                    value={probabilities[index]?.probability ?? 0}
+                    valueText={`${String(percentages[index] ?? 0)}%`}
+                    tone={leader?.classIndex === index ? 'leading' : 'neutral'}
+                  />
+                ))}
+              </div>
+
+              {/* Principle III in one sentence. The model never abstains, and a
+                  learner who does not know that will read a confident answer about an
+                  object she never trained on as the model recognising it. */}
+              <p className="text-sm text-ink-muted">{t('confidence.sumNote')}</p>
             </div>
-
-            {/* Principle III in one sentence. The model never abstains, and a
-                learner who does not know that will read a confident answer about an
-                object she never trained on as the model recognising it. */}
-            <p className="text-sm text-ink-muted">{t('confidence.sumNote')}</p>
-          </div>
+          )}
         </div>
       )}
     </div>

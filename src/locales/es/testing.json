@@ -9,7 +9,8 @@
   "leading": "Cree que es: {{name}}",
   "leadingConfidence": "{{name}}, {{percent}}% de seguridad",
   "cameraPreview": "Vista previa de cámara para probar el modelo",
-  "noCamera": "Enciende la cámara de arriba para probarlo en directo, o congela una foto que hayas subido.",
+  "noCamera": "Enciende la cámara para probar el modelo en directo, o congela una foto que hayas subido.",
+  "turnOnCamera": "Encender cámara",
   "confidence": {
     "heading": "Lo segura que está",
     "sumNote": "Esto siempre suma 100%. La máquina nunca dice «no lo sé»: siempre elige la clase más parecida de las que le diste, incluso ante algo que no ha visto nunca."
