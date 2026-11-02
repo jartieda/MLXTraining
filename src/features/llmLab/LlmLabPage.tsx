@@ -12,6 +12,8 @@ import {
 import { ReasoningChat } from './ReasoningChat'
 import { ComparePanel } from './compare/ComparePanel'
 import { WordLens } from './compare/WordLens'
+import { LlmMissions } from './missions/LlmMissions'
+import type { MissionTarget } from './missions/missions'
 import { MODEL_DISPLAY_NAME } from './webllm'
 import {
   buildWordCompletionPrompt,
@@ -39,7 +41,7 @@ interface ChatMessage {
 
 const MODEL_ORDER: readonly ModelId[] = ['gemma', 'llama', 'qwen']
 const BACKEND_ORDER: readonly LlmBackend[] = ['gpu', 'cpu']
-const LAB_TABS = ['explore', 'compare'] as const
+const LAB_TABS = ['explore', 'compare', 'missions'] as const
 
 /** Sentinel stored in `engineError` so the message is translated when rendered. */
 const WEBGPU_UNAVAILABLE = 'webgpu-unavailable:'
@@ -67,6 +69,22 @@ export function LlmLabPage() {
   const [tab, setTab] = useState<(typeof LAB_TABS)[number]>('explore')
   const [compareRunning, setCompareRunning] = useState(false)
   const [lensRunning, setLensRunning] = useState(false)
+  const [presetRequest, setPresetRequest] = useState<{ id: string; nonce: number } | null>(null)
+
+  /** A mission's «Ir a…»: open the tab, pick the preset it needs and scroll to the tool. */
+  function goToMissionTarget(target: MissionTarget) {
+    setTab(target.tab)
+    if (target.presetId) setPresetRequest({ id: target.presetId, nonce: Date.now() })
+    if (target.anchor) {
+      const anchor = target.anchor
+      // After the tab panel is shown, or there is nothing to scroll to yet.
+      requestAnimationFrame(() => {
+        const element = document.getElementById(anchor)
+        element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        element?.focus({ preventScroll: true })
+      })
+    }
+  }
 
   const [selectedModel, setSelectedModel] = useState<ModelId>('gemma')
   const [selectedBackend, setSelectedBackend] = useState<LlmBackend>('gpu')
@@ -301,7 +319,7 @@ export function LlmLabPage() {
 
       <div role="tabpanel" id="llm-panel-explore" aria-labelledby="llm-tab-explore" hidden={tab !== 'explore'}>
         <div className="flex flex-col gap-8">
-          <section className="rounded-lg border border-border-subtle bg-surface p-4">
+          <section id="llm-next-word" tabIndex={-1} className="rounded-lg border border-border-subtle bg-surface p-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div className="flex flex-col gap-1">
                 <h2 className="font-display text-xl">{t('chat.title')}</h2>
@@ -414,17 +432,24 @@ export function LlmLabPage() {
             loadingModel={loadingModel}
           />
           <ReasoningChat
-            key={`tutor-${selectedModel}-${selectedBackend}-${retryKey}`}
-            variant="tutor"
-            engine={engine}
-            loadingModel={loadingModel}
-          />
-          <ReasoningChat
             key={`deception-${selectedModel}-${selectedBackend}-${retryKey}`}
             variant="deception"
             engine={engine}
             loadingModel={loadingModel}
           />
+          {/* The maths tutor is not about explaining a model, so it sits apart from the
+              XAI path, folded away but still one click from where it used to be. */}
+          <details className="rounded-lg border border-border-subtle bg-surface p-4">
+            <summary className="cursor-pointer font-medium">{t('missions.extras')}</summary>
+            <div className="mt-4">
+              <ReasoningChat
+                key={`tutor-${selectedModel}-${selectedBackend}-${retryKey}`}
+                variant="tutor"
+                engine={engine}
+                loadingModel={loadingModel}
+              />
+            </div>
+          </details>
         </div>
       </div>
 
@@ -434,6 +459,7 @@ export function LlmLabPage() {
           loadingModel={loadingModel}
           modelName={engine ? MODEL_DISPLAY_NAME[engine.backend][selectedModel] : t(`chat.models.${selectedModel}`)}
           onRunningChange={setCompareRunning}
+          presetRequest={presetRequest}
         />
         <WordLens
           engine={engine}
@@ -441,6 +467,10 @@ export function LlmLabPage() {
           modelName={engine ? MODEL_DISPLAY_NAME[engine.backend][selectedModel] : t(`chat.models.${selectedModel}`)}
           onRunningChange={setLensRunning}
         />
+      </div>
+
+      <div role="tabpanel" id="llm-panel-missions" aria-labelledby="llm-tab-missions" hidden={tab !== 'missions'}>
+        <LlmMissions onGoTo={goToMissionTarget} />
       </div>
     </div>
   )
@@ -482,24 +512,29 @@ function AssistantCard({
               <div className="flex items-center justify-between gap-3">
                 <h4 className="text-lg font-semibold text-ink">{candidate.word}</h4>
                 <span className="tabular-nums text-sm font-medium text-ink-muted">
-                  {(candidate.probability * 100).toFixed(2)}%
+                  {simplePercent(candidate.probability)}
                 </span>
               </div>
-              {candidate.paths.map((path, pathIndex) => (
-                <p key={`${candidate.word}-${pathIndex}`} className="mt-2 break-words font-mono text-xs text-ink-muted">
-                  <TokenProduct tokens={path.tokens} total={path.probability} />
-                </p>
-              ))}
-              {candidate.paths.length > 1 ? (
-                <p className="mt-2 text-xs font-medium text-ink-muted">
-                  {t('chat.mergedWordScore', {
-                    calculation: candidate.paths
-                      .map((path) => `${(path.probability * 100).toFixed(4)}%`)
-                      .join(' + '),
-                    total: (candidate.probability * 100).toFixed(4),
-                  })}
-                </p>
-              ) : null}
+              {/* Simple view first: whole percentages. The token arithmetic, with its
+                  decimals and ␣ marks, is one click away rather than in the way. */}
+              <details className="mt-1">
+                <summary className="cursor-pointer text-xs text-ink-muted">{t('compare.showCalculation')}</summary>
+                {candidate.paths.map((path, pathIndex) => (
+                  <p key={`${candidate.word}-${pathIndex}`} className="mt-2 break-words font-mono text-xs text-ink-muted">
+                    <TokenProduct tokens={path.tokens} total={path.probability} />
+                  </p>
+                ))}
+                {candidate.paths.length > 1 ? (
+                  <p className="mt-2 text-xs font-medium text-ink-muted">
+                    {t('chat.mergedWordScore', {
+                      calculation: candidate.paths
+                        .map((path) => `${(path.probability * 100).toFixed(4)}%`)
+                        .join(' + '),
+                      total: (candidate.probability * 100).toFixed(4),
+                    })}
+                  </p>
+                ) : null}
+              </details>
             </article>
           ))}
           {message.partials.length > 0 ? (
@@ -567,6 +602,12 @@ function TokenProduct({
       {' = '}{(total * 100).toFixed(4)}%
     </>
   )
+}
+
+/** Whole percentages for the simple view; below 1 % says so instead of showing «0 %». */
+function simplePercent(probability: number): string {
+  const percent = probability * 100
+  return percent > 0 && percent < 1 ? '< 1 %' : `${String(Math.round(percent))} %`
 }
 
 /** Make whitespace-only tokens readable instead of rendering them as nothing. */

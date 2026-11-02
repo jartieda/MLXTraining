@@ -65,7 +65,7 @@
     "title": "Ask the model and have it explain itself",
     "intro": "Ask the selected model a question. When it answers, press «See how it explains it» to read the explanation the model itself wrote alongside its answer.",
     "questionLabel": "Your question",
-    "example": "Rate from 1 to 10 how scientific this movie is: Avengers",
+    "example": "Is it true that we only use 10% of our brain? Answer and explain why.",
     "examplePrefix": "For example:",
     "useExample": "Use the example",
     "ask": "Ask",
@@ -115,7 +115,8 @@
     "tab": {
       "explore": "Explore",
       "compare": "Compare two prompts",
-      "label": "Lab LLM sections"
+      "label": "Lab LLM sections",
+      "missions": "Missions"
     },
     "title": "Compare two prompts",
     "intro": "Write a prompt A and a prompt B that differ in just one thing. The lab sends both to the same model, with the same settings and no randomness, so if the answer changes, it is because of what you changed.",
@@ -322,6 +323,97 @@
         "noQuotes": "The model didn't quote any words from the text, so there's nothing to compare. Ask again or try another model."
       },
       "lesson": "What the model says influenced it is an explanation it wrote, not a measurement. The lens does measure. When they don't match, trust the measurement more."
+    }
+  },
+  "missions": {
+    "title": "Missions",
+    "intro": "Seven missions to learn how to explain a language model: measure instead of believing, change just one thing, and check whether the model tells the truth about itself. Your progress and answers are only saved in this browser.",
+    "progressLabel": "Your progress",
+    "progress": "{{done}} of {{total}} missions completed",
+    "numbered": "{{number}}. {{title}}",
+    "statusDone": "Completed",
+    "statusPending": "To do",
+    "what": "What you do",
+    "challenge": "Challenge",
+    "markDone": "I've completed the challenge",
+    "goTo": {
+      "explore": "Go to “Explore”",
+      "compare": "Go to the comparator"
+    },
+    "extras": "Extras: help me reason through a problem (outside the explainable AI path)",
+    "items": {
+      "nextWord": {
+        "title": "Which word comes next?",
+        "what": "Write the start of a sentence in “Explore” and see which words the model would put next and how likely each one is.",
+        "challenge": "Write a sentence where the top word is below 50 % and another where it is above 90 %.",
+        "question": "If something is very likely for the model, does that make it true?"
+      },
+      "oneChange": {
+        "title": "Change just one thing",
+        "what": "In the comparator, change only how you ask: the tone, a negation or the order of the options.",
+        "challenge": "Find a change of form, not of content, that causes a “Big change”.",
+        "question": "Would you use this model for something important, knowing this?"
+      },
+      "lens": {
+        "title": "The word lens",
+        "what": "Use the lens on the jacket example and then on a text of your own.",
+        "challenge": "Find a sentence with irony or a “not” that fools the model.",
+        "question": "Which word mattered most? Did you expect it?"
+      },
+      "selfReport": {
+        "title": "Does it tell the truth about itself?",
+        "what": "After using the lens, ask the model which words influenced it and compare that with what the lens measured.",
+        "challenge": "Find a text where they “don't match” or “partly match”.",
+        "question": "Do you trust what the model says or what is measured more? Why?"
+      },
+      "name": {
+        "title": "Does the name matter?",
+        "what": "Use the “Bias: does the name matter?” case and try other pairs of names in A and B.",
+        "challenge": "Find a pair of names with a difference of 5 points or more.",
+        "question": "Would it be fair to use this model to choose who to hire?"
+      },
+      "invented": {
+        "title": "Did it make that up?",
+        "what": "Use the comparator's hallucination cases and the “Try to trick the model” exercise in “Explore”.",
+        "challenge": "Find a false answer the model gives with a lot of confidence.",
+        "question": "What warns you that a model is making something up?"
+      },
+      "projectCard": {
+        "title": "XAI card for your project",
+        "what": "Fill in the card thinking about your project's app. It downloads together with your answers to the missions and your saved experiments.",
+        "challenge": "Complete the four sections and download the card.",
+        "question": "What explanation does the person using your app need?"
+      }
+    },
+    "card": {
+      "fields": {
+        "decides": {
+          "label": "What does your app decide or recommend?",
+          "hint": "For example: which song to play, whether a message is offensive or which route to take."
+        },
+        "affects": {
+          "label": "Who does that decision affect?",
+          "hint": "Who uses it and who could be harmed if it gets it wrong."
+        },
+        "biasTested": {
+          "label": "Which bias or failure have you tested?",
+          "hint": "Use your experiments: what you changed, what happened and what it means."
+        },
+        "explanation": {
+          "label": "What explanation will you give the people using your app?",
+          "hint": "Write it as they would read it: short, clear and honest about the limits."
+        }
+      },
+      "includes": "The card will also include your answers to the missions' questions and your latest saved experiments.",
+      "download": "Download card",
+      "downloadedComplete": "Card downloaded. Mission completed!",
+      "downloadedIncomplete": "Card downloaded. Complete the four sections to complete the mission.",
+      "fileName": "xai-card.md",
+      "fileTitle": "XAI card for my project",
+      "reflectionsHeading": "What I learned in the missions",
+      "experimentsHeading": "My saved experiments",
+      "empty": "Not filled in",
+      "footer": "Made in the LLM Lab of the Explainable AI Lab. The data stayed on my device."
     }
   }
 }

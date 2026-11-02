@@ -137,7 +137,7 @@ export function WordLens({
   }
 
   return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-4 rounded-lg border border-border-subtle bg-surface p-4">
+    <section id="llm-word-lens" tabIndex={-1} aria-labelledby={headingId} className="flex flex-col gap-4 rounded-lg border border-border-subtle bg-surface p-4">
       <header className="flex flex-col gap-1">
         <h2 id={headingId} className="font-display text-xl">{t('lens.title')}</h2>
         <p className="max-w-prose text-sm text-ink-muted">{t('lens.intro')}</p>

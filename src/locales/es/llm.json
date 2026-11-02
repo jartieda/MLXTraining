@@ -65,7 +65,7 @@
     "title": "Pregunta al modelo y pídele que se explique",
     "intro": "Hazle una pregunta al modelo seleccionado. Cuando responda, pulsa «Ver cómo lo explica» para leer la explicación que el propio modelo escribió junto a su respuesta.",
     "questionLabel": "Tu pregunta",
-    "example": "Valora del 1 al 10 lo científica que es esta película: Avengers",
+    "example": "¿Es verdad que solo usamos el 10 % del cerebro? Responde y explica por qué.",
     "examplePrefix": "Por ejemplo:",
     "useExample": "Usar el ejemplo",
     "ask": "Preguntar",
@@ -115,7 +115,8 @@
     "tab": {
       "explore": "Explorar",
       "compare": "Comparar dos prompts",
-      "label": "Secciones del Lab LLM"
+      "label": "Secciones del Lab LLM",
+      "missions": "Misiones"
     },
     "title": "Comparar dos prompts",
     "intro": "Escribe un prompt A y un prompt B que solo se diferencien en una cosa. El laboratorio los envía al mismo modelo, con la misma configuración y sin azar, así que si la respuesta cambia, es por lo que tú has cambiado.",
@@ -322,6 +323,97 @@
         "noQuotes": "El modelo no ha citado palabras del texto entre comillas, así que no hay nada que comparar. Vuelve a preguntarle o prueba con otro modelo."
       },
       "lesson": "Lo que el modelo dice que le influyó es una explicación escrita por él, no una medida. La lupa sí mide. Cuando no coinciden, fíate más de la medida."
+    }
+  },
+  "missions": {
+    "title": "Misiones",
+    "intro": "Siete misiones para aprender a explicar un modelo de lenguaje: medir en lugar de creer, cambiar una sola cosa y comprobar si el modelo dice la verdad sobre sí mismo. Tu progreso y tus respuestas se guardan solo en este navegador.",
+    "progressLabel": "Tu progreso",
+    "progress": "{{done}} de {{total}} misiones conseguidas",
+    "numbered": "{{number}}. {{title}}",
+    "statusDone": "Conseguida",
+    "statusPending": "Pendiente",
+    "what": "Qué haces",
+    "challenge": "Reto",
+    "markDone": "He conseguido el reto",
+    "goTo": {
+      "explore": "Ir a «Explorar»",
+      "compare": "Ir al comparador"
+    },
+    "extras": "Extras: ayúdame a razonar un problema (fuera de la ruta de IA explicable)",
+    "items": {
+      "nextWord": {
+        "title": "¿Qué palabra viene después?",
+        "what": "Escribe el principio de una frase en «Explorar» y mira qué palabras pondría el modelo a continuación y con qué probabilidad.",
+        "challenge": "Escribe una frase en la que la palabra favorita tenga menos del 50 % y otra en la que tenga más del 90 %.",
+        "question": "¿Que algo sea muy probable para el modelo significa que sea verdad?"
+      },
+      "oneChange": {
+        "title": "Cambia una sola cosa",
+        "what": "En el comparador, cambia solo la forma de preguntar: el tono, una negación o el orden de las opciones.",
+        "challenge": "Encuentra un cambio de forma, no de contenido, que provoque un «Cambio grande».",
+        "question": "¿Usarías este modelo para algo importante sabiendo esto?"
+      },
+      "lens": {
+        "title": "La lupa de palabras",
+        "what": "Pasa la lupa al ejemplo de la chaqueta y después a un texto tuyo.",
+        "challenge": "Encuentra una frase con ironía o con un «no» que engañe al modelo.",
+        "question": "¿Qué palabra pesaba más? ¿Te lo esperabas?"
+      },
+      "selfReport": {
+        "title": "¿Dice la verdad sobre sí mismo?",
+        "what": "Después de pasar la lupa, pregunta al modelo qué palabras le influyeron y compáralo con lo que midió la lupa.",
+        "challenge": "Encuentra un texto en el que «No coinciden» o «Coinciden en parte».",
+        "question": "¿Te fías más de lo que dice el modelo o de lo que se mide? ¿Por qué?"
+      },
+      "name": {
+        "title": "¿Importa el nombre?",
+        "what": "Usa el caso «Sesgo: ¿importa el nombre?» y prueba otros pares de nombres en A y B.",
+        "challenge": "Encuentra un par de nombres con 5 puntos de diferencia o más.",
+        "question": "¿Sería justo usar este modelo para elegir a quién contratar?"
+      },
+      "invented": {
+        "title": "¿Se lo ha inventado?",
+        "what": "Usa los casos de alucinaciones del comparador y el ejercicio «Intenta engañar al modelo» de «Explorar».",
+        "challenge": "Encuentra una respuesta falsa que el modelo dé con mucha seguridad.",
+        "question": "¿Qué te avisa de que un modelo se está inventando algo?"
+      },
+      "projectCard": {
+        "title": "Ficha XAI de tu proyecto",
+        "what": "Rellena la ficha pensando en la app de tu proyecto. Se descarga junto con tus respuestas a las misiones y tus experimentos guardados.",
+        "challenge": "Completa los cuatro apartados y descarga la ficha.",
+        "question": "¿Qué explicación necesita la persona que use tu app?"
+      }
+    },
+    "card": {
+      "fields": {
+        "decides": {
+          "label": "¿Qué decide o recomienda tu app?",
+          "hint": "Por ejemplo: qué canción escuchar, si un mensaje es ofensivo o qué ruta tomar."
+        },
+        "affects": {
+          "label": "¿A quién afecta esa decisión?",
+          "hint": "Quién la usa y quién puede salir perjudicado si se equivoca."
+        },
+        "biasTested": {
+          "label": "¿Qué sesgo o fallo has probado?",
+          "hint": "Usa tus experimentos: qué cambiaste, qué pasó y qué significa."
+        },
+        "explanation": {
+          "label": "¿Qué explicación darás a quien use tu app?",
+          "hint": "Escríbela como la leería esa persona: corta, clara y honesta sobre los límites."
+        }
+      },
+      "includes": "La ficha incluirá también tus respuestas a las preguntas de las misiones y tus últimos experimentos guardados.",
+      "download": "Descargar ficha",
+      "downloadedComplete": "Ficha descargada. ¡Misión conseguida!",
+      "downloadedIncomplete": "Ficha descargada. Completa los cuatro apartados para conseguir la misión.",
+      "fileName": "ficha-xai.md",
+      "fileTitle": "Ficha XAI de mi proyecto",
+      "reflectionsHeading": "Lo que he aprendido en las misiones",
+      "experimentsHeading": "Mis experimentos guardados",
+      "empty": "Sin completar",
+      "footer": "Hecha en el Lab LLM del Laboratorio de IA explicable. Los datos se han quedado en mi dispositivo."
     }
   }
 }

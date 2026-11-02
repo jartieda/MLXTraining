@@ -63,6 +63,7 @@ export function ComparePanel({
   loadingModel,
   modelName,
   onRunningChange,
+  presetRequest,
 }: {
   readonly engine: LlmEngine | null
   readonly loadingModel: boolean
@@ -70,6 +71,8 @@ export function ComparePanel({
   readonly modelName: string
   /** Lets the page lock the model controls while a comparison is running. */
   readonly onRunningChange?: (running: boolean) => void
+  /** A mission asking for a preset; `nonce` lets the same preset be asked for twice. */
+  readonly presetRequest?: { readonly id: string; readonly nonce: number } | null
 }) {
   const { t } = useTranslation('llm')
   const formId = useId()
@@ -100,6 +103,12 @@ export function ComparePanel({
   useEffect(() => {
     onRunningChange?.(running)
   }, [running, onRunningChange])
+
+  useEffect(() => {
+    if (presetRequest && !running) choosePreset(presetRequest.id)
+    // Only a new request should switch the preset, not a change of anything else.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetRequest])
 
   function choosePreset(id: string) {
     setPresetId(id)
@@ -224,7 +233,7 @@ export function ComparePanel({
   }
 
   return (
-    <section aria-labelledby={`${formId}-title`} className="flex flex-col gap-4 rounded-lg border border-border-subtle bg-surface p-4">
+    <section id="llm-compare" tabIndex={-1} aria-labelledby={`${formId}-title`} className="flex flex-col gap-4 rounded-lg border border-border-subtle bg-surface p-4">
       <header className="flex flex-col gap-1">
         <h2 id={`${formId}-title`} className="font-display text-xl">{t('compare.title')}</h2>
         <p className="max-w-prose text-sm text-ink-muted">{t('compare.intro')}</p>
