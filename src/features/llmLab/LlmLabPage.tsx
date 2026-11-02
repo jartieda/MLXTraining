@@ -11,6 +11,7 @@ import {
 } from './llmEngine'
 import { ReasoningChat } from './ReasoningChat'
 import { ComparePanel } from './compare/ComparePanel'
+import { WordLens } from './compare/WordLens'
 import { MODEL_DISPLAY_NAME } from './webllm'
 import {
   buildWordCompletionPrompt,
@@ -65,6 +66,7 @@ export function LlmLabPage() {
   const [stopped, setStopped] = useState(false)
   const [tab, setTab] = useState<(typeof LAB_TABS)[number]>('explore')
   const [compareRunning, setCompareRunning] = useState(false)
+  const [lensRunning, setLensRunning] = useState(false)
 
   const [selectedModel, setSelectedModel] = useState<ModelId>('gemma')
   const [selectedBackend, setSelectedBackend] = useState<LlmBackend>('gpu')
@@ -226,7 +228,7 @@ export function LlmLabPage() {
                 type="button"
                 variant={selectedModel === modelId ? 'primary' : 'secondary'}
                 aria-pressed={selectedModel === modelId}
-                disabled={isProcessingPrompt || compareRunning}
+                disabled={isProcessingPrompt || compareRunning || lensRunning}
                 onClick={() => {
                   setSelectedModel(modelId)
                 }}
@@ -243,7 +245,7 @@ export function LlmLabPage() {
                 type="button"
                 variant={selectedBackend === backendId ? 'primary' : 'secondary'}
                 aria-pressed={selectedBackend === backendId}
-                disabled={isProcessingPrompt || compareRunning}
+                disabled={isProcessingPrompt || compareRunning || lensRunning}
                 onClick={() => {
                   setSelectedBackend(backendId)
                 }}
@@ -426,12 +428,18 @@ export function LlmLabPage() {
         </div>
       </div>
 
-      <div role="tabpanel" id="llm-panel-compare" aria-labelledby="llm-tab-compare" hidden={tab !== 'compare'}>
+      <div role="tabpanel" id="llm-panel-compare" aria-labelledby="llm-tab-compare" hidden={tab !== 'compare'} className="flex flex-col gap-4">
         <ComparePanel
           engine={engine}
           loadingModel={loadingModel}
           modelName={engine ? MODEL_DISPLAY_NAME[engine.backend][selectedModel] : t(`chat.models.${selectedModel}`)}
           onRunningChange={setCompareRunning}
+        />
+        <WordLens
+          engine={engine}
+          loadingModel={loadingModel}
+          modelName={engine ? MODEL_DISPLAY_NAME[engine.backend][selectedModel] : t(`chat.models.${selectedModel}`)}
+          onRunningChange={setLensRunning}
         />
       </div>
     </div>

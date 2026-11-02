@@ -7,7 +7,9 @@ import { test, expect, type Page } from '@playwright/test'
  *
  * The fake answers a closed question with A unless the prompt sounds negative, gives
  * two next-word candidates whose order depends on «jefa», and writes a slow free-text
- * answer so the stop button can be exercised.
+ * answer so the stop button can be exercised. In the jacket example only «contenta»
+ * keeps the answer positive and «ayudado» helps a little, which gives the word lens a
+ * known result.
  */
 async function withFakeEngine(page: Page): Promise<void> {
   await page.addInitScript(() => {
@@ -17,9 +19,14 @@ async function withFakeEngine(page: Page): Promise<void> {
       backend: 'gpu',
       nextTokenAlternatives: (prompt: string, prefix = '') => {
         if (/letra de la opción|letter of the option/i.test(prompt)) {
-          const negative = NEGATIVE.test(prompt)
+          // The jacket example is only positive while «contenta» is in it, so the lens
+          // finds that one word.
+          const jacketWithoutHappy = /chaqueta|jacket/i.test(prompt) && !/contenta|happy/i.test(prompt)
+          const negative = NEGATIVE.test(prompt) || jacketWithoutHappy
+          // «ayudado» also holds the answer up, less: the lens's second word.
+          const top = /chaqueta|jacket/i.test(prompt) && !/ayudado|helped/i.test(prompt) ? 0.5 : 0.8
           return Promise.resolve([
-            { token: negative ? 'B' : 'A', logprob: lp(0.8) },
+            { token: negative ? 'B' : 'A', logprob: lp(top) },
             { token: negative ? 'A' : 'B', logprob: lp(0.1) },
             { token: 'Hmm', logprob: lp(0.05) },
           ])
@@ -31,11 +38,18 @@ async function withFakeEngine(page: Page): Promise<void> {
           { token: feminine ? 'exigente' : 'estricto', logprob: lp(0.2) },
         ])
       },
-      generate: (_messages: unknown, _max: number, signal?: AbortSignal) =>
+      generate: (messages: { content: string }[], _max: number, signal?: AbortSignal) =>
         new Promise<string>((resolve, reject) => {
+          // Asked which words influenced it, the fake names one the lens agrees with
+          // and two it does not: «coinciden en parte».
+          const content = messages[0]?.content ?? ''
+          const selfReport = /entre comillas|quotation marks/i.test(content)
+          const reply = /quotation marks/i.test(content)
+            ? 'Positive. "happy" "jacket" "favorite"'
+            : 'Positivo. "contenta" "chaqueta" "favorita"'
           const timer = setTimeout(() => {
-            resolve('Rosalía no ha ganado el Premio Nobel de Literatura.')
-          }, 1500)
+            resolve(selfReport ? reply : 'Rosalía no ha ganado el Premio Nobel de Literatura.')
+          }, selfReport ? 50 : 1500)
           signal?.addEventListener('abort', () => {
             clearTimeout(timer)
             const error = new Error('stopped')
@@ -105,6 +119,16 @@ test.describe('Lab LLM — compare two prompts', () => {
     await page.getByRole('button', { name: /^comparar$|^compare$/i }).click()
     await page.getByRole('button', { name: /^parar$|^stop$/i }).click()
     await expect(page.getByText(/comparación parada|comparison stopped/i)).toBeVisible()
+  })
+
+  test('the word lens finds the word that holds up the answer, and the model only partly agrees', async ({ page }) => {
+    await openComparator(page)
+    await expect(page.getByText(/19 consultas|19 times/)).toBeVisible()
+    await page.getByRole('button', { name: /pasar la lupa|use the lens/i }).click()
+    await expect(page.getByTestId('lens-summary')).toContainText(/más pesa es «contenta»|matters most is “happy”/i)
+
+    await page.getByRole('button', { name: /preguntar al modelo|ask the model/i }).click()
+    await expect(page.getByTestId('self-report-band')).toHaveText(/coinciden en parte|partly match/i)
   })
 
   test('fits a 360 px screen without horizontal scrolling', async ({ page }) => {

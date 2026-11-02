@@ -269,5 +269,59 @@
     },
     "optionsInstruction": "Reply with the letter of the option only.",
     "freeTextInstruction": "Reply in two or three sentences."
+  },
+  "lens": {
+    "title": "Word lens: which words really matter?",
+    "intro": "The lens removes the words of the text one at a time and asks the model again what sentiment it expresses. If removing a word changes the answer a lot, that word mattered a lot. It's the same idea as covering parts of a photo in the CV Lab.",
+    "textLabel": "Text to analyse",
+    "cost_one": "It will ask the model {{count}} time.",
+    "cost_other": "It will ask the model {{count}} times: once with the whole text and once per word.",
+    "run": "Use the lens",
+    "progressLabel": "Removing words one at a time",
+    "progressStart": "Asking with the whole text…",
+    "progress": "Word {{done}} of {{total}}",
+    "stopped": "Lens stopped. No half-finished result is shown.",
+    "offFormat": "With the whole text, the model didn't reply with any of the letters, so there is no answer to measure. Try another model or a clearer text.",
+    "baseline": "With the whole text, the model picks “{{answer}}” at {{percent}} %. Each word is measured by how much that percentage drops when it is removed.",
+    "legendLow": "Matters little",
+    "legendHigh": "Holds up “{{answer}}”",
+    "legendCaption": "The colours compare the words with each other; they aren't an exact amount. No colour: removing it barely changes anything. Words with a dashed underline push towards another answer: removing them makes “{{answer}}” go up.",
+    "strongest": "The word that matters most is “{{word}}”: without it, “{{answer}}” drops {{points}} points.",
+    "strongestAtLeast": "The word that matters most is “{{word}}”: without it, “{{answer}}” drops at least {{points}} points (it falls out of the top 3).",
+    "noneMatters": "No single word changes the answer much. The model relies on the whole text.",
+    "topList": "The ones that matter most: {{words}}.",
+    "against": "These words push against “{{answer}}”: {{words}}.",
+    "caveat": "Removing a word can leave an odd sentence. The lens measures what the model does with that sentence, not what it “thinks”.",
+    "calculationLine": "without “{{word}}”: {{without}} → {{points}} points",
+    "wordTitle": "“{{word}}”: removing it drops {{points}} points",
+    "wordTitleAgainst": "“{{word}}”: removing it adds {{points}} points",
+    "selfReport": {
+      "title": "Does it tell the truth about itself?",
+      "intro": "Now ask the model itself which words influenced it and compare that with what the lens measured. Before you press, think: do you expect them to match?",
+      "instruction": "Reply with a single word: positive, negative or neutral. Then write the {{count}} exact words from the text that influenced your answer most, each one in quotation marks.",
+      "ask": "Ask the model",
+      "asking": "The model is answering…",
+      "replyHeading": "What the model replies",
+      "saysHeading": "The model says it was influenced by",
+      "measuredHeading": "The lens measured",
+      "noQuotesList": "It didn't quote any word that is in the text.",
+      "alsoLens": "the lens agrees",
+      "named": "the model names it",
+      "notNamed": "the model doesn't name it",
+      "heading": "Do they match?",
+      "band": {
+        "strong": "They match",
+        "partial": "They partly match",
+        "disagreement": "They don't match",
+        "noQuotes": "Can't compare"
+      },
+      "body": {
+        "strong": "The model named all {{total}} words that matter most according to the lens.",
+        "partial": "The model named {{named}} of the {{total}} words that matter most according to the lens.",
+        "disagreement": "The model didn't name any of the {{total}} words that matter most according to the lens.",
+        "noQuotes": "The model didn't quote any words from the text, so there's nothing to compare. Ask again or try another model."
+      },
+      "lesson": "What the model says influenced it is an explanation it wrote, not a measurement. The lens does measure. When they don't match, trust the measurement more."
+    }
   }
 }

@@ -269,5 +269,59 @@
     },
     "optionsInstruction": "Responde solo con la letra de la opción.",
     "freeTextInstruction": "Responde en dos o tres frases."
+  },
+  "lens": {
+    "title": "Lupa de palabras: ¿qué palabras pesan de verdad?",
+    "intro": "La lupa quita las palabras del texto de una en una y vuelve a preguntar al modelo qué sentimiento expresa. Si al quitar una palabra la respuesta cambia mucho, esa palabra pesaba mucho. Es la misma idea que tapar trozos de una foto en el Lab CV.",
+    "textLabel": "Texto que se analiza",
+    "cost_one": "Hará {{count}} consulta al modelo.",
+    "cost_other": "Hará {{count}} consultas al modelo: una con el texto completo y una por cada palabra.",
+    "run": "Pasar la lupa",
+    "progressLabel": "Quitando palabras de una en una",
+    "progressStart": "Preguntando con el texto completo…",
+    "progress": "Palabra {{done}} de {{total}}",
+    "stopped": "Lupa parada. No se ha mostrado ningún resultado a medias.",
+    "offFormat": "Con el texto completo, el modelo no ha respondido con ninguna de las letras, así que no hay una respuesta que medir. Prueba con otro modelo o con un texto más claro.",
+    "baseline": "Con el texto completo, el modelo elige «{{answer}}» con un {{percent}} %. Cada palabra se mide por cuánto baja ese porcentaje al quitarla.",
+    "legendLow": "Pesa poco",
+    "legendHigh": "Sostiene «{{answer}}»",
+    "legendCaption": "Los colores comparan las palabras entre sí, no son una cantidad exacta. Sin color: quitarla casi no cambia nada. Las palabras subrayadas con rayas empujan hacia otra respuesta: al quitarlas, «{{answer}}» sube.",
+    "strongest": "La palabra que más pesa es «{{word}}»: sin ella, «{{answer}}» baja {{points}} puntos.",
+    "strongestAtLeast": "La palabra que más pesa es «{{word}}»: sin ella, «{{answer}}» baja al menos {{points}} puntos (deja de estar entre las 3 primeras).",
+    "noneMatters": "Ninguna palabra, por sí sola, cambia mucho la respuesta. El modelo se apoya en el texto completo.",
+    "topList": "Las que más pesan: {{words}}.",
+    "against": "Estas palabras empujan en contra de «{{answer}}»: {{words}}.",
+    "caveat": "Quitar una palabra puede dejar una frase rara. La lupa mide lo que hace el modelo con esa frase, no lo que «piensa».",
+    "calculationLine": "sin «{{word}}»: {{without}} → {{points}} puntos",
+    "wordTitle": "«{{word}}»: al quitarla, baja {{points}} puntos",
+    "wordTitleAgainst": "«{{word}}»: al quitarla, sube {{points}} puntos",
+    "selfReport": {
+      "title": "¿Dice la verdad sobre sí mismo?",
+      "intro": "Ahora pregunta al propio modelo qué palabras le han influido y compáralo con lo que ha medido la lupa. Antes de pulsar, piensa: ¿crees que coincidirán?",
+      "instruction": "Responde con una sola palabra: positivo, negativo o neutro. Después escribe las {{count}} palabras exactas del texto que más han influido en tu respuesta, cada una entre comillas.",
+      "ask": "Preguntar al modelo",
+      "asking": "El modelo está respondiendo…",
+      "replyHeading": "Lo que responde el modelo",
+      "saysHeading": "El modelo dice que le influyó",
+      "measuredHeading": "La lupa ha medido",
+      "noQuotesList": "No ha citado ninguna palabra que esté en el texto.",
+      "alsoLens": "también lo dice la lupa",
+      "named": "el modelo la nombra",
+      "notNamed": "el modelo no la nombra",
+      "heading": "¿Coinciden?",
+      "band": {
+        "strong": "Coinciden",
+        "partial": "Coinciden en parte",
+        "disagreement": "No coinciden",
+        "noQuotes": "No se puede comparar"
+      },
+      "body": {
+        "strong": "El modelo ha nombrado las {{total}} palabras que más pesan según la lupa.",
+        "partial": "El modelo ha nombrado {{named}} de las {{total}} palabras que más pesan según la lupa.",
+        "disagreement": "El modelo no ha nombrado ninguna de las {{total}} palabras que más pesan según la lupa.",
+        "noQuotes": "El modelo no ha citado palabras del texto entre comillas, así que no hay nada que comparar. Vuelve a preguntarle o prueba con otro modelo."
+      },
+      "lesson": "Lo que el modelo dice que le influyó es una explicación escrita por él, no una medida. La lupa sí mide. Cuando no coinciden, fíate más de la medida."
+    }
   }
 }
