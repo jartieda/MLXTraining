@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
 import { Meter } from '@/components/Meter'
-import * as db from '@/lib/db'
+import type * as dbTypes from '@/lib/db'
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${String(bytes)} B`
@@ -27,13 +27,15 @@ function formatBytes(bytes: number): string {
  */
 export function Landing() {
   const { t } = useTranslation(['common', 'projects'])
-  const [deviceStorage, setDeviceStorage] = useState<db.StorageEstimate | null>(null)
+  const [deviceStorage, setDeviceStorage] = useState<dbTypes.StorageEstimate | null>(null)
 
   useEffect(() => {
     let active = true
-    void db.estimateStorage().then((estimate) => {
-      if (active) setDeviceStorage(estimate)
-    })
+    void import('@/lib/db').then(({ estimateStorage }) =>
+      estimateStorage().then((estimate) => {
+        if (active) setDeviceStorage(estimate)
+      }),
+    )
     return () => {
       active = false
     }

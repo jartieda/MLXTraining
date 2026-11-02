@@ -37,6 +37,8 @@
     },
     "promptLabel": "Your prompt",
     "promptPlaceholder": "Write any prompt for the model…",
+    "wordCompletionInstruction": "Complete the sentence with one word",
+    "wordCompletionOutputInstruction": "Reply with only one word.",
     "send": "Send to model",
     "userLabel": "You",
     "why": "Show word analysis",

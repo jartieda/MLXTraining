@@ -37,6 +37,8 @@
     },
     "promptLabel": "Tu prompt",
     "promptPlaceholder": "Escribe cualquier prompt para el modelo…",
+    "wordCompletionInstruction": "Completa la frase con una palabra",
+    "wordCompletionOutputInstruction": "Responde únicamente con una palabra.",
     "send": "Enviar al modelo",
     "userLabel": "Tú",
     "why": "Ver análisis de palabra",

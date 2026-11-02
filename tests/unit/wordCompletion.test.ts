@@ -3,19 +3,34 @@ import { describe, expect, it } from 'vitest'
 import {
   buildWordCompletionPrompt,
   findWordCandidates,
-  WORD_COMPLETION_INSTRUCTION,
   type ModelTokenAlternative,
 } from '@/features/llmLab/wordCompletion'
 
 describe('word completion prompt', () => {
   it('always starts with the requested instruction and preserves the prompt', () => {
-    expect(buildWordCompletionPrompt('  La luna brilla  ')).toBe(
-      `${WORD_COMPLETION_INSTRUCTION}: La luna brilla\nResponde únicamente con una palabra.`,
+    expect(
+      buildWordCompletionPrompt(
+        '  The moon shines  ',
+        'Complete the sentence with one word',
+        'Reply with only one word.',
+      ),
+    ).toBe(
+      'Complete the sentence with one word: The moon shines\nReply with only one word.',
     )
   })
 
+  it('uses the active locale instructions supplied by the caller', () => {
+    expect(
+      buildWordCompletionPrompt(
+        '  La luna brilla  ',
+        'Completa la frase con una palabra',
+        'Responde únicamente con una palabra.',
+      ),
+    ).toBe('Completa la frase con una palabra: La luna brilla\nResponde únicamente con una palabra.')
+  })
+
   it('does not put the partial word in the user message (it is prefilled in the reply)', () => {
-    expect(buildWordCompletionPrompt('La luna')).not.toContain('«')
+    expect(buildWordCompletionPrompt('La luna', 'Completa la frase', 'Una palabra.')).not.toContain('«')
   })
 })
 
