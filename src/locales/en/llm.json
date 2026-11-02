@@ -2,8 +2,8 @@
   "title": "LLM Lab",
   "intro": "Try a prompt and compare three complete words built from real model predictions.",
   "chat": {
-    "title": "Chat sandbox",
-    "intro": "Choose a local model, send any prompt, and compare up to three complete words.",
+    "title": "Which word comes next?",
+    "intro": "Choose a local model, write the start of a sentence and see which words the model thinks come next, and how likely each one is.",
     "modelLabel": "Model",
     "backendLabel": "Execution engine",
     "backends": {
@@ -11,11 +11,11 @@
       "cpu": "CPU (WebAssembly)"
     },
     "backendHint": {
-      "gpu": "Faster and runs the full model. Requires a browser with WebGPU.",
-      "cpu": "Works in any browser, but uses a reduced version of the model and is slower."
+      "gpu": "Faster, with the larger model. Needs a browser with WebGPU.",
+      "cpu": "Works in any browser, but it is slower and runs a different, much smaller model than the GPU engine, so its answers and probabilities are not comparable."
     },
     "webGpuUnavailable": {
-      "insecure": "WebGPU only works in secure contexts. Open the app from http://localhost:5173 (or HTTPS), not from a network IP. Meanwhile, choose the CPU engine.",
+      "insecure": "WebGPU only works on secure pages (https:// or localhost). Open the lab over https:// or choose the CPU engine.",
       "unsupported": "This browser does not expose WebGPU. Update it or choose the CPU engine.",
       "noAdapter": "The browser supports WebGPU but returned no GPU adapter. Check chrome://gpu or choose the CPU engine."
     },
@@ -24,8 +24,8 @@
     "modelUnavailable": "The local model is not ready yet.",
     "modelError": "WebLLM could not load the model: {{error}}",
     "retry": "Retry",
-    "modelReady": "WebLLM ready: {{model}}",
-    "modelReadyCpu": "CPU engine ready: {{model}} runs as a reduced version of the model. It will be slower.",
+    "modelReady": "Model ready on the GPU: {{model}}",
+    "modelReadyCpu": "Model ready on the CPU: {{model}}. It is smaller than the GPU model of the same family, so it will answer differently and more slowly.",
     "generationFailed": "WebLLM could not generate a response. Try again.",
     "processing": "Processing prompt…",
     "status": {
@@ -57,11 +57,13 @@
       "gemma": "Gemma",
       "llama": "Llama",
       "qwen": "Qwen (Alibaba)"
-    }
+    },
+    "stop": "Stop",
+    "stopped": "Stopped. You can ask again whenever you like."
   },
   "reasoning": {
     "title": "Ask the model and have it explain itself",
-    "intro": "Ask the selected model a question. Once it answers, press “Why did the model say this?” to have it describe the reasoning it followed.",
+    "intro": "Ask the selected model a question. When it answers, press «See how it explains it» to read the explanation the model itself wrote alongside its answer.",
     "questionLabel": "Your question",
     "example": "Rate from 1 to 10 how scientific this movie is: Avengers",
     "examplePrefix": "For example:",
@@ -70,25 +72,28 @@
     "asking": "The model is answering…",
     "thinking": "The model is thinking… this can take a few seconds.",
     "answerLabel": "Model answer",
-    "why": "Why did the model say this?",
-    "unavailable": "The model did not include its reasoning in this answer. Try asking again.",
-    "explanationTitle": "Model reasoning",
+    "why": "See how it explains it",
+    "unavailable": "The model did not include an explanation in this answer. Try asking again.",
+    "explanationTitle": "Explanation written by the model",
     "hiddenInstruction": "Reply in two sections, in this order, using exactly these labels. {{answerTag}} followed by your answer. {{reasoningTag}} followed by a numbered list of 3 to 5 short steps with the reasoning you followed to reach that answer.",
-    "caveat": "Note: the model wrote this reasoning itself after answering. It is a plausible explanation, not a readout of its internal computation, and it may be wrong or made up. Compare it with the word analysis above and with reliable sources.",
-    "failed": "The model could not generate the text. Try again."  },
+    "caveat": "Careful: the model wrote this explanation itself, just like the answer. It is plausible text, not a reading of its internal calculations, and it may be wrong or made up. Check it against the word analysis above and against reliable sources.",
+    "failed": "The model could not generate the text. Try again."
+  },
   "sentiment": {
     "title": "Ask the model to judge the sentiment of a text",
-    "intro": "Write a short text, such as a message to a friend or an opinion about a game. The question \"Is the sentiment positive, negative or neutral?\" is added automatically, you do not need to write it. Then press \"Why did the model say this?\" to see which words it focused on. Try tricky sentences, such as sarcasm or a sentence with \"not\".",
+    "intro": "Write a short text, like a message to a friend or an opinion about a game. The question «Is the sentiment positive, negative or neutral?» is added for you. Then press «See how it explains it» to see which words the model says influenced it. Careful: that is what the model says, not a measurement of what really weighed. Try tricky sentences, such as irony or a sentence with «not».",
     "questionLabel": "Your text",
     "example": "Today I lost my favorite jacket, but my friend helped me find it and now I am happy.",
-    "hiddenQuestion": "Is the sentiment positive, negative or neutral?"
+    "hiddenQuestion": "Is the sentiment positive, negative or neutral?",
+    "hiddenInstruction": "Reply in two sections, in this order, using exactly these labels. {{answerTag}} followed by a single word: positive, negative or neutral. {{reasoningTag}} followed by a numbered list of the exact words or phrases from the text, in quotation marks, that influenced your answer most, with one short sentence about each."
   },
   "bias": {
     "title": "Ask the model to analyze the biases in a text",
-    "intro": "A bias is an unfair or poorly justified idea about a group of people. Write a text; the question \"Is there any bias in this text?\" is added automatically, you do not need to write it. Then press \"Why did the model say this?\". Does it find all the biases or does it miss some? Does it invent one that is not there?",
+    "intro": "A bias is an unfair or poorly justified idea about a group of people. Write a text; the question «Is there any bias in this text?» is added for you. Then press «See how it explains it» to see which phrases the model points at. Does it find every bias, or miss some? Does it invent one that is not there?",
     "questionLabel": "Your text",
     "example": "Historic victory! Our spectacular team from UpperTown completely crushed the cheating players from LowerTown in an exciting match. The referee clearly tried to favor the rival, but our superior talent shone on the field. We are the best, no question!",
-    "hiddenQuestion": "Is there any bias in this text?"
+    "hiddenQuestion": "Is there any bias in this text?",
+    "hiddenInstruction": "Reply in two sections, in this order, using exactly these labels. {{answerTag}} followed by yes or no and, if there is one, for or against whom the bias is. {{reasoningTag}} followed by a numbered list of the exact phrases from the text, in quotation marks, that show the bias, with one short sentence on why each is unfair or poorly justified."
   },
   "tutor": {
     "title": "Help me reason through this problem",
@@ -96,12 +101,14 @@
     "questionLabel": "Your problem",
     "example": "Five friends meet in the street and greet each other with a hug. How many hugs are there in total?",
     "answerLabel": "Model's help",
-    "hiddenInstruction": "Act as a Socratic mathematical-reasoning tutor for children. Main rule: do not give the final result. Reply once,: 1. Strategy: briefly explain a concrete mathematical strategy and what to count, compare, or represent; you may suggest a drawing, table, or starting with a smaller case. 2. First hint: offer only the first useful step without solving the problem. 3. Key question: ask a question that helps spot a common mistake. If the problem is about pairs of people greeting one another, prompt me to consider whether each pair is counted only once and whether I am confusing people with greetings. 4. My first attempt: end by encouraging me to write my first attempt at a solution. Do not give the final result, finish the operation, or reveal the solution, even if asked."
+    "hiddenInstruction": "Act as a Socratic mathematical-reasoning tutor for children. Main rule: do not give the final result. Reply once, in a single message with exactly these four numbered parts: 1. Strategy: briefly explain a concrete mathematical strategy and what to count, compare, or represent; you may suggest a drawing, table, or starting with a smaller case. 2. First hint: offer only the first useful step without solving the problem. 3. Key question: ask a question that helps spot a common mistake. If the problem is about pairs of people greeting one another, prompt me to consider whether each pair is counted only once and whether I am confusing people with greetings. 4. My first attempt: end by encouraging me to write my first attempt at a solution. Do not give the final result, finish the operation, or reveal the solution, even if asked."
   },
   "deception": {
     "title": "Try to trick the model",
-    "intro": "Write a question that includes a false claim, or that asks for something the model cannot know, and see whether it believes it, corrects you or makes up an answer. Then press \"Why did the model say this?\" to see how it justifies the answer. Can you make it change its mind if you insist?",
+    "intro": "Write a question that contains a false claim, or that asks for something the model cannot know, and see whether it believes you, corrects you or makes the answer up. Then press «See how it explains it» to see how it justifies itself. You can insist: the model remembers this conversation until you press «Start again». Can you make it change its mind?",
     "questionLabel": "Your attempt to trick it",
-    "example": "How old is Rosalía exactly today and in what year was she born?"
+    "example": "How old is Rosalía exactly today and in what year was she born?",
+    "followUpLabel": "Insist, or ask something else",
+    "restart": "Start again"
   }
 }

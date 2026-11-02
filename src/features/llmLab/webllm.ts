@@ -25,6 +25,35 @@ export const CPU_DTYPE_MAP: Record<WebLlmModelId, 'fp32' | 'q8'> = {
   qwen: 'q8',
 }
 
+/**
+ * The model actually loaded for each engine, as the learner should see it. The CPU engine
+ * does not run a "reduced version" of the GPU model: it runs a different, much smaller
+ * model (for Gemma, even a different generation), so its probabilities are not comparable.
+ */
+export const MODEL_DISPLAY_NAME: Record<'gpu' | 'cpu', Record<WebLlmModelId, string>> = {
+  gpu: {
+    gemma: 'Gemma 2 · 2B',
+    llama: 'Llama 3.2 · 3B',
+    qwen: 'Qwen 2.5 · 3B',
+  },
+  cpu: {
+    gemma: 'Gemma 3 · 270M',
+    llama: 'Llama 3.2 · 1B',
+    qwen: 'Qwen 2.5 · 0.5B',
+  },
+}
+
+/**
+ * Control tokens of the three chat templates. A learner who types one of them would
+ * otherwise close the user turn and write into the assistant's, so they are removed
+ * from anything she writes before it reaches a template or a tokenizer.
+ */
+const CONTROL_TOKEN = /<\|[^|<>\s]{1,40}\|>|<\/?(?:bos|eos|pad|s|start_of_turn|end_of_turn)>/giu
+
+export function stripControlTokens(text: string): string {
+  return text.replace(CONTROL_TOKEN, '')
+}
+
 export function getWebLlmModelId(modelId: WebLlmModelId): string {
   return WEBLLM_MODEL_MAP[modelId]
 }
@@ -38,7 +67,8 @@ export function getCpuModelId(modelId: WebLlmModelId): string {
  * continues `assistantPrefix` instead of starting a new reply. WebLLM's chat API cannot
  * prefill the assistant turn, hence the templates are spelled out here.
  */
-export function buildRawChatPrompt(model: WebLlmModelId, userMessage: string, assistantPrefix: string): string {
+export function buildRawChatPrompt(model: WebLlmModelId, rawUserMessage: string, assistantPrefix: string): string {
+  const userMessage = stripControlTokens(rawUserMessage)
   switch (model) {
     case 'gemma':
       return `<bos><start_of_turn>user\n${userMessage}<end_of_turn>\n<start_of_turn>model\n${assistantPrefix}`

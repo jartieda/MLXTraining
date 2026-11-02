@@ -30,7 +30,7 @@
     "delete": "Eliminar",
     "rename": "Cambiar el nombre",
     "clearPrompt": "Borrar prompt",
-    "retry": "Reiniciar",
+    "retry": "Reintentar",
     "copy": "Copiar",
     "copied": "Copiado",
     "copyFailed": "No se ha podido copiar: selecciona el texto y cópialo a mano.",

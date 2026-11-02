@@ -2,8 +2,8 @@
   "title": "Lab LLM",
   "intro": "Prueba un prompt y compara tres palabras completas construidas con predicciones reales del modelo.",
   "chat": {
-    "title": "Sandbox de chat",
-    "intro": "Elige un modelo local, escribe cualquier prompt y compara hasta tres palabras completas.",
+    "title": "¿Qué palabra viene después?",
+    "intro": "Elige un modelo local, escribe el principio de una frase y mira qué palabras cree el modelo que vienen después y con qué probabilidad.",
     "modelLabel": "Modelo",
     "backendLabel": "Motor de ejecución",
     "backends": {
@@ -11,11 +11,11 @@
       "cpu": "CPU (WebAssembly)"
     },
     "backendHint": {
-      "gpu": "Más rápido y con el modelo completo. Requiere un navegador con WebGPU.",
-      "cpu": "Funciona en cualquier navegador, pero usa una versión reducida del modelo y es más lento."
+      "gpu": "Más rápido y con el modelo más grande. Necesita un navegador con WebGPU.",
+      "cpu": "Funciona en cualquier navegador, pero es más lento y usa un modelo distinto y mucho más pequeño que el de GPU, así que sus respuestas y probabilidades no son comparables."
     },
     "webGpuUnavailable": {
-      "insecure": "WebGPU solo funciona en contextos seguros. Abre la app desde http://localhost:5173 (o HTTPS), no desde una IP de red. Mientras tanto, elige el motor CPU.",
+      "insecure": "WebGPU solo funciona en páginas seguras (con https:// o en localhost). Abre el laboratorio con https:// o elige el motor CPU.",
       "unsupported": "Este navegador no expone WebGPU. Actualízalo o elige el motor CPU.",
       "noAdapter": "El navegador soporta WebGPU pero no devolvió ningún adaptador de GPU. Revisa chrome://gpu o elige el motor CPU."
     },
@@ -24,8 +24,8 @@
     "modelUnavailable": "El modelo local todavía no está listo.",
     "modelError": "WebLLM no pudo cargar el modelo: {{error}}",
     "retry": "Reintentar",
-    "modelReady": "WebLLM listo: {{model}}",
-    "modelReadyCpu": "Motor CPU listo: {{model}} se ejecuta con una versión reducida del modelo. Será más lento.",
+    "modelReady": "Modelo listo en la GPU: {{model}}",
+    "modelReadyCpu": "Modelo listo en la CPU: {{model}}. Es más pequeño que el de GPU de la misma familia, así que responderá distinto y más despacio.",
     "generationFailed": "WebLLM no pudo generar una respuesta. Inténtalo de nuevo.",
     "processing": "Procesando prompt…",
     "status": {
@@ -57,11 +57,13 @@
       "gemma": "Gemma",
       "llama": "Llama",
       "qwen": "Qwen (Alibaba)"
-    }
+    },
+    "stop": "Parar",
+    "stopped": "Parado. Puedes volver a preguntar cuando quieras."
   },
   "reasoning": {
     "title": "Pregunta al modelo y pídele que se explique",
-    "intro": "Hazle una pregunta al modelo seleccionado. Cuando responda, pulsa «¿Por qué dijo esto el modelo?» para que describa el razonamiento que siguió.",
+    "intro": "Hazle una pregunta al modelo seleccionado. Cuando responda, pulsa «Ver cómo lo explica» para leer la explicación que el propio modelo escribió junto a su respuesta.",
     "questionLabel": "Tu pregunta",
     "example": "Valora del 1 al 10 lo científica que es esta película: Avengers",
     "examplePrefix": "Por ejemplo:",
@@ -70,26 +72,28 @@
     "asking": "El modelo está respondiendo…",
     "thinking": "El modelo está pensando… puede tardar unos segundos.",
     "answerLabel": "Respuesta del modelo",
-    "why": "¿Por qué dijo esto el modelo?",
-    "unavailable": "El modelo no incluyó su razonamiento en esta respuesta. Prueba a preguntar de nuevo.",
-    "explanationTitle": "Razonamiento del modelo",
+    "why": "Ver cómo lo explica",
+    "unavailable": "El modelo no incluyó ninguna explicación en esta respuesta. Prueba a preguntar de nuevo.",
+    "explanationTitle": "Explicación escrita por el modelo",
     "hiddenInstruction": "Responde en dos secciones, en este orden y usando exactamente estas etiquetas. {{answerTag}} seguido de tu respuesta. {{reasoningTag}} seguido de una lista numerada de 3 a 5 pasos breves con el razonamiento que has seguido para llegar a esa respuesta.",
-    "caveat": "Ojo: este razonamiento lo ha escrito el propio modelo después de responder. Es una explicación plausible, no una lectura de sus cálculos internos, y puede ser incorrecta o inventada. Contrástala con el análisis de palabras de arriba y con fuentes fiables.",
+    "caveat": "Ojo: esta explicación la ha escrito el propio modelo, igual que la respuesta. Es un texto plausible, no una lectura de sus cálculos internos, y puede ser incorrecta o inventada. Contrástala con el análisis de palabras de arriba y con fuentes fiables.",
     "failed": "El modelo no pudo generar el texto. Inténtalo de nuevo."
   },
   "sentiment": {
     "title": "Pide al modelo que valore el sentimiento de un texto",
-    "intro": "Escribe un texto corto, como un mensaje a un amigo o una opinión sobre un juego. La pregunta «¿El sentimiento es positivo, negativo o neutro?» se añade sola, no hace falta que la escribas. Después pulsa «¿Por qué dijo esto el modelo?» para ver en qué palabras se fijó. Prueba con frases difíciles, como una ironía o una frase con «no».",
+    "intro": "Escribe un texto corto, como un mensaje a un amigo o una opinión sobre un juego. La pregunta «¿El sentimiento es positivo, negativo o neutro?» se añade sola, no hace falta que la escribas. Después pulsa «Ver cómo lo explica» para ver qué palabras dice el modelo que le influyeron. Ojo: es lo que el modelo dice, no una medida de lo que de verdad pesó. Prueba con frases difíciles, como una ironía o una frase con «no».",
     "questionLabel": "Tu texto",
     "example": "Hoy he perdido mi chaqueta favorita, pero mi amiga me ha ayudado a encontrarla y ahora estoy contenta.",
-    "hiddenQuestion": "¿El sentimiento es positivo, negativo o neutro?"
+    "hiddenQuestion": "¿El sentimiento es positivo, negativo o neutro?",
+    "hiddenInstruction": "Responde en dos secciones, en este orden y usando exactamente estas etiquetas. {{answerTag}} seguido de una sola palabra: positivo, negativo o neutro. {{reasoningTag}} seguido de una lista numerada con las palabras o frases exactas del texto, entre comillas, que más han influido en tu respuesta, con una frase breve sobre cada una."
   },
   "bias": {
     "title": "Pide al modelo que analice los sesgos de un texto",
-    "intro": "Un sesgo es una idea injusta o poco justificada sobre un grupo de personas. Escribe un texto; la pregunta «¿Hay algún sesgo en este texto?» se añade sola, no hace falta que la escribas. Después pulsa «¿Por qué dijo esto el modelo?». ¿Encuentra todos los sesgos o se le escapa alguno? ¿Inventa alguno que no existe?",
+    "intro": "Un sesgo es una idea injusta o poco justificada sobre un grupo de personas. Escribe un texto; la pregunta «¿Hay algún sesgo en este texto?» se añade sola, no hace falta que la escribas. Después pulsa «Ver cómo lo explica» para ver qué frases señala el modelo. ¿Encuentra todos los sesgos o se le escapa alguno? ¿Inventa alguno que no existe?",
     "questionLabel": "Tu texto",
     "example": "¡Victoria histórica! Nuestro espectacular equipo de VillaArriba aplastó por completo a los tramposos jugadores de VillaAbajo en un partido emocionante. El árbitro claramente intentó favorecer al rival, pero nuestro talento superior brilló en la cancha. ¡Somos los mejores sin discusión!",
-    "hiddenQuestion": "¿Hay algún sesgo en este texto?"
+    "hiddenQuestion": "¿Hay algún sesgo en este texto?",
+    "hiddenInstruction": "Responde en dos secciones, en este orden y usando exactamente estas etiquetas. {{answerTag}} seguido de sí o no, y, si lo hay, a favor o en contra de quién es el sesgo. {{reasoningTag}} seguido de una lista numerada con las frases exactas del texto, entre comillas, que muestran el sesgo, y una frase breve sobre por qué cada una es injusta o poco justificada."
   },
   "tutor": {
     "title": "Ayúdame a razonar este problema",
@@ -101,8 +105,10 @@
   },
   "deception": {
     "title": "Intenta engañar al modelo",
-    "intro": "Escribe una pregunta que incluya una afirmación falsa, o que pida algo que el modelo no puede saber, y mira si se la cree, te corrige o se inventa la respuesta. Después pulsa «¿Por qué dijo esto el modelo?» para ver cómo lo justifica. ¿Consigues que cambie de opinión si insistes?",
+    "intro": "Escribe una pregunta que incluya una afirmación falsa, o que pida algo que el modelo no puede saber, y mira si se la cree, te corrige o se inventa la respuesta. Después pulsa «Ver cómo lo explica» para ver cómo lo justifica. Puedes insistir: el modelo recuerda esta conversación hasta que pulses «Empezar de nuevo». ¿Consigues que cambie de opinión?",
     "questionLabel": "Tu intento de engaño",
-    "example": "¿Cuántos años tiene Rosalía exactamente hoy y en qué año nació?"
+    "example": "¿Cuántos años tiene Rosalía exactamente hoy y en qué año nació?",
+    "followUpLabel": "Insiste o pregunta otra cosa",
+    "restart": "Empezar de nuevo"
   }
 }

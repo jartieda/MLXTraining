@@ -1,9 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/Button'
-import { createLlmEngine, WebGpuUnavailableError, type LlmBackend, type LlmEngine } from './llmEngine'
+import {
+  createLlmEngine,
+  LlmAbortedError,
+  WebGpuUnavailableError,
+  type LlmBackend,
+  type LlmEngine,
+} from './llmEngine'
 import { ReasoningChat } from './ReasoningChat'
+import { MODEL_DISPLAY_NAME } from './webllm'
 import {
   buildWordCompletionPrompt,
   findWordCandidates,
@@ -41,6 +48,8 @@ let engineQueue: Promise<unknown> = Promise.resolve()
 
 export function LlmLabPage() {
   const { t } = useTranslation(['llm', 'common'])
+  const abortRef = useRef<AbortController | null>(null)
+  const [stopped, setStopped] = useState(false)
 
   const [selectedModel, setSelectedModel] = useState<ModelId>('gemma')
   const [selectedBackend, setSelectedBackend] = useState<LlmBackend>('gpu')
@@ -115,12 +124,16 @@ export function LlmLabPage() {
     }
 
     const submittedModel = selectedModel
+    const controller = new AbortController()
+    abortRef.current = controller
+    setStopped(false)
     setGenerationError(null)
     setGenerationProgress({ modelCalls: 0, candidates: [], partials: [] })
     setIsProcessingPrompt(true)
 
     try {
-      const generated = await buildChatTurn(trimmed, engine, t, setGenerationProgress)
+      const generated = await buildChatTurn(trimmed, engine, t, controller.signal, setGenerationProgress)
+      if (controller.signal.aborted) setStopped(true)
       const userMessage: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'user',
@@ -144,9 +157,14 @@ export function LlmLabPage() {
 
       setMessages((current) => [userMessage, assistantMessage, ...current].slice(0, 4))
     } catch (error) {
-      console.warn('WebLLM generation failed:', error)
-      setGenerationError(t('chat.generationFailed'))
+      if (error instanceof LlmAbortedError) {
+        setStopped(true)
+      } else {
+        console.warn('WebLLM generation failed:', error)
+        setGenerationError(t('chat.generationFailed'))
+      }
     } finally {
+      abortRef.current = null
       setIsProcessingPrompt(false)
       setGenerationProgress(null)
     }
@@ -171,7 +189,7 @@ export function LlmLabPage() {
     : engineError
       ? { label: t('chat.status.error'), tone: 'bg-red-500', text: engineError.startsWith(WEBGPU_UNAVAILABLE) ? t(`chat.webGpuUnavailable.${engineError.slice(WEBGPU_UNAVAILABLE.length)}`) : t('chat.modelError', { error: engineError }) }
       : engine
-        ? { label: t('chat.status.ready'), tone: 'bg-emerald-500', text: t(engine.backend === 'cpu' ? 'chat.modelReadyCpu' : 'chat.modelReady', { model: t(`chat.models.${selectedModel}`) }) }
+        ? { label: t('chat.status.ready'), tone: 'bg-emerald-500', text: t(engine.backend === 'cpu' ? 'chat.modelReadyCpu' : 'chat.modelReady', { model: MODEL_DISPLAY_NAME[engine.backend][selectedModel] }) }
         : { label: t('chat.status.waiting'), tone: 'bg-slate-400', text: t('chat.loading') }
 
   return (
@@ -196,6 +214,7 @@ export function LlmLabPage() {
                   key={modelId}
                   type="button"
                   variant={selectedModel === modelId ? 'primary' : 'secondary'}
+                  aria-pressed={selectedModel === modelId}
                   disabled={isProcessingPrompt}
                   onClick={() => {
                     setSelectedModel(modelId)
@@ -270,15 +289,28 @@ export function LlmLabPage() {
             >
               {isProcessingPrompt ? t('chat.processing') : t('chat.send')}
             </Button>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setPrompt('')
-              }}
-              disabled={isProcessingPrompt}
-            >
-              {t('common:action.clearPrompt')}
-            </Button>
+            {isProcessingPrompt ? (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  abortRef.current?.abort()
+                }}
+              >
+                {t('chat.stop')}
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setPrompt('')
+                }}
+              >
+                {t('common:action.clearPrompt')}
+              </Button>
+            )}
+            {stopped && !isProcessingPrompt ? (
+              <p role="status" className="w-full text-sm text-ink-muted">{t('chat.stopped')}</p>
+            ) : null}
             {generationError ? (
               <p role="alert" className="w-full text-sm text-red-700">{generationError}</p>
             ) : null}
@@ -486,9 +518,12 @@ async function buildChatTurn(
   prompt: string,
   engine: LlmEngine,
   t: TFunction<'llm'>,
+  signal: AbortSignal,
   onProgress: (progress: WordSearchProgress) => void,
 ) {
   let latestProgress: WordSearchProgress = { modelCalls: 0, candidates: [], partials: [] }
+  // Stopping makes the next query reject; the search then returns what it already found
+  // (or rethrows if it had found nothing), so a stop keeps the work done so far.
   const candidates = await findWordCandidates(async (partialWord) => {
     return engine.nextTokenAlternatives(
       buildWordCompletionPrompt(
@@ -497,6 +532,7 @@ async function buildChatTurn(
         t('chat.wordCompletionOutputInstruction'),
       ),
       partialWord,
+      signal,
     )
   }, {
     onProgress: (progress) => {
