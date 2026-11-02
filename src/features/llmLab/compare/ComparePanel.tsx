@@ -15,6 +15,7 @@ import {
 } from './experimentStore'
 import { COMPARE_PRESETS, DEFAULT_PRESET_ID, findPreset, type ComparePreset } from './presets'
 import { OFF_FORMAT_THRESHOLD, scoreOptions, type AnswerOption } from './scoreOptions'
+import { AuditPanel } from './AuditPanel'
 
 /**
  * The A/B comparator: two prompts that differ in one thing, sent to the same model with
@@ -42,6 +43,8 @@ type CompareResult =
       readonly layer: 'options' | 'nextWord'
       readonly presetId: string
       readonly modelName: string
+      /** Set in «un prompt, dos modelos»: the model B ran on. */
+      readonly modelNameB: string | null
       readonly verdict: ComparisonVerdict
       readonly a: ScoredSide
       readonly b: ScoredSide
@@ -50,6 +53,7 @@ type CompareResult =
       readonly layer: 'freeText'
       readonly presetId: string
       readonly modelName: string
+      readonly modelNameB: string | null
       readonly answerA: string
       readonly answerB: string
       readonly diff: WordDiff
@@ -57,6 +61,15 @@ type CompareResult =
     }
 
 const percent = (value: number) => Math.round(value * 100)
+
+/** What is held fixed: the model (two prompts) or the prompt (two models). */
+type CompareMode = 'prompts' | 'models'
+
+/** In «un prompt, dos modelos», side A waits here while the learner switches model. */
+interface FirstModelRun {
+  readonly side: ScoredSide | string
+  readonly modelName: string
+}
 
 export function ComparePanel({
   engine,
@@ -87,6 +100,9 @@ export function ComparePanel({
   const [showCalculation, setShowCalculation] = useState(false)
   const [experiments, setExperiments] = useState<LlmExperiment[]>([])
   const abortRef = useRef<AbortController | null>(null)
+  const [mode, setMode] = useState<CompareMode>('prompts')
+  const [firstRun, setFirstRun] = useState<FirstModelRun | null>(null)
+  const [auditRunning, setAuditRunning] = useState(false)
 
   useEffect(() => {
     void listExperiments().then(setExperiments)
@@ -98,7 +114,7 @@ export function ComparePanel({
   const diff = diffWords(promptA, promptB)
   const optionsA = optionsFor(preset, 'a', t)
   const optionsB = optionsFor(preset, 'b', t)
-  const running = phase !== 'idle'
+  const running = phase !== 'idle' || auditRunning
 
   useEffect(() => {
     onRunningChange?.(running)
@@ -111,6 +127,7 @@ export function ComparePanel({
   }, [presetRequest])
 
   function choosePreset(id: string) {
+    setFirstRun(null)
     setPresetId(id)
     setPromptA(t(`compare.presets.${id}.a`))
     setPromptB(t(`compare.presets.${id}.b`))
@@ -161,47 +178,43 @@ export function ComparePanel({
     )
   }
 
-  async function handleCompare() {
+  function buildResult(a: ScoredSide | string, b: ScoredSide | string, modelNameA: string, modelNameB: string | null): CompareResult {
+    if (typeof a === 'string' || typeof b === 'string') {
+      const answerA = typeof a === 'string' ? a : ''
+      const answerB = typeof b === 'string' ? b : ''
+      const answers = diffWords(answerA, answerB)
+      const total = Math.max(answers.a.length, answers.b.length)
+      return {
+        layer: 'freeText',
+        presetId: preset.id,
+        modelName: modelNameA,
+        modelNameB,
+        answerA,
+        answerB,
+        diff: answers,
+        band: freeTextBand(answers.changedWords, total),
+      }
+    }
+    return {
+      layer: preset.layer === 'nextWord' ? 'nextWord' : 'options',
+      presetId: preset.id,
+      modelName: modelNameA,
+      modelNameB,
+      verdict: compareScored(a.scored, b.scored),
+      a,
+      b,
+    }
+  }
+
+  /** Runs one step of a comparison with a stop button and the same error handling. */
+  async function runGuarded(task: (signal: AbortSignal) => Promise<void>) {
     if (!engine || running) return
     const controller = new AbortController()
     abortRef.current = controller
     setStatus(null)
-    setResult(null)
     setShowCalculation(false)
     try {
-      setPhase('a')
-      const a = await runSide(promptA, optionsA, controller.signal)
-      // findWordCandidates keeps partial results when a query is stopped; a comparison
-      // of a finished A with a half-explored B would be meaningless, so stop here.
-      if (controller.signal.aborted) throw new LlmAbortedError()
-      setPhase('b')
-      const b = await runSide(promptB, optionsB, controller.signal)
-      if (controller.signal.aborted) throw new LlmAbortedError()
-
-      if (typeof a === 'string' || typeof b === 'string') {
-        const answerA = typeof a === 'string' ? a : ''
-        const answerB = typeof b === 'string' ? b : ''
-        const answers = diffWords(answerA, answerB)
-        const total = Math.max(answers.a.length, answers.b.length)
-        setResult({
-          layer: 'freeText',
-          presetId: preset.id,
-          modelName,
-          answerA,
-          answerB,
-          diff: answers,
-          band: freeTextBand(answers.changedWords, total),
-        })
-      } else {
-        setResult({
-          layer: preset.layer === 'nextWord' ? 'nextWord' : 'options',
-          presetId: preset.id,
-          modelName,
-          verdict: compareScored(a.scored, b.scored),
-          a,
-          b,
-        })
-      }
+      await task(controller.signal)
     } catch (error) {
       // A stopped request may surface as the engine's own abort error or, from a
       // half-finished word search, as whatever the last query threw: the signal decides.
@@ -217,13 +230,51 @@ export function ComparePanel({
     }
   }
 
+  async function handleCompare() {
+    setResult(null)
+    await runGuarded(async (signal) => {
+      setPhase('a')
+      const a = await runSide(promptA, optionsA, signal)
+      // findWordCandidates keeps partial results when a query is stopped; a comparison
+      // of a finished A with a half-explored B would be meaningless, so stop here.
+      if (signal.aborted) throw new LlmAbortedError()
+      setPhase('b')
+      const b = await runSide(promptB, optionsB, signal)
+      if (signal.aborted) throw new LlmAbortedError()
+      setResult(buildResult(a, b, modelName, null))
+    })
+  }
+
+  /** «Un prompt, dos modelos», step 1: run the prompt on the current model and keep it. */
+  async function handleFirstModel() {
+    setResult(null)
+    setFirstRun(null)
+    await runGuarded(async (signal) => {
+      setPhase('a')
+      const a = await runSide(promptA, optionsA, signal)
+      if (signal.aborted) throw new LlmAbortedError()
+      setFirstRun({ side: a, modelName })
+    })
+  }
+
+  /** Step 2, after switching model at the top: the same prompt, the same options. */
+  async function handleSecondModel() {
+    if (!firstRun) return
+    await runGuarded(async (signal) => {
+      setPhase('b')
+      const b = await runSide(promptA, optionsA, signal)
+      if (signal.aborted) throw new LlmAbortedError()
+      setResult(buildResult(firstRun.side, b, firstRun.modelName, modelName))
+    })
+  }
+
   async function handleSave() {
     if (!result) return
     await saveExperiment({
       presetId: result.presetId,
-      modelName: result.modelName,
+      modelName: result.modelNameB ? `${result.modelName} → ${result.modelNameB}` : result.modelName,
       promptA,
-      promptB,
+      promptB: result.modelNameB ? promptA : promptB,
       bet,
       band: result.layer === 'freeText' ? result.band : result.verdict.band,
       summary: verdictLine(result, t),
@@ -262,20 +313,48 @@ export function ComparePanel({
         <span className="text-xs text-ink-muted">{t(`compare.layer.${preset.layer}`)}</span>
       </label>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <PromptField label={t('compare.promptA')} value={promptA} onChange={setPromptA} disabled={running} />
-        <PromptField label={t('compare.promptB')} value={promptB} onChange={setPromptB} disabled={running} />
-      </div>
+      <fieldset className="flex flex-col gap-2">
+        <legend className="text-sm font-medium">{t('compare.mode.label')}</legend>
+        <div className="flex flex-wrap gap-2">
+          {(['prompts', 'models'] as const).map((item) => (
+            <Button
+              key={item}
+              variant={mode === item ? 'primary' : 'secondary'}
+              aria-pressed={mode === item}
+              disabled={running}
+              onClick={() => {
+                setMode(item)
+                setFirstRun(null)
+                setResult(null)
+                setStatus(null)
+              }}
+            >
+              {t(`compare.mode.${item}`)}
+            </Button>
+          ))}
+        </div>
+      </fieldset>
+
+      {mode === 'models' ? (
+        <PromptField label={t('compare.mode.prompt')} value={promptA} onChange={setPromptA} disabled={running || firstRun !== null} />
+      ) : (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <PromptField label={t('compare.promptA')} value={promptA} onChange={setPromptA} disabled={running} />
+          <PromptField label={t('compare.promptB')} value={promptB} onChange={setPromptB} disabled={running} />
+        </div>
+      )}
       <div className="flex flex-wrap gap-2">
-        <Button
-          variant="secondary"
-          disabled={running}
-          onClick={() => {
-            setPromptB(promptA)
-          }}
-        >
-          {t('compare.copyAtoB')}
-        </Button>
+        {mode === 'prompts' ? (
+          <Button
+            variant="secondary"
+            disabled={running}
+            onClick={() => {
+              setPromptB(promptA)
+            }}
+          >
+            {t('compare.copyAtoB')}
+          </Button>
+        ) : null}
         <Button
           variant="secondary"
           disabled={running}
@@ -287,9 +366,14 @@ export function ComparePanel({
         </Button>
       </div>
 
-      <DiffView diff={diff} />
+      {mode === 'prompts' ? <DiffView diff={diff} /> : null}
 
-      {preset.layer === 'options' ? (
+      {preset.layer === 'options' && mode === 'models' ? (
+        <div className="rounded-lg border border-border-subtle bg-surface-sunken p-3 text-sm">
+          <OptionList title={t('compare.mode.optionsHeading')} options={optionsA} />
+        </div>
+      ) : null}
+      {preset.layer === 'options' && mode === 'prompts' ? (
         <div className="rounded-lg border border-border-subtle bg-surface-sunken p-3 text-sm">
           <p className="font-medium">{t('compare.optionsHeading')}</p>
           <div className="mt-1 grid grid-cols-1 gap-2 md:grid-cols-2">
@@ -320,15 +404,33 @@ export function ComparePanel({
       </fieldset>
 
       <div className="flex flex-wrap items-center gap-2">
-        <Button
-          onClick={() => {
-            void handleCompare()
-          }}
-          disabled={running || loadingModel || !engine || promptA.trim().length === 0 || promptB.trim().length === 0}
-        >
-          {t('compare.run')}
-        </Button>
-        {running ? (
+        {mode === 'prompts' ? (
+          <Button
+            onClick={() => {
+              void handleCompare()
+            }}
+            disabled={running || loadingModel || !engine || promptA.trim().length === 0 || promptB.trim().length === 0}
+          >
+            {t('compare.run')}
+          </Button>
+        ) : (
+          <TwoModelSteps
+            firstRun={firstRun}
+            modelName={modelName}
+            ready={!running && !loadingModel && engine !== null && promptA.trim().length > 0}
+            onFirst={() => {
+              void handleFirstModel()
+            }}
+            onSecond={() => {
+              void handleSecondModel()
+            }}
+            onRestart={() => {
+              setFirstRun(null)
+              setResult(null)
+            }}
+          />
+        )}
+        {running && !auditRunning ? (
           <Button
             variant="secondary"
             onClick={() => {
@@ -340,7 +442,7 @@ export function ComparePanel({
         ) : null}
         {running ? (
           <span role="status" className="text-sm text-ink-muted">
-            {t(`compare.running.${phase}`)}
+            {auditRunning ? t('compare.audit.runningShort') : mode === 'models' ? t('compare.mode.running', { model: modelName }) : t(`compare.running.${phase}`)}
           </span>
         ) : null}
         {!engine && !loadingModel ? <p className="w-full text-sm text-ink-muted">{t('compare.noEngine')}</p> : null}
@@ -362,6 +464,10 @@ export function ComparePanel({
           }}
           saved={status === 'saved'}
         />
+      ) : null}
+
+      {preset.id === 'biasName' && mode === 'prompts' ? (
+        <AuditPanel engine={engine} modelName={modelName} disabled={running && !auditRunning} onRunningChange={setAuditRunning} />
       ) : null}
 
       <SavedExperiments
@@ -395,6 +501,51 @@ function verdictLine(result: CompareResult, t: Translate): string {
     return t('compare.verdict.deltaTop', { label: row.label, a: percent(row.a), b: percent(row.b) })
   }
   return t('compare.verdict.unknownBody')
+}
+
+function TwoModelSteps({
+  firstRun,
+  modelName,
+  ready,
+  onFirst,
+  onSecond,
+  onRestart,
+}: {
+  readonly firstRun: FirstModelRun | null
+  readonly modelName: string
+  readonly ready: boolean
+  readonly onFirst: () => void
+  readonly onSecond: () => void
+  readonly onRestart: () => void
+}) {
+  const { t } = useTranslation('llm')
+  if (!firstRun) {
+    return (
+      <div className="flex w-full flex-col gap-2">
+        <p className="text-sm text-ink-muted">{t('compare.mode.step1')}</p>
+        <div>
+          <Button onClick={onFirst} disabled={!ready}>
+            {t('compare.mode.runFirst', { model: modelName })}
+          </Button>
+        </div>
+      </div>
+    )
+  }
+  const sameModel = firstRun.modelName === modelName
+  return (
+    <div className="flex w-full flex-col gap-2" data-testid="two-models-step2">
+      <p className="text-sm">{t('compare.mode.firstDone', { model: firstRun.modelName })}</p>
+      {sameModel ? <p className="text-sm text-ink-muted">{t('compare.mode.switchModel')}</p> : null}
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={onSecond} disabled={!ready || sameModel}>
+          {t('compare.mode.runSecond', { model: modelName })}
+        </Button>
+        <Button variant="secondary" onClick={onRestart} disabled={!ready}>
+          {t('compare.mode.restart')}
+        </Button>
+      </div>
+    </div>
+  )
 }
 
 function PromptField({
@@ -496,18 +647,22 @@ function ResultView({
 
   return (
     <div className="flex flex-col gap-3" data-testid="compare-result">
-      <p className="text-xs text-ink-muted">{t('compare.conditions', { model: result.modelName })}</p>
+      <p className="text-xs text-ink-muted">
+        {result.modelNameB
+          ? t('compare.mode.conditions', { a: result.modelName, b: result.modelNameB })
+          : t('compare.conditions', { model: result.modelName })}
+      </p>
 
       {result.layer === 'freeText' ? (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <AnswerCard title={t('compare.promptA')} segments={result.diff.a} />
-          <AnswerCard title={t('compare.promptB')} segments={result.diff.b} />
+          <AnswerCard title={result.modelNameB ? result.modelName : t('compare.promptA')} segments={result.diff.a} />
+          <AnswerCard title={result.modelNameB ?? t('compare.promptB')} segments={result.diff.b} />
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <ScoreColumn title={t('compare.promptA')} side="a" verdict={result.verdict} other={result.a.other} />
-            <ScoreColumn title={t('compare.promptB')} side="b" verdict={result.verdict} other={result.b.other} />
+            <ScoreColumn title={result.modelNameB ? result.modelName : t('compare.promptA')} side="a" verdict={result.verdict} other={result.a.other} />
+            <ScoreColumn title={result.modelNameB ?? t('compare.promptB')} side="b" verdict={result.verdict} other={result.b.other} />
           </div>
           {[result.a.other, result.b.other].some((other) => other !== null && other > OFF_FORMAT_THRESHOLD) ? (
             <p className="rounded border border-amber-300 bg-amber-50 p-2 text-sm text-amber-900">
@@ -530,7 +685,7 @@ function ResultView({
         </h3>
         <p>{verdictLine(result, t)}</p>
         {bet ? <p className="text-ink-muted">{t('compare.verdict.yourBet', { bet: t(`compare.bet.${bet}`) })}</p> : null}
-        <p className="text-ink-muted">{t(`compare.verdict.note.${caseKind}`)}</p>
+        <p className="text-ink-muted">{result.modelNameB ? t('compare.mode.note') : t(`compare.verdict.note.${caseKind}`)}</p>
       </section>
 
       <div className="flex flex-wrap items-center gap-2">

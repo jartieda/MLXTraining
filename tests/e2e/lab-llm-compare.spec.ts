@@ -24,12 +24,17 @@ async function withFakeEngine(page: Page): Promise<void> {
           const jacketWithoutHappy = /chaqueta|jacket/i.test(prompt) && !/contenta|happy/i.test(prompt)
           const negative = NEGATIVE.test(prompt) || jacketWithoutHappy
           // «ayudado» also holds the answer up, less: the lens's second word.
-          const top = /chaqueta|jacket/i.test(prompt) && !/ayudado|helped/i.test(prompt) ? 0.5 : 0.8
-          return Promise.resolve([
+          let top = /chaqueta|jacket/i.test(prompt) && !/ayudado|helped/i.test(prompt) ? 0.5 : 0.8
+          // The job application: a little less «Yes» for her than for him, slowly enough
+          // that an audit of ten queries can be stopped half-way.
+          const application = /desarroll|developer/i.test(prompt)
+          if (application && /\bher\b|desarrolladora/i.test(prompt)) top = 0.6
+          const reply = [
             { token: negative ? 'B' : 'A', logprob: lp(top) },
             { token: negative ? 'A' : 'B', logprob: lp(0.1) },
             { token: 'Hmm', logprob: lp(0.05) },
-          ])
+          ]
+          return application ? new Promise((resolve) => setTimeout(() => resolve(reply), 120)) : Promise.resolve(reply)
         }
         if (prefix.length > 0) return Promise.resolve([{ token: '.', logprob: lp(0.99) }])
         const feminine = /jefa|she/i.test(prompt)
@@ -129,6 +134,44 @@ test.describe('Lab LLM — compare two prompts', () => {
 
     await page.getByRole('button', { name: /preguntar al modelo|ask the model/i }).click()
     await expect(page.getByTestId('self-report-band')).toHaveText(/coinciden en parte|partly match/i)
+  })
+
+  test('the audit of five pairs gives a table and an average, and can be stopped', async ({ page }) => {
+    await openComparator(page)
+    await page.getByLabel(/caso preparado|prepared case/i).selectOption('biasName')
+    const audit = page.getByTestId('audit')
+    await audit.getByRole('button', { name: /auditar 5 pares|audit 5 pairs/i }).click()
+    await expect(page.getByText(/par 1 de 5|pair 1 of 5/i)).toBeVisible()
+    await page.getByRole('button', { name: /^parar$|^stop$/i }).click()
+    await expect(page.getByText(/auditoría parada|audit stopped/i)).toBeVisible()
+
+    await audit.getByRole('button', { name: /auditar 5 pares|audit 5 pairs/i }).click()
+    // Only Lucía / Javier differs (her vs him): 20 points in one pair, 4 on average.
+    await expect(page.getByTestId('audit-band')).toHaveText(/casi igual|almost the same/i, { timeout: 10_000 })
+    await expect(page.getByTestId('audit-verdict')).toContainText(/1 de 5 pares|1 of 5 pairs/i)
+    await expect(audit.getByRole('row', { name: /Lucía \/ Javier/ })).toContainText('+20')
+  })
+
+  test('one prompt, two models: A waits while the model is switched', async ({ page }) => {
+    await openComparator(page)
+    await page.getByRole('button', { name: /un prompt, dos modelos|one prompt, two models/i }).click()
+    await page.getByRole('button', { name: /probar con gemma|try with gemma/i }).click()
+    const step2 = page.getByTestId('two-models-step2')
+    await expect(step2).toContainText(/cambia de modelo|switch model/i)
+    await expect(step2.getByRole('button', { name: /probar con|try with/i })).toBeDisabled()
+
+    await page.getByRole('button', { name: /^llama$/i }).click()
+    await step2.getByRole('button', { name: /probar con llama|try with llama/i }).click()
+    await expect(page.getByTestId('compare-result')).toContainText(/gemma.*llama/i)
+    await expect(page.getByTestId('compare-band')).toHaveText(/casi igual|almost the same/i)
+  })
+
+  test('«Repeat 5 times» is a mock-up and says so', async ({ page }) => {
+    await openComparator(page)
+    const mockup = page.getByTestId('repeat-mockup')
+    await expect(mockup.getByTestId('repeat-badge')).toHaveText(/próximamente|coming soon/i)
+    await expect(mockup).toContainText(/siempre igual|always answers the same/i)
+    await expect(mockup.getByRole('button', { name: /repetir 5 veces|repeat 5 times/i })).toBeDisabled()
   })
 
   test('fits a 360 px screen without horizontal scrolling', async ({ page }) => {

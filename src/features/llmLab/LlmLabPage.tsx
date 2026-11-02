@@ -12,6 +12,7 @@ import {
 import { ReasoningChat } from './ReasoningChat'
 import { ComparePanel } from './compare/ComparePanel'
 import { WordLens } from './compare/WordLens'
+import { RepeatMockup } from './compare/RepeatMockup'
 import { LlmMissions } from './missions/LlmMissions'
 import type { MissionTarget } from './missions/missions'
 import { MODEL_DISPLAY_NAME } from './webllm'
@@ -467,6 +468,7 @@ export function LlmLabPage() {
           modelName={engine ? MODEL_DISPLAY_NAME[engine.backend][selectedModel] : t(`chat.models.${selectedModel}`)}
           onRunningChange={setLensRunning}
         />
+        <RepeatMockup />
       </div>
 
       <div role="tabpanel" id="llm-panel-missions" aria-labelledby="llm-tab-missions" hidden={tab !== 'missions'}>
