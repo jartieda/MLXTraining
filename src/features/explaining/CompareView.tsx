@@ -15,7 +15,6 @@ import { agreement, type Agreement } from '@/ml/explain/agreement'
 import { applyColormap, legendStops } from '@/ml/explain/colormap'
 import { topClass } from '@/ml/predict'
 import { isMlError, type HeatMap } from '@/ml/types'
-import { requestLlmVerdictAnalysis } from './llmVerdict'
 
 /**
  * T066, T067 / FR-015, FR-018, Principle III.
@@ -44,7 +43,9 @@ const DEFAULT_OPACITY = 0.65
 type Phase = 'idle' | 'gradcam' | 'occlusion' | 'done' | 'cancelled' | 'failed'
 
 export type ModelVerdictReason =
+  | 'pending'
   | 'correct'
+  | 'focused'
   | 'disagreement'
   | 'diffuse'
   | 'degenerate'
@@ -73,27 +74,29 @@ export function buildModelVerdict(
   summary: { diffuse: boolean; degenerate: boolean } | null,
   agreementBand: Agreement['band'] | null,
 ): ModelVerdict {
-  if (predictedIndex !== null && expectedIndex !== null && predictedIndex === expectedIndex) {
-    return { correct: true, predictedIndex, expectedIndex, reason: 'correct' }
-  }
+  const correct = predictedIndex !== null && expectedIndex !== null && predictedIndex === expectedIndex
+  const verdict = (reason: ModelVerdictReason): ModelVerdict => ({
+    correct,
+    predictedIndex,
+    expectedIndex,
+    reason,
+  })
 
-  if (agreementBand === 'disagreement') {
-    return { correct: false, predictedIndex, expectedIndex, reason: 'disagreement' }
+  // The reason is read from the evidence, never from whether the answer was right: a
+  // right answer can rest on diffuse or contradictory evidence, and saying "both maps
+  // agree" when the agreement figure on the same screen says they do not would teach
+  // the learner to distrust the one honest signal the lab gives her.
+  // No map has been worked out yet, so there is no evidence to read at all.
+  if (summary === null && agreementBand === null) return verdict('pending')
+  if (summary?.degenerate) return verdict('degenerate')
+  if (agreementBand === 'disagreement') return verdict('disagreement')
+  if (summary?.diffuse) return verdict('diffuse')
+  if (!correct) {
+    return verdict(predictedIndex !== null && expectedIndex !== null ? 'wrong-area' : 'weak-evidence')
   }
-
-  if (summary?.degenerate) {
-    return { correct: false, predictedIndex, expectedIndex, reason: 'degenerate' }
-  }
-
-  if (summary?.diffuse) {
-    return { correct: false, predictedIndex, expectedIndex, reason: 'diffuse' }
-  }
-
-  if (predictedIndex !== null && expectedIndex !== null) {
-    return { correct: false, predictedIndex, expectedIndex, reason: 'wrong-area' }
-  }
-
-  return { correct: false, predictedIndex, expectedIndex, reason: 'weak-evidence' }
+  // Concentrated evidence for the predicted class. "Both maps agree" is only claimed
+  // once the second method has actually run and agreed.
+  return verdict(agreementBand === null ? 'focused' : 'correct')
 }
 
 export function buildUserVerdict(
@@ -144,8 +147,6 @@ export function CompareView({ frozen }: CompareViewProps) {
   const [occlusionMap, setOcclusionMap] = useState<HeatMap | null>(null)
   const [predictedClassIndex, setPredictedClassIndex] = useState<number | null>(null)
   const [userChoice, setUserChoice] = useState<UserVerdictChoice | null>(null)
-  const [llmAnalysis, setLlmAnalysis] = useState<string | null>(null)
-  const [llmLoading, setLlmLoading] = useState(false)
 
   const explainedClass = classes[classIndex] ?? null
 
@@ -320,31 +321,32 @@ export function CompareView({ frozen }: CompareViewProps) {
     )
   }, [userChoice, verdict, predictedClassIndex, classIndex, classes])
 
-  const inferredVerdictAnalysis = useMemo(() => {
+  // One line per source of evidence, each a complete sentence of its own. Splicing
+  // them into one template doubled every full stop and repeated what the summary
+  // above had already said.
+  const verdictAnalysis = useMemo(() => {
     if (!userVerdict || predictedClassIndex === null) return null
 
     const expected = classes[classIndex]?.name ?? ''
     const predicted = classes[predictedClassIndex]?.name ?? ''
-    const reason = t(`verdict.reason.${userVerdict.reason}`, {
-      expected,
-      predicted,
-    })
-
-    const gradcamEvidence = gradcamMap ? describe(gradcamMap) : t('verdict.analysis.gradcamMissing')
-    const occlusionEvidence = occlusionMap ? describe(occlusionMap) : t('verdict.analysis.occlusionMissing')
-    const agreementEvidence = scores
-      ? t(`compare.agreement.${scores.band}`)
-      : t('verdict.analysis.agreementMissing')
-
-    return t('verdict.analysis.body', {
-      answer: userVerdict.userChoice === 'yes' ? t('verdict.answerYes') : t('verdict.answerNo'),
-      expected,
-      predicted,
-      reason,
-      gradcam: gradcamEvidence,
-      occlusion: occlusionEvidence,
-      agreement: agreementEvidence,
-    })
+    return [
+      {
+        label: t('verdict.analysis.reasonLabel'),
+        text: t(`verdict.reason.${userVerdict.reason}`, { expected, predicted }),
+      },
+      {
+        label: t('verdict.analysis.gradcamLabel'),
+        text: gradcamMap ? describe(gradcamMap) : t('verdict.analysis.gradcamMissing'),
+      },
+      {
+        label: t('verdict.analysis.occlusionLabel'),
+        text: occlusionMap ? describe(occlusionMap) : t('verdict.analysis.occlusionMissing'),
+      },
+      {
+        label: t('verdict.analysis.agreementLabel'),
+        text: scores ? t(`compare.agreement.${scores.band}`) : t('verdict.analysis.agreementMissing'),
+      },
+    ]
   }, [
     userVerdict,
     predictedClassIndex,
@@ -354,59 +356,6 @@ export function CompareView({ frozen }: CompareViewProps) {
     gradcamMap,
     occlusionMap,
     scores,
-  ])
-
-  useEffect(() => {
-    let cancelled = false
-
-    if (!userVerdict || predictedClassIndex === null) {
-      setLlmAnalysis(null)
-      setLlmLoading(false)
-      return () => {
-        cancelled = true
-      }
-    }
-
-    const expected = classes[classIndex]?.name ?? ''
-    const predicted = classes[predictedClassIndex]?.name ?? ''
-    const gradcamEvidence = gradcamMap ? describe(gradcamMap) : t('verdict.analysis.gradcamMissing')
-    const occlusionEvidence = occlusionMap ? describe(occlusionMap) : t('verdict.analysis.occlusionMissing')
-
-    setLlmLoading(true)
-    void requestLlmVerdictAnalysis({
-      userChoice: userVerdict.userChoice,
-      expectedClass: expected,
-      predictedClass: predicted,
-      classNames: classes.map((klass) => klass.name),
-      reason: userVerdict.reason,
-      gradcamEvidence,
-      occlusionEvidence,
-      agreementBand: scores?.band ?? null,
-    })
-      .then((analysis) => {
-        if (cancelled) return
-        setLlmAnalysis(analysis)
-      })
-      .catch(() => {
-        if (cancelled) return
-        setLlmAnalysis(null)
-      })
-      .finally(() => {
-        if (!cancelled) setLlmLoading(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [
-    userVerdict,
-    predictedClassIndex,
-    classes,
-    classIndex,
-    gradcamMap,
-    occlusionMap,
-    scores?.band,
-    t,
   ])
 
   const stops = useMemo(() => legendStops(LEGEND_STOPS), [])
@@ -593,7 +542,7 @@ export function CompareView({ frozen }: CompareViewProps) {
               has never seen a correlation coefficient, which is most of the
               audience — hence the bands (R5). */}
           <Meter
-            label={t('compare.agreement.heading')}
+            label={t('compare.agreement.meterLabel')}
             // Spearman runs [-1, 1]; mapped to [0, 1] for the bar so a negative
             // correlation reads as "no agreement" rather than overflowing backwards.
             value={(scores.spearman + 1) / 2}
@@ -645,27 +594,28 @@ export function CompareView({ frozen }: CompareViewProps) {
             <>
               <p>
                 {userVerdict.userChoice === 'yes'
-                  ? t('verdict.userSummary.yes', { name: classes[classIndex]?.name ?? '' })
-                  : t('verdict.userSummary.no', {
-                      expected: classes[classIndex]?.name ?? '',
-                      predicted: classes[predictedClassIndex]?.name ?? '',
-                    })}
+                  ? t('verdict.userSummary.yes', { name: classes[predictedClassIndex]?.name ?? '' })
+                  : predictedClassIndex === classIndex
+                    ? t('verdict.userSummary.noSameClass', {
+                        predicted: classes[predictedClassIndex]?.name ?? '',
+                      })
+                    : t('verdict.userSummary.no', {
+                        expected: classes[classIndex]?.name ?? '',
+                        predicted: classes[predictedClassIndex]?.name ?? '',
+                      })}
               </p>
-              {userVerdict.userChoice === 'yes' && gradcamMap ? (
-                <p className="text-ink-muted">{describe(gradcamMap)}</p>
+              {verdictAnalysis ? (
+                <div data-testid="verdict-analysis" className="rounded bg-surface-sunken p-2 text-ink-muted">
+                  <p className="font-medium text-ink">{t('verdict.analysis.heading')}</p>
+                  <ul className="mt-1 list-disc pl-5">
+                    {verdictAnalysis.map((line) => (
+                      <li key={line.label}>
+                        <span className="font-medium">{line.label}:</span> {line.text}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ) : null}
-              <p className="text-ink-muted">
-                {t(`verdict.reason.${userVerdict.reason}`, {
-                  expected: classes[classIndex]?.name ?? '',
-                  predicted: classes[predictedClassIndex]?.name ?? '',
-                })}
-              </p>
-              <p data-testid="llm-verdict-analysis" className="rounded bg-surface-sunken p-2 text-ink-muted">
-                {t('verdict.analysis.heading')}:{' '}
-                {llmLoading
-                  ? t('verdict.analysis.loading')
-                  : (llmAnalysis ?? inferredVerdictAnalysis ?? t('verdict.analysis.unavailable'))}
-              </p>
             </>
           ) : (
             <p className="text-ink-muted">{t('verdict.prompt')}</p>

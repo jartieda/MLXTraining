@@ -24,6 +24,34 @@ describe('buildModelVerdict', () => {
   })
 })
 
+describe('buildModelVerdict reads the reason from the evidence, not from the answer', () => {
+  const concentrated = { diffuse: false, degenerate: false }
+
+  it('never claims the maps agree when the agreement band says they do not', () => {
+    const verdict = buildModelVerdict(0, 0, ['cat', 'dog'], concentrated, 'disagreement')
+    expect(verdict.correct).toBe(true)
+    expect(verdict.reason).toBe('disagreement')
+  })
+
+  it('reports diffuse evidence even for a right answer', () => {
+    const verdict = buildModelVerdict(0, 0, ['cat', 'dog'], { diffuse: true, degenerate: false }, 'partial')
+    expect(verdict.reason).toBe('diffuse')
+  })
+
+  it('says nothing about the evidence before any map exists', () => {
+    expect(buildModelVerdict(0, 0, ['cat', 'dog'], null, null).reason).toBe('pending')
+  })
+
+  it('only says both methods agree once the second method has run', () => {
+    expect(buildModelVerdict(0, 0, ['cat', 'dog'], concentrated, null).reason).toBe('focused')
+    expect(buildModelVerdict(0, 0, ['cat', 'dog'], concentrated, 'strong').reason).toBe('correct')
+  })
+
+  it('points at the wrong area when concentrated evidence backs a different class', () => {
+    expect(buildModelVerdict(1, 0, ['cat', 'dog'], concentrated, 'partial').reason).toBe('wrong-area')
+  })
+})
+
 describe('buildUserVerdict', () => {
   it('shows a heat-map based explanation when the learner says the model missed', () => {
     const result = buildUserVerdict(

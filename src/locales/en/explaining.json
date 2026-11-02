@@ -67,7 +67,8 @@
     "progressOcclusion": "Covering square {{done}} of {{total}}…",
     "agreement": {
       "heading": "Do they agree?",
-      "score": "Agreement: {{percent}}%",
+      "meterLabel": "How much they agree",
+      "score": "{{percent}}%",
       "overlap": "They pick the same hottest areas {{percent}}% of the time.",
       "strong": "These two methods mostly agree. Two different ways of asking gave a similar answer, which is a reason to take it a bit more seriously.",
       "partial": "These two methods partly agree. They overlap, but each is also looking somewhere the other is not.",
@@ -87,24 +88,28 @@
     "no": "No: the model chose «{{predicted}}» instead of «{{expected}}».",
     "userSummary": {
       "yes": "Yes: you decided the model got it right and chose «{{name}}».",
-      "no": "No: you decided the model missed it. You expected «{{expected}}», but it chose «{{predicted}}»."
+      "no": "No: you decided the model missed it. You expected «{{expected}}», but it chose «{{predicted}}».",
+      "noSameClass": "No: you decided the model was wrong to choose «{{predicted}}». To see where the evidence for the class you expected would be, choose it above in «Explain which class»."
     },
     "reason": {
-      "correct": "The evidence is focused in the right place and both maps point in the same direction.",
-      "disagreement": "The two maps do not agree; the evidence is mixed and is not clearly anchored on the class you expected.",
-      "diffuse": "The evidence is spread across much of the picture, so it was not really pointing at the correct class.",
+      "pending": "There is no map yet. Press «Work out both» to see which clues the model relies on.",
+      "correct": "The evidence is concentrated in one area of the picture and the two methods agree at least in part.",
+      "focused": "The evidence is concentrated in one area of the picture. Work out the second map too, to check whether another method confirms it.",
+      "disagreement": "The two methods point at different areas, so there is no reliable clue to what the model relied on when it chose «{{predicted}}».",
+      "diffuse": "The evidence is spread across most of the picture, so it is not pointing at anything in particular.",
       "degenerate": "No clear evidence could be extracted: the model barely distinguished this class in that image.",
       "wrong-area": "The strongest clues are in a different place from the object or class you expected, so the model responded to the wrong part of the scene.",
       "weak-evidence": "The heat map is weak and not concentrated, so the model did not have a reliable cue for that class."
     },
     "analysis": {
-      "heading": "Inferred analysis",
-      "loading": "Analysing with the LLM…",
-      "unavailable": "No LLM analysis could be returned for this verdict.",
+      "heading": "What the evidence says",
+      "reasonLabel": "Main reading",
+      "gradcamLabel": "Gradient map",
+      "occlusionLabel": "Occlusion map",
+      "agreementLabel": "Both together",
       "gradcamMissing": "There is no gradient map available for this verdict.",
       "occlusionMissing": "There is no occlusion map available for this verdict.",
-      "agreementMissing": "There is no cross-method agreement score yet.",
-      "body": "You answered \"{{answer}}\". For expected class \"{{expected}}\" and predicted class \"{{predicted}}\", the main inference is: {{reason}}. Gradient-map evidence: {{gradcam}}. Occlusion-map evidence: {{occlusion}}. Joint reading across methods: {{agreement}}."
+      "agreementMissing": "There is no cross-method agreement score yet."
     }
   }
 }
