@@ -10,6 +10,7 @@ import {
   type LlmEngine,
 } from './llmEngine'
 import { ReasoningChat } from './ReasoningChat'
+import { ComparePanel } from './compare/ComparePanel'
 import { MODEL_DISPLAY_NAME } from './webllm'
 import {
   buildWordCompletionPrompt,
@@ -37,6 +38,7 @@ interface ChatMessage {
 
 const MODEL_ORDER: readonly ModelId[] = ['gemma', 'llama', 'qwen']
 const BACKEND_ORDER: readonly LlmBackend[] = ['gpu', 'cpu']
+const LAB_TABS = ['explore', 'compare'] as const
 
 /** Sentinel stored in `engineError` so the message is translated when rendered. */
 const WEBGPU_UNAVAILABLE = 'webgpu-unavailable:'
@@ -46,10 +48,23 @@ const WEBGPU_UNAVAILABLE = 'webgpu-unavailable:'
 // "Unable to find a compatible GPU", so every load/unload is chained on this queue.
 let engineQueue: Promise<unknown> = Promise.resolve()
 
+/**
+ * End-to-end tests (and a reviewer without access to the model CDN) can provide a fake
+ * engine through `window.__ML4G_FAKE_LLM_ENGINE__`, set by Playwright's `addInitScript`
+ * before the page loads. It only replaces which engine the page uses; the real engine
+ * module is untouched. A page that does not set it behaves exactly as before.
+ */
+function injectedTestEngine(): LlmEngine | null {
+  const candidate = (window as unknown as { __ML4G_FAKE_LLM_ENGINE__?: LlmEngine }).__ML4G_FAKE_LLM_ENGINE__
+  return candidate ?? null
+}
+
 export function LlmLabPage() {
   const { t } = useTranslation(['llm', 'common'])
   const abortRef = useRef<AbortController | null>(null)
   const [stopped, setStopped] = useState(false)
+  const [tab, setTab] = useState<(typeof LAB_TABS)[number]>('explore')
+  const [compareRunning, setCompareRunning] = useState(false)
 
   const [selectedModel, setSelectedModel] = useState<ModelId>('gemma')
   const [selectedBackend, setSelectedBackend] = useState<LlmBackend>('gpu')
@@ -77,9 +92,11 @@ export function LlmLabPage() {
     async function initializeEngine() {
       if (!active) return
       try {
-        const nextEngine = await createLlmEngine(selectedModel, selectedBackend, (progress) => {
-          if (active) setLoadProgress(progress)
-        })
+        const nextEngine =
+          injectedTestEngine() ??
+          (await createLlmEngine(selectedModel, selectedBackend, (progress) => {
+            if (active) setLoadProgress(progress)
+          }))
         createdEngine = nextEngine
 
         // If the model was switched or the page closed while loading, the cleanup
@@ -199,188 +216,224 @@ export function LlmLabPage() {
         <p className="max-w-prose text-ink-muted">{t('intro')}</p>
       </header>
 
-      <section className="rounded-lg border border-border-subtle bg-surface p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-          <div className="flex flex-col gap-1">
-            <h2 className="font-display text-xl">{t('chat.title')}</h2>
-            <p className="max-w-prose text-sm text-ink-muted">{t('chat.intro')}</p>
-          </div>
-
-          <div className="min-w-0 md:w-72">
-            <p className="mb-2 text-sm font-medium text-ink">{t('chat.modelLabel')}</p>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 md:grid-cols-1">
-              {MODEL_ORDER.map((modelId) => (
-                <Button
-                  key={modelId}
-                  type="button"
-                  variant={selectedModel === modelId ? 'primary' : 'secondary'}
-                  aria-pressed={selectedModel === modelId}
-                  disabled={isProcessingPrompt}
-                  onClick={() => {
-                    setSelectedModel(modelId)
-                  }}
-                >
-                  {t(`chat.models.${modelId}`)}
-                </Button>
-              ))}
-            </div>
-            <p className="mb-2 mt-4 text-sm font-medium text-ink">{t('chat.backendLabel')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              {BACKEND_ORDER.map((backendId) => (
-                <Button
-                  key={backendId}
-                  type="button"
-                  variant={selectedBackend === backendId ? 'primary' : 'secondary'}
-                  aria-pressed={selectedBackend === backendId}
-                  disabled={isProcessingPrompt}
-                  onClick={() => {
-                    setSelectedBackend(backendId)
-                  }}
-                >
-                  {t(`chat.backends.${backendId}`)}
-                </Button>
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-ink-muted">{t(`chat.backendHint.${selectedBackend}`)}</p>
-            <div
-              aria-live="polite"
-              className="mt-3 flex items-center gap-2 rounded-full border border-border-subtle bg-surface-sunken px-2.5 py-1.5"
-            >
-              <span className={`h-2.5 w-2.5 rounded-full ${modelStatus.tone}`} aria-hidden="true" />
-              <span className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">{t('chat.status.label')}</span>
-              <span className="text-xs text-ink">{modelStatus.label}</span>
-            </div>
-            <p className="mt-2 text-xs text-ink-muted">{modelStatus.text}</p>
-            {engineError && !loadingModel ? (
+      <section aria-label={t('chat.modelLabel')} className="rounded-lg border border-border-subtle bg-surface p-4">
+        <div className="min-w-0 md:max-w-xl">
+          <p className="mb-2 text-sm font-medium text-ink">{t('chat.modelLabel')}</p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 md:grid-cols-1">
+            {MODEL_ORDER.map((modelId) => (
               <Button
+                key={modelId}
                 type="button"
-                variant="secondary"
-                className="mt-2"
+                variant={selectedModel === modelId ? 'primary' : 'secondary'}
+                aria-pressed={selectedModel === modelId}
+                disabled={isProcessingPrompt || compareRunning}
                 onClick={() => {
-                  setRetryKey((key) => key + 1)
+                  setSelectedModel(modelId)
                 }}
               >
-                {t('chat.retry')}
+                {t(`chat.models.${modelId}`)}
               </Button>
-            ) : null}
+            ))}
           </div>
-        </div>
-
-        <div className="mt-4 flex flex-col gap-4 rounded-lg border border-border-subtle bg-surface-sunken p-4">
-          <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium">{t('chat.promptLabel')}</span>
-            <textarea
-              value={prompt}
-              onChange={(event) => {
-                setPrompt(event.target.value)
-              }}
-              rows={3}
-              placeholder={t('chat.promptPlaceholder')}
-              className="rounded border border-border-subtle bg-surface px-3 py-2"
-            />
-          </label>
-
-          <div className="flex flex-wrap items-center gap-2">
+          <p className="mb-2 mt-4 text-sm font-medium text-ink">{t('chat.backendLabel')}</p>
+          <div className="grid grid-cols-2 gap-2">
+            {BACKEND_ORDER.map((backendId) => (
+              <Button
+                key={backendId}
+                type="button"
+                variant={selectedBackend === backendId ? 'primary' : 'secondary'}
+                aria-pressed={selectedBackend === backendId}
+                disabled={isProcessingPrompt || compareRunning}
+                onClick={() => {
+                  setSelectedBackend(backendId)
+                }}
+              >
+                {t(`chat.backends.${backendId}`)}
+              </Button>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-ink-muted">{t(`chat.backendHint.${selectedBackend}`)}</p>
+          <div
+            aria-live="polite"
+            className="mt-3 flex items-center gap-2 rounded-full border border-border-subtle bg-surface-sunken px-2.5 py-1.5"
+          >
+            <span className={`h-2.5 w-2.5 rounded-full ${modelStatus.tone}`} aria-hidden="true" />
+            <span className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">{t('chat.status.label')}</span>
+            <span className="text-xs text-ink">{modelStatus.label}</span>
+          </div>
+          <p className="mt-2 text-xs text-ink-muted">{modelStatus.text}</p>
+          {engineError && !loadingModel ? (
             <Button
+              type="button"
+              variant="secondary"
+              className="mt-2"
               onClick={() => {
-                void handleSubmitPrompt()
+                setRetryKey((key) => key + 1)
               }}
-              disabled={isProcessingPrompt || loadingModel || !engine || prompt.trim().length === 0}
             >
-              {isProcessingPrompt ? t('chat.processing') : t('chat.send')}
+              {t('chat.retry')}
             </Button>
-            {isProcessingPrompt ? (
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  abortRef.current?.abort()
-                }}
-              >
-                {t('chat.stop')}
-              </Button>
-            ) : (
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setPrompt('')
-                }}
-              >
-                {t('common:action.clearPrompt')}
-              </Button>
-            )}
-            {stopped && !isProcessingPrompt ? (
-              <p role="status" className="w-full text-sm text-ink-muted">{t('chat.stopped')}</p>
-            ) : null}
-            {generationError ? (
-              <p role="alert" className="w-full text-sm text-red-700">{generationError}</p>
-            ) : null}
-            {isProcessingPrompt ? (
-              <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-amber-600" aria-hidden="true" />
-                {t('chat.processing')}
-              </span>
-            ) : null}
-            {isProcessingPrompt && generationProgress ? (
-              <SearchTrace progress={generationProgress} t={t} />
-            ) : null}
-          </div>
-        </div>
-
-        <div className="mt-4 flex flex-col gap-4">
-          {messages.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-border-subtle bg-surface px-4 py-3 text-sm text-ink-muted">
-              {t('chat.empty')}
-            </p>
           ) : null}
-
-          {messages.map((message) =>
-            message.role === 'user' ? (
-              <article
-                key={message.id}
-                className="ml-auto max-w-3xl rounded-2xl bg-blue px-4 py-3 text-ink-inverse shadow-sm"
-              >
-                <p className="text-xs uppercase tracking-wide opacity-80">{t('chat.userLabel')}</p>
-                <p className="mt-1 text-sm leading-6">{message.prompt}</p>
-              </article>
-            ) : (
-              <AssistantCard
-                key={message.id}
-                message={message}
-                t={t}
-                onToggle={() => {
-                  toggleExplanation(message.id)
-                }}
-              />
-            ),
-          )}
         </div>
       </section>
 
-      <ReasoningChat key={`${selectedModel}-${selectedBackend}-${retryKey}`} engine={engine} loadingModel={loadingModel} />
-      <ReasoningChat
-        key={`sentiment-${selectedModel}-${selectedBackend}-${retryKey}`}
-        variant="sentiment"
-        engine={engine}
-        loadingModel={loadingModel}
-      />
-      <ReasoningChat
-        key={`bias-${selectedModel}-${selectedBackend}-${retryKey}`}
-        variant="bias"
-        engine={engine}
-        loadingModel={loadingModel}
-      />
-      <ReasoningChat
-        key={`tutor-${selectedModel}-${selectedBackend}-${retryKey}`}
-        variant="tutor"
-        engine={engine}
-        loadingModel={loadingModel}
-      />
-      <ReasoningChat
-        key={`deception-${selectedModel}-${selectedBackend}-${retryKey}`}
-        variant="deception"
-        engine={engine}
-        loadingModel={loadingModel}
-      />
+      {/* Two tabs rather than one long page. Both panels stay mounted (hidden, not
+          unmounted) so switching tab never throws away an answer or a comparison. */}
+      <div role="tablist" aria-label={t('compare.tab.label')} className="flex flex-wrap gap-2">
+        {LAB_TABS.map((id) => (
+          <Button
+            key={id}
+            role="tab"
+            id={`llm-tab-${id}`}
+            aria-selected={tab === id}
+            aria-controls={`llm-panel-${id}`}
+            variant={tab === id ? 'primary' : 'secondary'}
+            onClick={() => {
+              setTab(id)
+            }}
+          >
+            {t(`compare.tab.${id}`)}
+          </Button>
+        ))}
+      </div>
+
+      <div role="tabpanel" id="llm-panel-explore" aria-labelledby="llm-tab-explore" hidden={tab !== 'explore'}>
+        <div className="flex flex-col gap-8">
+          <section className="rounded-lg border border-border-subtle bg-surface p-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div className="flex flex-col gap-1">
+                <h2 className="font-display text-xl">{t('chat.title')}</h2>
+                <p className="max-w-prose text-sm text-ink-muted">{t('chat.intro')}</p>
+              </div>
+
+            </div>
+
+            <div className="mt-4 flex flex-col gap-4 rounded-lg border border-border-subtle bg-surface-sunken p-4">
+              <label className="flex flex-col gap-1">
+                <span className="text-sm font-medium">{t('chat.promptLabel')}</span>
+                <textarea
+                  value={prompt}
+                  onChange={(event) => {
+                    setPrompt(event.target.value)
+                  }}
+                  rows={3}
+                  placeholder={t('chat.promptPlaceholder')}
+                  className="rounded border border-border-subtle bg-surface px-3 py-2"
+                />
+              </label>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  onClick={() => {
+                    void handleSubmitPrompt()
+                  }}
+                  disabled={isProcessingPrompt || loadingModel || !engine || prompt.trim().length === 0}
+                >
+                  {isProcessingPrompt ? t('chat.processing') : t('chat.send')}
+                </Button>
+                {isProcessingPrompt ? (
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      abortRef.current?.abort()
+                    }}
+                  >
+                    {t('chat.stop')}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setPrompt('')
+                    }}
+                  >
+                    {t('common:action.clearPrompt')}
+                  </Button>
+                )}
+                {stopped && !isProcessingPrompt ? (
+                  <p role="status" className="w-full text-sm text-ink-muted">{t('chat.stopped')}</p>
+                ) : null}
+                {generationError ? (
+                  <p role="alert" className="w-full text-sm text-red-700">{generationError}</p>
+                ) : null}
+                {isProcessingPrompt ? (
+                  <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800">
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-amber-600" aria-hidden="true" />
+                    {t('chat.processing')}
+                  </span>
+                ) : null}
+                {isProcessingPrompt && generationProgress ? (
+                  <SearchTrace progress={generationProgress} t={t} />
+                ) : null}
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-col gap-4">
+              {messages.length === 0 ? (
+                <p className="rounded-lg border border-dashed border-border-subtle bg-surface px-4 py-3 text-sm text-ink-muted">
+                  {t('chat.empty')}
+                </p>
+              ) : null}
+
+              {messages.map((message) =>
+                message.role === 'user' ? (
+                  <article
+                    key={message.id}
+                    className="ml-auto max-w-3xl rounded-2xl bg-blue px-4 py-3 text-ink-inverse shadow-sm"
+                  >
+                    <p className="text-xs uppercase tracking-wide opacity-80">{t('chat.userLabel')}</p>
+                    <p className="mt-1 text-sm leading-6">{message.prompt}</p>
+                  </article>
+                ) : (
+                  <AssistantCard
+                    key={message.id}
+                    message={message}
+                    t={t}
+                    onToggle={() => {
+                      toggleExplanation(message.id)
+                    }}
+                  />
+                ),
+              )}
+            </div>
+          </section>
+
+          <ReasoningChat key={`${selectedModel}-${selectedBackend}-${retryKey}`} engine={engine} loadingModel={loadingModel} />
+          <ReasoningChat
+            key={`sentiment-${selectedModel}-${selectedBackend}-${retryKey}`}
+            variant="sentiment"
+            engine={engine}
+            loadingModel={loadingModel}
+          />
+          <ReasoningChat
+            key={`bias-${selectedModel}-${selectedBackend}-${retryKey}`}
+            variant="bias"
+            engine={engine}
+            loadingModel={loadingModel}
+          />
+          <ReasoningChat
+            key={`tutor-${selectedModel}-${selectedBackend}-${retryKey}`}
+            variant="tutor"
+            engine={engine}
+            loadingModel={loadingModel}
+          />
+          <ReasoningChat
+            key={`deception-${selectedModel}-${selectedBackend}-${retryKey}`}
+            variant="deception"
+            engine={engine}
+            loadingModel={loadingModel}
+          />
+        </div>
+      </div>
+
+      <div role="tabpanel" id="llm-panel-compare" aria-labelledby="llm-tab-compare" hidden={tab !== 'compare'}>
+        <ComparePanel
+          engine={engine}
+          loadingModel={loadingModel}
+          modelName={engine ? MODEL_DISPLAY_NAME[engine.backend][selectedModel] : t(`chat.models.${selectedModel}`)}
+          onRunningChange={setCompareRunning}
+        />
+      </div>
     </div>
   )
 }

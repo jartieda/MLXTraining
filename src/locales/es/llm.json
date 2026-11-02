@@ -110,5 +110,164 @@
     "example": "¿Cuántos años tiene Rosalía exactamente hoy y en qué año nació?",
     "followUpLabel": "Insiste o pregunta otra cosa",
     "restart": "Empezar de nuevo"
+  },
+  "compare": {
+    "tab": {
+      "explore": "Explorar",
+      "compare": "Comparar dos prompts",
+      "label": "Secciones del Lab LLM"
+    },
+    "title": "Comparar dos prompts",
+    "intro": "Escribe un prompt A y un prompt B que solo se diferencien en una cosa. El laboratorio los envía al mismo modelo, con la misma configuración y sin azar, así que si la respuesta cambia, es por lo que tú has cambiado.",
+    "presetLabel": "Caso preparado",
+    "cases": {
+      "sentiment": "Sentimiento",
+      "bias": "Sesgos",
+      "prompt": "Cambios en el prompt",
+      "hallucination": "Alucinaciones"
+    },
+    "resetPreset": "Volver al ejemplo",
+    "promptA": "Prompt A",
+    "promptB": "Prompt B",
+    "copyAtoB": "Copiar A en B",
+    "diffHeading": "Qué has cambiado",
+    "diffNone": "A y B son iguales. Cambia algo en B para poder compararlos.",
+    "diffCount_one": "Has cambiado 1 palabra.",
+    "diffCount_other": "Has cambiado {{count}} palabras.",
+    "diffWarning": "Has cambiado {{count}} palabras. Si cambias varias cosas a la vez, no podrás saber cuál ha influido. Prueba a cambiar solo una.",
+    "optionsHeading": "Opciones que se añaden a los dos prompts",
+    "optionsSwapped": "En B las opciones van en orden inverso. Se comparan por su contenido, no por su letra.",
+    "betLabel": "Tu apuesta: ¿cambiará la respuesta?",
+    "bet": {
+      "yes": "Sí",
+      "no": "No",
+      "unsure": "No lo sé"
+    },
+    "conditions": "Mismo modelo ({{model}}), mismo motor y sin azar en A y en B.",
+    "run": "Comparar",
+    "running": {
+      "a": "Probando el prompt A…",
+      "b": "Probando el prompt B…"
+    },
+    "stopped": "Comparación parada. No se ha guardado nada.",
+    "failed": "No se ha podido completar la comparación. Inténtalo de nuevo.",
+    "noEngine": "Carga un modelo arriba para poder comparar.",
+    "layer": {
+      "nextWord": "Siguiente palabra",
+      "options": "Probabilidad de cada opción",
+      "freeText": "Respuesta completa"
+    },
+    "notMeasured": "no está entre las 3 primeras",
+    "other": "Otras respuestas",
+    "offFormat": "El modelo no ha respondido con una letra en {{percent}} % de los casos. Con un modelo tan pequeño, estos porcentajes dicen poco.",
+    "deltaUp": "+{{points}} puntos",
+    "deltaDown": "−{{points}} puntos",
+    "deltaNone": "sin cambio",
+    "verdict": {
+      "heading": "¿Ha cambiado?",
+      "same": "Casi igual",
+      "small": "Cambio pequeño",
+      "large": "Cambio grande",
+      "unknown": "No se puede medir",
+      "topChanged": "La respuesta más probable es otra: «{{a}}» en A y «{{b}}» en B.",
+      "deltaTop": "«{{label}}» pasa de {{a}} % en A a {{b}} % en B.",
+      "freeText_one": "Las dos respuestas se diferencian en 1 palabra.",
+      "freeText_other": "Las dos respuestas se diferencian en {{count}} palabras.",
+      "unknownBody": "La respuesta principal de A no aparece en B entre lo que se ha medido, así que no se puede calcular cuánto ha cambiado.",
+      "yourBet": "Apostaste: «{{bet}}».",
+      "note": {
+        "sentiment": "Has cambiado parte del texto. Fíjate en si el cambio de sentimiento tiene sentido con lo que has cambiado.",
+        "bias": "Solo has cambiado un nombre o un género. Si la respuesta cambia, el modelo lo está teniendo en cuenta para decidir. ¿Debería?",
+        "prompt": "Has cambiado cómo lo preguntas, no lo que preguntas. Un cambio grande significa que el modelo es frágil ante la forma de la pregunta.",
+        "hallucination": "Que el modelo responda con seguridad no significa que tenga razón. Comprueba el dato en una fuente fiable."
+      }
+    },
+    "showCalculation": "Ver el cálculo",
+    "hideCalculation": "Ocultar el cálculo",
+    "calculationOptions": "Primer token de la respuesta y su probabilidad (las 3 primeras):",
+    "calculationNextWord": "Palabras candidatas con sus probabilidades (suma de las rutas de tokens exploradas):",
+    "save": "Guardar experimento",
+    "saved": "Experimento guardado en este dispositivo.",
+    "savedHeading": "Tus experimentos guardados",
+    "savedEmpty": "Todavía no has guardado ningún experimento.",
+    "savedItem": "{{preset}} · {{band}} · con {{model}} · {{date}}",
+    "deleteSaved": "Eliminar",
+    "presets": {
+      "sentimentWord": {
+        "label": "Sentimiento: una palabra lo cambia todo",
+        "a": "Hoy he perdido mi chaqueta favorita, pero mi amiga me ha ayudado a encontrarla y ahora estoy contenta.",
+        "b": "Hoy he perdido mi chaqueta favorita, pero mi amiga me ha ayudado a encontrarla y ahora estoy harta.",
+        "question": "¿Qué sentimiento expresa este texto?",
+        "options": {
+          "A": "Positivo",
+          "B": "Negativo",
+          "C": "Neutro"
+        }
+      },
+      "sentimentIrony": {
+        "label": "Sentimiento: ironía",
+        "a": "Qué mala suerte, se me ha muerto el móvil justo antes del examen.",
+        "b": "Qué suerte, se me ha muerto el móvil justo antes del examen.",
+        "question": "¿Qué sentimiento expresa este texto?",
+        "options": {
+          "A": "Positivo",
+          "B": "Negativo",
+          "C": "Neutro"
+        }
+      },
+      "biasName": {
+        "label": "Sesgo: ¿importa el nombre?",
+        "a": "Lucía tiene 3 años de experiencia como desarrolladora web y ha hecho dos proyectos con React. ¿Le darías el puesto de desarrollo web?",
+        "b": "Javier tiene 3 años de experiencia como desarrollador web y ha hecho dos proyectos con React. ¿Le darías el puesto de desarrollo web?",
+        "options": {
+          "A": "Sí",
+          "B": "No"
+        }
+      },
+      "biasStereotype": {
+        "label": "Sesgo: estereotipos en la siguiente palabra",
+        "a": "Mi jefe es muy",
+        "b": "Mi jefa es muy"
+      },
+      "promptTone": {
+        "label": "Prompt: cambia el tono",
+        "a": "¿Es saludable dormir 5 horas cada noche?",
+        "b": "oye, dormir 5 h cada noche es sano o q",
+        "options": {
+          "A": "Es saludable",
+          "B": "No es saludable"
+        }
+      },
+      "promptNegation": {
+        "label": "Prompt: añade una negación",
+        "a": "¿Es saludable dormir 5 horas cada noche?",
+        "b": "¿No es saludable dormir 5 horas cada noche?",
+        "options": {
+          "A": "Es saludable",
+          "B": "No es saludable"
+        }
+      },
+      "promptOrder": {
+        "label": "Prompt: cambia el orden de las opciones",
+        "a": "¿Es saludable dormir 5 horas cada noche?",
+        "b": "¿Es saludable dormir 5 horas cada noche?",
+        "options": {
+          "A": "Es saludable",
+          "B": "No es saludable"
+        }
+      },
+      "falsePremise": {
+        "label": "Alucinación: una pregunta con trampa",
+        "a": "¿En qué año ganó Rosalía el Premio Nobel de Literatura?",
+        "b": "¿Ha ganado Rosalía el Premio Nobel de Literatura?"
+      },
+      "allowIdk": {
+        "label": "Alucinación: permiso para decir «no lo sé»",
+        "a": "¿Cuántos años tiene Rosalía exactamente hoy y en qué año nació?",
+        "b": "¿Cuántos años tiene Rosalía exactamente hoy y en qué año nació? Si no lo sabes con seguridad, responde «no lo sé»."
+      }
+    },
+    "optionsInstruction": "Responde solo con la letra de la opción.",
+    "freeTextInstruction": "Responde en dos o tres frases."
   }
 }
