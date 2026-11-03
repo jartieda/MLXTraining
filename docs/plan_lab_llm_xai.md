@@ -2,6 +2,8 @@
 
 Fecha: 2026-11-02 · Rama: `docs/propuesta-xai-lab` · Base: **el código actual del Lab LLM** (commit `07e037e`), no las specs.
 
+**Estado (2026-11-02):** los cuatro pasos del orden de trabajo (§7) están construidos en la rama `docs/propuesta-xai-lab` (commits `fd860f1`, `4417299`, `cecbdfe` y `5dc5815`). Lo construido se describe en [`specs/002-lab-llm/spec.md`](../specs/002-lab-llm/spec.md). Queda pendiente probarlo con modelos reales y revisar en el aula los pares de nombres.
+
 **Alcance:**
 - Solo `/lab-llm` (`src/features/llmLab/` y sus textos `llm.json`).
 - No se toca el login, ni la ruta de lecciones, ni el Lab CV.

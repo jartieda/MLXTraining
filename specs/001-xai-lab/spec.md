@@ -18,6 +18,10 @@
 - Q: How does an educator's invitation code reach her, given that the application never sends email? → A: The lab opens the administrator's own mail client with recipient and message prefilled, with copy-to-clipboard as the fallback. The application itself sends nothing.
 - Q: In what format does an educator export her classroom's progress summary? → A: A single CSV file, one row per learner and module, including a column holding that module's reflection answer.
 
+### Session 2026-11-02
+
+- Q: How is the final model verdict of the comparison view produced? → A: In the browser, from the evidence already on screen: whether the prediction was correct, whether the strongest map is degenerate or diffuse, the agreement band between Grad-CAM and occlusion, and whether the evidence sits in the wrong area. No language model or external service is called (Principle II), so the verdict cannot contradict the visible evidence. It shows «pending» until there is evidence to judge, and lists the clues it used.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Teach a model and watch it work (Priority: P1)
@@ -66,7 +70,7 @@ On the same frozen frame the learner views two explanations side by side. One is
 
 1. **Given** a frozen frame with a prediction, **When** the learner opens the comparison view, **Then** both explanations render for the same class alongside an agreement score and a plain-language reading of that score.
 2. **Given** the two explanations highlight different regions, **When** the comparison is shown, **Then** the lab states that they disagree and explains that neither is guaranteed correct.
-3. **Given** a model decision on a frozen frame, **When** the learner reaches the final verdict section, **Then** the lab says whether the model got it right or not and, if it missed, explains the likely reason using the evidence visible in the heat maps — for example that the evidence is diffuse, weak, concentrated in the wrong area, or that the two methods disagree.
+3. **Given** a model decision on a frozen frame, **When** the learner reaches the final verdict section, **Then** the lab says whether the model got it right or not and, if it missed, explains the likely reason using the evidence visible in the heat maps — for example that the evidence is diffuse, weak, concentrated in the wrong area, or that the two methods disagree. The verdict is computed locally from that evidence, without calling any external service.
 4. **Given** the slower explanation method is running, **When** the learner waits, **Then** progress is shown and the interface stays responsive, and she can cancel.
 
 ---
