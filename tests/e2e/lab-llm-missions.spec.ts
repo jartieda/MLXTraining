@@ -74,13 +74,9 @@ test.describe('Lab LLM — missions', () => {
     await expect(page.getByTestId('mission-projectCard-status')).toHaveText(/conseguida|completed/i)
   })
 
-  test('the maths tutor sits in Extras, outside the XAI path', async ({ page }) => {
+  test('the Extras maths tutor section is removed', async ({ page }) => {
     await page.goto('/lab-llm')
-    const extras = page.locator('details').filter({ hasText: /extras/i })
-    await expect(extras).toBeVisible()
-    await expect(extras.getByRole('heading', { name: /razonar este problema|reason through/i })).toBeHidden()
-    await extras.locator('summary').click()
-    await expect(extras.getByRole('heading', { name: /razonar este problema|reason through/i })).toBeVisible()
+    await expect(page.locator('details').filter({ hasText: /extras/i })).toHaveCount(0)
   })
 
   test('fits a 360 px screen without horizontal scrolling', async ({ page }) => {

@@ -36,7 +36,7 @@
       "waiting": "En espera"
     },
     "promptLabel": "Tu prompt",
-    "promptPlaceholder": "Escribe cualquier prompt para el modelo…",
+    "promptPlaceholder": "La noche de halloween es ",
     "wordCompletionInstruction": "Completa la frase con una palabra",
     "wordCompletionOutputInstruction": "Responde únicamente con una palabra.",
     "send": "Enviar al modelo",
@@ -65,7 +65,7 @@
     "title": "Pregunta al modelo y pídele que se explique",
     "intro": "Hazle una pregunta al modelo seleccionado. Cuando responda, pulsa «Ver cómo lo explica» para leer la explicación que el propio modelo escribió junto a su respuesta.",
     "questionLabel": "Tu pregunta",
-    "example": "¿Es verdad que solo usamos el 10 % del cerebro? Responde y explica por qué.",
+    "example": "Valora del 1 al 10 lo científica que es esta película: Avengers ",
     "examplePrefix": "Por ejemplo:",
     "useExample": "Usar el ejemplo",
     "ask": "Preguntar",
@@ -197,7 +197,7 @@
       "sentimentWord": {
         "label": "Sentimiento: una palabra lo cambia todo",
         "a": "Hoy he perdido mi chaqueta favorita, pero mi amiga me ha ayudado a encontrarla y ahora estoy contenta.",
-        "b": "Hoy he perdido mi chaqueta favorita, pero mi amiga me ha ayudado a encontrarla y ahora estoy harta.",
+        "b": "Hoy he perdido mi chaqueta favorita, pero mi amiga me ha ayudado a encontrarla y ahora estoy cansada.",
         "question": "¿Qué sentimiento expresa este texto?",
         "options": {
           "A": "Positivo",
@@ -380,7 +380,6 @@
       "explore": "Ir a «Explorar»",
       "compare": "Ir al comparador"
     },
-    "extras": "Extras: ayúdame a razonar un problema (fuera de la ruta de IA explicable)",
     "items": {
       "nextWord": {
         "title": "¿Qué palabra viene después?",

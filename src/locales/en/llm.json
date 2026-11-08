@@ -380,7 +380,6 @@
       "explore": "Go to “Explore”",
       "compare": "Go to the comparator"
     },
-    "extras": "Extras: help me reason through a problem (outside the explainable AI path)",
     "items": {
       "nextWord": {
         "title": "Which word comes next?",

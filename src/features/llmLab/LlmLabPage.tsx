@@ -438,19 +438,6 @@ export function LlmLabPage() {
             engine={engine}
             loadingModel={loadingModel}
           />
-          {/* The maths tutor is not about explaining a model, so it sits apart from the
-              XAI path, folded away but still one click from where it used to be. */}
-          <details className="rounded-lg border border-border-subtle bg-surface p-4">
-            <summary className="cursor-pointer font-medium">{t('missions.extras')}</summary>
-            <div className="mt-4">
-              <ReasoningChat
-                key={`tutor-${selectedModel}-${selectedBackend}-${retryKey}`}
-                variant="tutor"
-                engine={engine}
-                loadingModel={loadingModel}
-              />
-            </div>
-          </details>
         </div>
       </div>
 
