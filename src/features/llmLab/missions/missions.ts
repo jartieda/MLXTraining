@@ -8,7 +8,7 @@ import { llmLabDatabase, type LlmExperiment, type LlmMissionProgress, type LlmPr
 
 /** Where «Ir a la herramienta» takes the learner. */
 export interface MissionTarget {
-  readonly tab: 'explore' | 'compare'
+  readonly tab: 'tools' | 'challenges'
   /** A comparator preset to select on arrival. */
   readonly presetId?: string
   /** Id of the element to scroll to on arrival. */
@@ -21,12 +21,12 @@ export interface Mission {
 }
 
 export const MISSIONS: readonly Mission[] = [
-  { id: 'nextWord', target: { tab: 'explore', anchor: 'llm-next-word' } },
-  { id: 'oneChange', target: { tab: 'compare', presetId: 'promptTone', anchor: 'llm-compare' } },
-  { id: 'lens', target: { tab: 'compare', anchor: 'llm-word-lens' } },
-  { id: 'selfReport', target: { tab: 'compare', anchor: 'llm-word-lens' } },
-  { id: 'name', target: { tab: 'compare', presetId: 'biasName', anchor: 'llm-compare' } },
-  { id: 'invented', target: { tab: 'compare', presetId: 'falsePremise', anchor: 'llm-compare' } },
+  { id: 'nextWord', target: { tab: 'tools', anchor: 'llm-next-word' } },
+  { id: 'oneChange', target: { tab: 'tools', presetId: 'promptTone', anchor: 'llm-compare' } },
+  { id: 'lens', target: { tab: 'tools', anchor: 'llm-word-lens' } },
+  { id: 'selfReport', target: { tab: 'tools', anchor: 'llm-word-lens' } },
+  { id: 'name', target: { tab: 'tools', presetId: 'biasName', anchor: 'llm-compare' } },
+  { id: 'invented', target: { tab: 'tools', presetId: 'falsePremise', anchor: 'llm-compare' } },
   { id: 'projectCard', target: null },
 ]
 

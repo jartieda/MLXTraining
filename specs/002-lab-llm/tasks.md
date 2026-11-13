@@ -4,7 +4,7 @@ description: "Implementation status and deferred work for Lab LLM"
 
 # Tasks: Lab LLM
 
-**Reconciled**: 2026-11-02 against `src/features/llmLab/`, locale files, unit tests and E2E tests. The XAI path follows [`docs/plan_lab_llm_xai.md`](../../docs/plan_lab_llm_xai.md).
+**Reconciled**: 2026-11-12 against `src/features/llmLab/`, locale files, unit tests and E2E tests. The XAI path follows [`docs/plan_lab_llm_xai.md`](../../docs/plan_lab_llm_xai.md).
 
 The original task list described a nine-exercise product with a confidence/attention/sources side panel. Those features are not present as designed; the XAI path below replaces part of that scope. This list marks only verified implementation as complete; remaining scope is explicitly deferred.
 
@@ -34,7 +34,7 @@ The original task list described a nine-exercise product with a confidence/atten
 - [x] X004 `compare/presets.ts` and `llm.json`: nine prepared cases in sentiment, bias, prompt change and hallucination, with the chaqueta example.
 - [x] X005 `compare/ComparePanel.tsx`: prompts with diff, bet, aligned results, verdict with case sentence, «Ver el cálculo», stop.
 - [x] X006 `compare/experimentStore.ts`: separate IndexedDB database, save/list/delete experiments.
-- [x] X007 Tabs «Explorar» / «Comparar dos prompts» with mounted panels; fake-engine injection for tests.
+- [x] X007 Tabs with mounted panels; fake-engine injection for tests. (Renamed in X020.)
 
 ### Step 2 — Word lens and self-report check
 
@@ -47,13 +47,17 @@ The original task list described a nine-exercise product with a confidence/atten
 - [x] X011 `missions/missions.ts`: seven missions, targets, local progress (transactional), project card, Markdown builder.
 - [x] X012 `missions/LlmMissions.tsx`: progress bar, mission cards, «Ir a…» with case and anchor, card form and download.
 - [x] X013 Simple view in the sandbox (whole percentages, calculation behind «Ver el cálculo»).
-- [x] X014 14+ example («10 % del cerebro») and the maths tutor moved to «Extras».
+- [x] X014 14+ example. (The «10 % del cerebro» example and the «Extras» tutor were later replaced; see X020.)
 
 ### Step 4 — Extensions
 
 - [x] X015 `compare/audit.ts` and `AuditPanel.tsx`: five name pairs, table, mean, largest pair, stop.
 - [x] X016 «Un prompt, dos modelos» mode in the comparator.
 - [x] X017 `compare/RepeatMockup.tsx`: «Repetir 5 veces» marked «Próximamente», with the reason.
+
+### Reorganisation into the shared three tabs
+
+- [x] X020 Tabs «Herramientas» (sandbox, comparator, lens, audit, mock-up), «Retos» (prompt exercises) and «Misiones», matching the Lab CV; one-line intro per tab; mission targets point to `tools`; E2E tab names updated. The tutor/«Extras» block and its strings were removed and the examples changed in the merge `67d20e0`.
 
 ### Tests
 
@@ -75,6 +79,7 @@ The original task list described a nine-exercise product with a confidence/atten
 - [ ] D011 Validate every feature with real models on GPU and CPU (the model CDN was unreachable during development).
 - [ ] D012 Classroom review of the name pairs and professions in the bias cases and the audit.
 - [ ] D013 «Repetir 5 veces» for real: requires sampling in the engine, out of scope while the engine is not modified.
+- [ ] D014 Merge mission 7 («Ficha XAI de tu proyecto») with the home page's «Tu proyecto y la XAI», which asks overlapping questions (what it decides, who it affects).
 
 ## Validation already represented in tests
 

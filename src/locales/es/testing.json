@@ -20,6 +20,8 @@
     "unfreeze": "Volver al directo",
     "frozen": "Imagen congelada",
     "hint": "Congela una imagen para ver por qué ha decidido eso.",
-    "alt": "La imagen congelada que se está explicando"
+    "alt": "La imagen congelada que se está explicando",
+    "photoLabel": "O explica una foto de tu dispositivo",
+    "testPhotos": "Fotos de prueba del reto"
   }
 }

@@ -1,14 +1,14 @@
 # Feature Specification: Lab LLM
 
-**Feature Branch**: `002-lab-llm` (current work on `docs/propuesta-xai-lab`)
+**Feature Branch**: `002-lab-llm` (merged into `001-xai-lab`)
 
 **Created**: 2026-10-16
 
 **Status**: Implemented — XAI learning path (comparator, word lens, self-report check, missions) on top of the original baseline; parts of the original roadmap remain deferred
 
-**Input**: Actual code in `src/features/llmLab/` as of 2026-11-02, and the plan in [`docs/plan_lab_llm_xai.md`](../../docs/plan_lab_llm_xai.md). The original product vision below remains the roadmap where not yet implemented.
+**Input**: Actual code in `src/features/llmLab/` as of 2026-11-12, and the plan in [`docs/plan_lab_llm_xai.md`](../../docs/plan_lab_llm_xai.md). The original product vision below remains the roadmap where not yet implemented.
 
-## Current Implementation Snapshot *(verified against code, 2026-11-02)*
+## Current Implementation Snapshot *(verified against code, 2026-11-12)*
 
 This section is the source of truth for what the application currently does. The original nine-exercise vision and its requirements below are not claims of shipped functionality unless the status table says so.
 
@@ -23,16 +23,12 @@ This section is the source of truth for what the application currently does. The
 ### Page structure
 
 - **Model and engine controls at the top**, shared by every tab: model (Gemma, Llama, Qwen), engine (GPU via WebLLM, CPU via Transformers.js + ONNX WebAssembly), load status, error and retry. GPU is the default; there is no automatic CPU fallback. The exact model name (for example «Gemma 2 · 2B») is shown with every result. Model controls are locked while a comparison, lens or audit is running.
-- **Three tabs** (`role="tablist"`): «Explorar», «Comparar dos prompts» and «Misiones». Panels stay mounted (hidden, not unmounted), so switching tab never discards a result.
+- **Three tabs** (`role="tablist"`), the same three as the Lab CV: «Herramientas» (tools to use with your own texts), «Retos» (prepared cases) and «Misiones». Each of the first two opens with a one-line intro. Panels stay mounted (hidden, not unmounted), so switching tab never discards a result.
+- The shared structure and the home page that explains it are specified in [`001-xai-lab/spec.md`](../001-xai-lab/spec.md), «Session 2026-11-12».
 
-### Tab «Explorar»
+### Tab «Herramientas»
 
 - **¿Qué palabra viene después?** — bounded top-k word search (3 candidates per step, beam 9, depth 8, at most 36 queries) with up to three complete-word candidates. Simple view by default: whole percentages («< 1 %» below one percent); the token products, path sums and `␣` marks are behind «Ver el cálculo». Stop button; a stopped search keeps what it found.
-- **Prompt exercises** (`ReasoningChat`): general question (example: «¿Es verdad que solo usamos el 10 % del cerebro? Responde y explica por qué.»), sentiment (chaqueta example; the question is appended automatically and the model is asked to quote the exact words that influenced it), text bias (VillaArriba/VillaAbajo), and «Intenta engañar al modelo» (Rosalía's age), which keeps the last 4 turns of conversation. Each answer has a separately generated, model-written explanation behind «Ver cómo lo explica», caveated as a plausible text and not a trace of internal computation. Stop button in every exercise.
-- **Extras** — the maths tutor (Socratic hint without the final answer) sits in a folded «Extras» block, outside the XAI path.
-
-### Tab «Comparar dos prompts»
-
 - **A/B comparator** (`compare/ComparePanel.tsx`). Two modes:
   - *Dos prompts, un modelo*: prompts A and B, a word-level diff that highlights what changed and warns (without blocking) above 2 changed words; «Copiar A en B» and «Volver al ejemplo».
   - *Un prompt, dos modelos*: run the prompt on the loaded model, switch model at the top (the result is kept), run it again. The second run is disabled while the same model is still loaded. Result columns are titled with the model names.
@@ -42,18 +38,24 @@ This section is the source of truth for what the application currently does. The
   - *Probabilidad de cada opción*: `scoreOptions` appends the options and «Responde solo con la letra de la opción», reads option letters from the top-3 first tokens and adds up spellings of the same letter. Rows are aligned by answer text, not by letter, so swapping the option order compares the same answer. If more than 50 % of the reported mass is not an option letter, a warning says the percentages mean little.
   - *Respuesta completa*: `generate` on both prompts with a word-level diff of the answers.
 - **Verdict «¿Ha cambiado?»** with bands *Casi igual* (< 5 points), *Cambio pequeño* (5–20) and *Cambio grande* (≥ 20, or the most likely answer is a different one, or A's top answer is no longer measured in B); free-text answers are banded by the share of words that differ. A sentence per case (sentiment, bias, prompt change, hallucination, two models). «Ver el cálculo» lists the raw tokens and probabilities.
-- **Nine prepared cases**: sentiment (chaqueta «contenta → harta»; irony with the phone before the exam), bias (Lucía/Javier for a web-developer job; «Mi jefe/jefa es muy…»), prompt changes (tone, negation, option order) and hallucination (Rosalía and the Nobel; permission to say «no lo sé»).
+- **Nine prepared cases**: sentiment (chaqueta «contenta → cansada»; irony with the phone before the exam), bias (Lucía/Javier for a web-developer job; «Mi jefe/jefa es muy…»), prompt changes (tone, negation, option order) and hallucination (Rosalía and the Nobel; permission to say «no lo sé»).
 - **Saved experiments**: «Guardar experimento» stores case, model(s), prompts, bet, band and the verdict sentence; the 10 most recent are listed and can be deleted.
 - **Audit of 5 name pairs** (under the name-bias case): the same application with Lucía/Javier, Fátima/Lucía, Wei/Javier, Aisha/Marta and Mohamed/Pablo (10 queries). Table of P(«Sí») per name and difference in points; verdict with the mean absolute difference, the largest pair and how many pairs move 5 points or more. Progress bar and stop; a stopped audit is not summarised.
 - **Word lens** (`compare/WordLens.tsx`): occlusion for text on the sentiment question. One query with the whole text, then one per word with that word removed (18 words → 19 queries, announced before running), with progress and stop. Impact = points the original answer loses without the word; a lower bound when the answer leaves the top 3. Words are coloured in three steps of one colour relative to the strongest word; words that barely matter stay uncoloured; words that push against the answer get a dashed underline. A text summary names the strongest word, the top words and the words against. Refuses to measure (with a message) if the whole text gets no option letter.
 - **«¿Dice la verdad sobre sí mismo?»**: after the lens, the model is asked for the 3 exact words that influenced it, in quotation marks. Quotes are extracted («…», "…", “…”), kept only if they are in the text, and compared with the lens's top words. Bands as in the Lab CV: *Coinciden*, *Coinciden en parte*, *No coinciden*, or *No se puede comparar* when nothing is quoted. Closing lesson: what the model says is an explanation it wrote; the lens is a measurement.
 - **«Repetir 5 veces» — mock-up.** Dashed card marked «Próximamente», five empty slots and a disabled button, with the reason: generation has no randomness, so five repetitions would be identical.
 
+### Tab «Retos»
+
+- **Prompt exercises** (`ReasoningChat`), the prepared challenges: general question (example: «Valora del 1 al 10 lo científica que es esta película: Avengers»), sentiment (chaqueta example; the question is appended automatically and the model is asked to quote the exact words that influenced it), text bias (VillaArriba/VillaAbajo), and «Intenta engañar al modelo» (Rosalía's age), which keeps the last 4 turns of conversation. Each answer has a separately generated, model-written explanation behind «Ver cómo lo explica», caveated as a plausible text and not a trace of internal computation. Stop button in every exercise.
+- The maths tutor and its «Extras» block were removed (merge `67d20e0`); the `tutor` variant still exists in `ReasoningChat` but is not rendered.
+- The comparator's nine prepared cases stay inside the comparator in «Herramientas», as starting points for the tool.
+
 ### Tab «Misiones»
 
 - Seven missions: ¿Qué palabra viene después?; Cambia una sola cosa; La lupa de palabras; ¿Dice la verdad sobre sí mismo?; ¿Importa el nombre?; ¿Se lo ha inventado?; Ficha XAI de tu proyecto. Each has «Qué haces», «Reto», a question for thinking with an answer box, and «He conseguido el reto». A progress bar counts completed missions.
-- «Ir a…» opens the right tab, selects the prepared case the mission needs and scrolls to the tool.
-- Mission 7 is a four-part XAI card for the learner's own project (what the app decides, who it affects, which bias was tested, what explanation users will get). «Descargar ficha» saves a Markdown file with the card, the answered mission questions and the saved experiments; the mission is completed when all four parts are filled in.
+- «Ir a…» opens «Herramientas», selects the prepared case the mission needs and scrolls to the tool.
+- Mission 7 is a four-part XAI card (it overlaps with the home page's «Tu proyecto y la XAI», see D014) for the learner's own project (what the app decides, who it affects, which bias was tested, what explanation users will get). «Descargar ficha» saves a Markdown file with the card, the answered mission questions and the saved experiments; the mission is completed when all four parts are filled in.
 - Answers are saved when the box loses focus; ticks are shown immediately and saved in a transaction.
 
 ### Storage
@@ -63,21 +65,21 @@ This section is the source of truth for what the application currently does. The
 ### Testing
 
 - Unit: word search; model mapping and deployment policy; engine stop/serialisation; `scoreOptions`, `diffWords`, `compareScored` and bands; experiment store; word lens and self-report check; audit; missions store and card Markdown; locale parity.
-- E2E (`tests/e2e/lab-llm-compare.spec.ts`, `tests/e2e/lab-llm-missions.spec.ts`), desktop and 360 px, with a fake engine injected through `window.__ML4G_FAKE_LLM_ENGINE__` so no model download is needed: big change on the sentiment example, diff warning, «not measured» instead of 0 %, position bias with swapped options, stereotypes and saving, stopping a free-text comparison, the lens and the self-report check, stopping the audit, two models, the mock-up, missions navigation, persistence after reload, card download, tutor in Extras, no horizontal scrolling.
+- E2E (`tests/e2e/lab-llm-compare.spec.ts`, `tests/e2e/lab-llm-missions.spec.ts`), desktop and 360 px, with a fake engine injected through `window.__ML4G_FAKE_LLM_ENGINE__` so no model download is needed: big change on the sentiment example, diff warning, «not measured» instead of 0 %, position bias with swapped options, stereotypes and saving, stopping a free-text comparison, the lens and the self-report check, stopping the audit, two models, the mock-up, missions navigation to «Herramientas», persistence after reload, card download, the removed Extras block, no horizontal scrolling.
 - Not verified with real models in this round (the model CDN was not reachable from the development network). Small models may not answer with a letter; the interface then shows warnings instead of percentages.
 
 ### Current Acceptance Scenarios
 
 1. **Choose a local engine and model**: model/backend controls are visible above the tabs, readiness and loading progress are conveyed, and an unavailable WebGPU engine reports a recoverable error without silently switching backend.
 2. **Inspect next-word alternatives**: a prompt yields up to three complete-word candidates in whole percentages; «Ver el cálculo» shows the explored token paths.
-3. **Run an explanatory exercise**: the general, sentiment, bias and deception variants return an answer and allow the model-written explanation to be revealed with an explicit caveat; any generation can be stopped.
+3. **Run an explanatory exercise** (tab «Retos»): the general, sentiment, bias and deception variants return an answer and allow the model-written explanation to be revealed with an explicit caveat; any generation can be stopped.
 4. **Compare two prompts**: given A and B that differ in one word, the comparator highlights the change, runs both on the same model without randomness, aligns the answers on one scale and gives a «¿Ha cambiado?» band and a case-specific sentence; an unmeasured option reads «no está entre las 3 primeras».
 5. **Detect position bias**: with the options reversed in B, results are compared by answer, so a model that keeps choosing the same letter shows a big change.
 6. **Use the word lens**: on the chaqueta example the lens announces 19 queries, can be stopped, colours the words and names in text the word whose removal lowers the original answer most.
 7. **Check the self-explanation**: after the lens, asking the model for its 3 influential words produces a *Coinciden / Coinciden en parte / No coinciden / No se puede comparar* band with both lists side by side.
 8. **Audit a bias**: the five-pair audit fills a table, reports the mean difference and the largest pair, and can be stopped without producing a partial summary.
 9. **Compare two models**: in «Un prompt, dos modelos», the first result survives switching model; the second run is blocked until a different model is loaded.
-10. **Follow the missions**: progress and answers survive a reload; «Ir a…» opens the right tool and case; the project card downloads as Markdown and completes mission 7 when all four parts are filled in.
+10. **Follow the missions**: progress and answers survive a reload; «Ir a…» opens «Herramientas» with the right tool and case; the project card downloads as Markdown and completes mission 7 when all four parts are filled in.
 11. **Use examples and translations**: every visible string exists in English and Spanish with matching keys.
 
 ### Status of the original requirements
@@ -97,7 +99,7 @@ This section is the source of truth for what the application currently does. The
 | FR-LLM-016 (hallucination, bias, prompt injection, grounding) | Partly | Hallucination, bias and prompt fragility covered; prompt injection and grounding not covered. |
 | FR-LLM-018 (responsible use) | Partly | Case notes and mission questions; no dedicated reminders. |
 | FR-LLM-019–024, 033, 034 (fixed 88/8/4 exercise, attention tooltips) | Not done | Real model probabilities are used instead of simulated ones. |
-| FR-LLM-025–028 («Mis Proyectos» home) | Partly | The «Inicio» page explains why XAI matters and links to both labs; there is no «Mis Proyectos» route. |
+| FR-LLM-025–028 («Mis Proyectos» home) | Partly | The «Inicio» page explains how the site works, the XAI theory and the project questions, and links to both labs and the learning questionnaire (see 001-xai-lab); there is no «Mis Proyectos» route. |
 | FR-LLM-029–032 (local models, load status, next words) | Done | Plus a CPU engine. |
 | NFR-LLM-002 (360 px) | Done | Checked in E2E. |
 | NFR-LLM-001, 003, 004 | Not verified | No load-time measurement, automated accessibility audit or offline mode for the LLM lab. |

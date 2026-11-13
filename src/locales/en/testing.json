@@ -20,6 +20,8 @@
     "unfreeze": "Back to live",
     "frozen": "Frame frozen",
     "hint": "Freeze a frame to look at why it decided that.",
-    "alt": "The frozen frame being explained"
+    "alt": "The frozen frame being explained",
+    "photoLabel": "Or explain a photo from your device",
+    "testPhotos": "The challenge’s test photos"
   }
 }

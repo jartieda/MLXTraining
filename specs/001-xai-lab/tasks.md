@@ -378,6 +378,40 @@ from any administration screen.
 
 ---
 
+## Phase 13: User Stories 10 and 11 — Shared lab structure, home page theory and learning questionnaire (added 2026-11-12)
+
+**Goal**: Both labs read as one product (same three tabs), the Lab CV gets prepared challenges and missions, and the home page explains the site and the theory and measures learning with a pre/post questionnaire for research.
+
+### Implementation
+
+- [X] T138 [US10] `src/features/capture/LabPage.tsx` — tabs «Herramientas» / «Retos» / «Misiones» with mounted panels; the existing lab (project creation, capture, training, results, testing, explaining) becomes «Herramientas»; page heading «Lab CV», project name demoted to `h2` (FR-059)
+- [X] T139 [US10] `src/features/llmLab/LlmLabPage.tsx` — tabs renamed to `tools` / `challenges` / `missions`; prompt exercises moved to «Retos»; mission targets point to `tools` (FR-059; see `specs/002-lab-llm` X020)
+- [X] T140 [P] [US10] `src/features/capture/imageCrop.ts` — the shared centre crop and image decoding used by challenges and by explaining a photo
+- [X] T141 [US10] `src/features/cvLab/challenges.ts` and `CvChallenges.tsx` — three challenges (husky/wolf, few cats, orange/ball), manifest reading, «photos missing» state, loading into a new project through the same crop and embedding as an upload, project→challenge origin kept in localStorage (FR-060, FR-061)
+- [X] T142 [P] [US10] `public/datasets/` — one folder and an empty `manifest.json` per challenge, and a README describing the trap each photo set must contain and the manifest format
+- [X] T143 [US10] `src/features/testing/FreezeFrame.tsx` — explain a photo from the device, and the challenge's test photos for a project created from a challenge (FR-062)
+- [X] T144 [P] [US10] `src/features/cvLab/missions.ts` and `CvMissions.tsx` — six missions with task, question, completion mark and «Ir a…», kept in localStorage (FR-063)
+- [X] T145 [US11] `src/routes/Landing.tsx` — how the site works (five steps, the three tabs), questionnaire call-out, the two lab cards, XAI theory in five folded sections, then storage and privacy (FR-064)
+- [X] T146 [P] [US11] `src/features/quiz/ProjectQuestions.tsx` — the six «Tu proyecto y la XAI» questions, kept in localStorage, downloadable as Markdown (FR-064)
+- [X] T147 [US11] `src/features/quiz/quiz.ts` — `QUIZ_VERSION`, 12 multiple-choice items with «No lo sé», 4 agreement items (one reversed), scoring, anonymous code normalisation, local storage, wide CSV export with a BOM (FR-065, FR-066, FR-068)
+- [X] T148 [US11] `src/features/quiz/QuizPage.tsx` at `/quiz` — code, group and phase; items; answers hidden after pre, score and explanations after post; per-attempt CSV/JSON download; «Para el profesorado» with download-all and confirmed delete (FR-065–FR-068)
+- [X] T149 [P] `src/locales/{en,es}/cvlab.json` and `home.json`, registered in `src/lib/i18n.ts`; programme-neutral wording for ages 14+
+
+### Tests
+
+- [X] T150 [P] `tests/unit/quiz.test.ts` — scoring with «No lo sé» and blanks, code normalisation, CSV columns and quoting, file names
+- [X] T151 [P] `tests/e2e/home-quiz-cvtabs.spec.ts` — home theory and project answers surviving a reload and downloading; pre attempt without answers and post attempt with score, both downloading; teacher count; Lab CV tabs, missing-photos state and mission persistence and navigation
+
+### Open
+
+- [ ] T152 **BLOCKED — needs photos.** Place licensed photos for the three challenges in `public/datasets/` following its README, then verify loading, training and the test photos end to end
+- [ ] T153 **BLOCKED — needs a researcher.** Review and validate the questionnaire items (content validity, difficulty, pre/post comparability); bump `QUIZ_VERSION` on any change
+- [ ] T154 **BLOCKED — needs ethics approval.** Informed consent (and parental consent for minors) for the research use of questionnaire results, obtained outside the application; adapt the on-screen notice if the approved protocol requires it
+- [ ] T155 Merge the Lab LLM's «Ficha XAI» mission with the home page's «Tu proyecto y la XAI» (see `specs/002-lab-llm` D014)
+- [ ] T156 Add `/quiz` to the axe pages in `tests/e2e/a11y.spec.ts`
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase dependencies

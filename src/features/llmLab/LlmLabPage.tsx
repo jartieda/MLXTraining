@@ -42,7 +42,8 @@ interface ChatMessage {
 
 const MODEL_ORDER: readonly ModelId[] = ['gemma', 'llama', 'qwen']
 const BACKEND_ORDER: readonly LlmBackend[] = ['gpu', 'cpu']
-const LAB_TABS = ['explore', 'compare', 'missions'] as const
+/** The same three tabs as the Lab CV: tools, challenges and missions. */
+const LAB_TABS = ['tools', 'challenges', 'missions'] as const
 
 /** Sentinel stored in `engineError` so the message is translated when rendered. */
 const WEBGPU_UNAVAILABLE = 'webgpu-unavailable:'
@@ -67,7 +68,7 @@ export function LlmLabPage() {
   const { t } = useTranslation(['llm', 'common'])
   const abortRef = useRef<AbortController | null>(null)
   const [stopped, setStopped] = useState(false)
-  const [tab, setTab] = useState<(typeof LAB_TABS)[number]>('explore')
+  const [tab, setTab] = useState<(typeof LAB_TABS)[number]>('tools')
   const [compareRunning, setCompareRunning] = useState(false)
   const [lensRunning, setLensRunning] = useState(false)
   const [presetRequest, setPresetRequest] = useState<{ id: string; nonce: number } | null>(null)
@@ -298,7 +299,7 @@ export function LlmLabPage() {
         </div>
       </section>
 
-      {/* Two tabs rather than one long page. Both panels stay mounted (hidden, not
+      {/* Tabs rather than one long page. Every panel stays mounted (hidden, not
           unmounted) so switching tab never throws away an answer or a comparison. */}
       <div role="tablist" aria-label={t('compare.tab.label')} className="flex flex-wrap gap-2">
         {LAB_TABS.map((id) => (
@@ -318,8 +319,9 @@ export function LlmLabPage() {
         ))}
       </div>
 
-      <div role="tabpanel" id="llm-panel-explore" aria-labelledby="llm-tab-explore" hidden={tab !== 'explore'}>
+      <div role="tabpanel" id="llm-panel-tools" aria-labelledby="llm-tab-tools" hidden={tab !== 'tools'}>
         <div className="flex flex-col gap-8">
+          <p className="max-w-prose text-sm text-ink-muted">{t('labTabs.toolsIntro')}</p>
           <section id="llm-next-word" tabIndex={-1} className="rounded-lg border border-border-subtle bg-surface p-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div className="flex flex-col gap-1">
@@ -419,6 +421,28 @@ export function LlmLabPage() {
             </div>
           </section>
 
+          <div className="flex flex-col gap-4">
+            <ComparePanel
+              engine={engine}
+              loadingModel={loadingModel}
+              modelName={engine ? MODEL_DISPLAY_NAME[engine.backend][selectedModel] : t(`chat.models.${selectedModel}`)}
+              onRunningChange={setCompareRunning}
+              presetRequest={presetRequest}
+            />
+            <WordLens
+              engine={engine}
+              loadingModel={loadingModel}
+              modelName={engine ? MODEL_DISPLAY_NAME[engine.backend][selectedModel] : t(`chat.models.${selectedModel}`)}
+              onRunningChange={setLensRunning}
+            />
+            <RepeatMockup />
+          </div>
+        </div>
+      </div>
+
+      <div role="tabpanel" id="llm-panel-challenges" aria-labelledby="llm-tab-challenges" hidden={tab !== 'challenges'}>
+        <div className="flex flex-col gap-8">
+          <p className="max-w-prose text-sm text-ink-muted">{t('labTabs.challengesIntro')}</p>
           <ReasoningChat key={`${selectedModel}-${selectedBackend}-${retryKey}`} engine={engine} loadingModel={loadingModel} />
           <ReasoningChat
             key={`sentiment-${selectedModel}-${selectedBackend}-${retryKey}`}
@@ -439,23 +463,6 @@ export function LlmLabPage() {
             loadingModel={loadingModel}
           />
         </div>
-      </div>
-
-      <div role="tabpanel" id="llm-panel-compare" aria-labelledby="llm-tab-compare" hidden={tab !== 'compare'} className="flex flex-col gap-4">
-        <ComparePanel
-          engine={engine}
-          loadingModel={loadingModel}
-          modelName={engine ? MODEL_DISPLAY_NAME[engine.backend][selectedModel] : t(`chat.models.${selectedModel}`)}
-          onRunningChange={setCompareRunning}
-          presetRequest={presetRequest}
-        />
-        <WordLens
-          engine={engine}
-          loadingModel={loadingModel}
-          modelName={engine ? MODEL_DISPLAY_NAME[engine.backend][selectedModel] : t(`chat.models.${selectedModel}`)}
-          onRunningChange={setLensRunning}
-        />
-        <RepeatMockup />
       </div>
 
       <div role="tabpanel" id="llm-panel-missions" aria-labelledby="llm-tab-missions" hidden={tab !== 'missions'}>

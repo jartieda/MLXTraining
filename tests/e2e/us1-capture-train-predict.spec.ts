@@ -29,7 +29,7 @@ async function createProject(page: Page, name: string): Promise<void> {
   await page.getByRole('button', { name: /new project|nuevo proyecto/i }).click()
   await page.getByLabel(/project name|nombre del proyecto/i).fill(name)
   await page.getByRole('button', { name: /^save$|^guardar$/i }).click()
-  await expect(page.getByRole('heading', { level: 1, name })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 2, name })).toBeVisible()
 }
 
 async function addClass(page: Page, name: string): Promise<void> {

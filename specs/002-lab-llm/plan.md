@@ -4,17 +4,17 @@
 
 **Input**: Feature specification from `/specs/002-lab-llm/spec.md`
 
-**Reconciled**: 2026-11-02 against the current implementation and [`docs/plan_lab_llm_xai.md`](../../docs/plan_lab_llm_xai.md). This document describes what is shipped first; deferred original scope is listed separately.
+**Reconciled**: 2026-11-12 against the current implementation and [`docs/plan_lab_llm_xai.md`](../../docs/plan_lab_llm_xai.md). This document describes what is shipped first; deferred original scope is listed separately.
 
 ## Summary
 
 The Lab LLM at `/lab-llm` is a browser-local lab for learning explainable AI with small language models. Model and engine controls sit above three tabs:
 
-- **Explorar**: the next-word sandbox (simple view, calculation on demand) and the prompt exercises (general question, sentiment, text bias, «Intenta engañar al modelo»), with the maths tutor folded into «Extras».
-- **Comparar dos prompts**: the A/B comparator (two prompts on one model, or one prompt on two models), nine prepared cases, the five-pair name audit, the word lens with the «¿Dice la verdad sobre sí mismo?» check, saved experiments, and the «Repetir 5 veces» mock-up.
+- **Herramientas**: the next-word sandbox (simple view, calculation on demand), the A/B comparator (two prompts on one model, or one prompt on two models, with nine prepared cases as starting points), the five-pair name audit, the word lens with the «¿Dice la verdad sobre sí mismo?» check, saved experiments, and the «Repetir 5 veces» mock-up.
+- **Retos**: the prepared prompt exercises (general question, sentiment, text bias, «Intenta engañar al modelo»). The maths tutor was removed.
 - **Misiones**: seven missions with local progress and a downloadable XAI card for the learner's project.
 
-**The engine is not modified.** All comparison logic lives in `src/features/llmLab/compare/` and only calls `nextTokenAlternatives`, `generate` and `unload`. Where the engine cannot support a feature (sampling for «Repetir 5 veces»), the interface is a labelled mock-up. GPU uses WebLLM; CPU uses Transformers.js with ONNX WebAssembly; there is no automatic backend fallback. The full description is in the snapshot of [spec.md](./spec.md).
+**The engine is not modified.** All comparison logic lives in `src/features/llmLab/compare/` and only calls `nextTokenAlternatives`, `generate` and `unload`. Where the engine cannot support a feature (sampling for «Repetir 5 veces»), the interface is a labelled mock-up. GPU uses WebLLM; CPU uses Transformers.js with ONNX WebAssembly; there is no automatic backend fallback. The full description is in the snapshot of [spec.md](./spec.md). The three tabs mirror the Lab CV's (tools, challenges, missions); the shared structure and the home page are in [`001-xai-lab/spec.md`](../001-xai-lab/spec.md).
 
 ## Technical Context
 
@@ -52,11 +52,11 @@ The Lab LLM at `/lab-llm` is a browser-local lab for learning explainable AI wit
 
 ## Current Architecture
 
-- **Page**: `src/features/llmLab/LlmLabPage.tsx` owns selected model/backend, the serialized load lifecycle, loading and error status, the three tabs, the sandbox, and the hand-off from a mission to a tab, a prepared case and an anchor. It locks the model controls while the comparator, lens or audit is running.
+- **Page**: `src/features/llmLab/LlmLabPage.tsx` owns selected model/backend, the serialized load lifecycle, loading and error status, the three tabs (`tools`, `challenges`, `missions`), the sandbox, and the hand-off from a mission to a tab, a prepared case and an anchor. It locks the model controls while the comparator, lens or audit is running.
 - **Engine contract**: `src/features/llmLab/llmEngine.ts` exposes `generate`, `nextTokenAlternatives`, backend identity and `unload`, with an abort signal and `LlmAbortedError`. Requests are serialized. Unchanged by the XAI features.
 - **Model catalog**: `src/features/llmLab/webllm.ts` maps Gemma, Llama and Qwen to GPU and CPU models and exposes `MODEL_DISPLAY_NAME`.
 - **Word analysis**: `src/features/llmLab/wordCompletion.ts` explores bounded top-k paths and aggregates path products; results cover explored paths only.
-- **Prompt exercises**: `src/features/llmLab/ReasoningChat.tsx`, parameterized by `reasoning`, `sentiment`, `bias`, `tutor` or `deception`.
+- **Prompt exercises**: `src/features/llmLab/ReasoningChat.tsx`, parameterized by `reasoning`, `sentiment`, `bias`, `tutor` or `deception`; all but `tutor` are rendered in «Retos».
 - **Comparison logic** (`src/features/llmLab/compare/`, pure and unit-tested):
   - `scoreOptions.ts`: closed-question prompt and per-letter probabilities from the first-token top 3.
   - `diffWords.ts`: word-level LCS diff and the 2-word warning threshold.
@@ -66,7 +66,7 @@ The Lab LLM at `/lab-llm` is a browser-local lab for learning explainable AI wit
   - `audit.ts`: the five name pairs, the audit run and its summary.
   - `experimentStore.ts`: the `ml4g-llm-lab` database.
 - **Comparison UI**: `ComparePanel.tsx` (both modes, verdict, saved experiments), `AuditPanel.tsx`, `WordLens.tsx`, `RepeatMockup.tsx`.
-- **Missions**: `src/features/llmLab/missions/missions.ts` (missions, targets, storage, card Markdown) and `LlmMissions.tsx`.
+- **Missions**: `src/features/llmLab/missions/missions.ts` (missions, targets — every target is now the `tools` tab —, storage, card Markdown) and `LlmMissions.tsx`.
 
 ## Current Project Structure
 
@@ -104,7 +104,8 @@ tests/e2e/{lab-llm-compare,lab-llm-missions}.spec.ts
 - Baseline: model and engine selectors, load progress, errors, retry, no automatic fallback; bounded word search; prompt exercises with caveated self-explanations; stop buttons; history in the deception exercise.
 - Step 1 of the XAI plan: A/B comparator with diff, bet, aligned results, bands, nine cases, «Ver el cálculo» and saved experiments.
 - Step 2: word lens and «¿Dice la verdad sobre sí mismo?».
-- Step 3: tabs, simple view, missions with local progress and downloadable card, 14+ example, tutor in «Extras».
+- Step 3: tabs, simple view, missions with local progress and downloadable card, 14+ example.
+- Reorganisation (2026-11-12): tabs renamed to «Herramientas», «Retos», «Misiones», like the Lab CV; the exercises moved to «Retos»; the tutor and «Extras» removed; examples updated in the merge (`67d20e0`).
 - Step 4: five-pair name audit, «Un prompt, dos modelos», «Repetir 5 veces» mock-up.
 
 ### Deferred roadmap
@@ -116,6 +117,7 @@ tests/e2e/{lab-llm-compare,lab-llm-missions}.spec.ts
 5. Attention visualisation only if the runtime can provide valid attention data; the word lens must not be relabelled as attention.
 6. Sync mission progress to accounts if the product wants it; today it is local to the device.
 7. Automated accessibility checks and real-device performance measurements for the Lab LLM.
+8. Merge the «Ficha XAI» mission with the home page's «Tu proyecto y la XAI», which asks overlapping questions.
 
 ## Current Risks and Mitigations
 

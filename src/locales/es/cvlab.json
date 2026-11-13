@@ -1,0 +1,116 @@
+{
+  "title": "Lab CV",
+  "intro": "Enseña a un modelo a reconocer imágenes y mira en qué se fija para decidir. Todo funciona en tu dispositivo.",
+  "tabs": {
+    "label": "Secciones del Lab CV",
+    "tools": "Herramientas",
+    "challenges": "Retos",
+    "missions": "Misiones"
+  },
+  "challenges": {
+    "title": "Retos con fotos preparadas",
+    "intro": "Cada reto trae un conjunto de fotos con una trampa escondida. Cárgalo, entrena el modelo en «Herramientas» y usa el mapa de calor para descubrir en qué se fija de verdad.",
+    "taskLabel": "Tu reto:",
+    "trapLabel": "Pista (ábrela cuando hayas probado)",
+    "checking": "Buscando las fotos…",
+    "missing": "Las fotos de este reto todavía no están. Quien prepare la web debe ponerlas en {{folder}} (ver public/datasets/README.md).",
+    "photos_one": "{{count}} foto preparada",
+    "photos_other": "{{count}} fotos preparadas",
+    "load": "Cargar el reto",
+    "loadingLabel": "Cargando el reto",
+    "loading": "{{done}} de {{total}} fotos",
+    "waitBackbone": "Espera a que el modelo base termine de cargarse.",
+    "failed": "No se ha podido cargar el reto. Vuelve a intentarlo.",
+    "testPhoto": "Prueba {{number}}",
+    "items": {
+      "huskyWolf": {
+        "title": "¿Husky o lobo?",
+        "topic": "Atajos: el fondo engaña",
+        "story": "Un modelo tiene que distinguir huskies de lobos. Acierta casi siempre… pero ¿mira al animal?",
+        "task": "Entrena el modelo y explica las fotos de prueba. ¿Qué parte de la foto colorea el mapa de calor?",
+        "trap": "En las fotos de entrenamiento todos los lobos están sobre nieve. El modelo puede aprender «nieve = lobo» y llamar lobo a un husky en la nieve. Es un atajo: acierta por el motivo equivocado.",
+        "projectName": "Reto: husky o lobo",
+        "classes": {
+          "husky": "Husky",
+          "wolf": "Lobo"
+        }
+      },
+      "fewCats": {
+        "title": "Muchos perros, pocos gatos",
+        "topic": "Datos desequilibrados",
+        "story": "Este conjunto tiene muchísimas fotos de perros y muy pocas de gatos.",
+        "task": "Entrena y mira los resultados por clase. ¿Acierta igual con los gatos que con los perros?",
+        "trap": "Con pocos ejemplos de una clase, el modelo tiende a responder la clase mayoritaria. La precisión total puede parecer buena aunque falle casi siempre con los gatos. Prueba a equilibrar las clases y vuelve a entrenar.",
+        "projectName": "Reto: perros y gatos",
+        "classes": {
+          "dog": "Perro",
+          "cat": "Gato"
+        }
+      },
+      "orangeBall": {
+        "title": "¿Naranja o pelota?",
+        "topic": "Color y forma",
+        "story": "Naranjas y pelotas: las dos son redondas. ¿En qué se fija el modelo para separarlas?",
+        "task": "Entrena el modelo y explica una pelota naranja. Compara el mapa de calor con la oclusión.",
+        "trap": "Si las pelotas del entrenamiento son de colores y las naranjas son naranjas, el modelo puede aprender solo el color. Una pelota naranja lo delata.",
+        "projectName": "Reto: naranja o pelota",
+        "classes": {
+          "orange": "Naranja",
+          "ball": "Pelota"
+        }
+      }
+    }
+  },
+  "missions": {
+    "title": "Misiones",
+    "intro": "Un recorrido por el Lab CV. Cada misión tiene algo que hacer y una pregunta para pensar. Tus respuestas se guardan solo en este dispositivo.",
+    "progressLabel": "Misiones conseguidas",
+    "progress": "{{done}} de {{total}}",
+    "done": "conseguida",
+    "pending": "pendiente",
+    "challengeLabel": "Qué hacer:",
+    "markDone": "La he conseguido",
+    "goTo": {
+      "tools": "Ir a «Herramientas»",
+      "challenges": "Ir a «Retos»"
+    },
+    "items": {
+      "teach": {
+        "title": "Enseña a ver",
+        "what": "Un modelo aprende de los ejemplos que le das, no de reglas.",
+        "challenge": "Crea una clase por cada cosa que quieras reconocer (mínimo 2), captura al menos 10 fotos de cada una y entrena.",
+        "question": "¿Qué crees que ha aprendido el modelo de tus fotos?"
+      },
+      "heatmap": {
+        "title": "Lee el mapa de calor",
+        "what": "El mapa de calor colorea las zonas de la imagen que más pesaron en la decisión.",
+        "challenge": "Congela una imagen y pide la explicación.",
+        "question": "¿Se fija el modelo en lo que esperabas? ¿Y si no, en qué?"
+      },
+      "shortcut": {
+        "title": "Caza un atajo",
+        "what": "A veces el modelo acierta por el motivo equivocado, como el fondo de la foto.",
+        "challenge": "Carga el reto «¿Husky o lobo?», entrena y explica las fotos de prueba.",
+        "question": "¿Qué atajo ha aprendido el modelo y cómo lo has descubierto?"
+      },
+      "imbalance": {
+        "title": "Equilibra los datos",
+        "what": "Si una clase tiene muchas más fotos que otra, el modelo puede ser injusto con la pequeña.",
+        "challenge": "Carga el reto «Muchos perros, pocos gatos», entrena, mira los resultados por clase y vuelve a entrenar con clases equilibradas.",
+        "question": "¿Qué cambió al equilibrar las clases? ¿A quién perjudicaría este fallo en una app real?"
+      },
+      "twoExplanations": {
+        "title": "Dos explicaciones",
+        "what": "El mapa de calor y la oclusión son dos formas distintas de explicar la misma decisión.",
+        "challenge": "Compara las dos explicaciones de la misma imagen.",
+        "question": "¿Coinciden? Si no, ¿de cuál te fías más y por qué?"
+      },
+      "fool": {
+        "title": "Engaña al modelo",
+        "what": "Romper un modelo a propósito es la mejor forma de ver sus límites.",
+        "challenge": "Busca una imagen que el modelo clasifique mal con mucha seguridad y explícala.",
+        "question": "¿Por qué se equivocó? ¿Qué fotos añadirías para arreglarlo?"
+      }
+    }
+  }
+}

@@ -70,7 +70,7 @@ async function withFakeEngine(page: Page): Promise<void> {
 async function openComparator(page: Page): Promise<void> {
   await withFakeEngine(page)
   await page.goto('/lab-llm')
-  await page.getByRole('tab', { name: /comparar dos prompts|compare two prompts/i }).click()
+  await page.getByRole('tab', { name: /herramientas|tools/i }).click()
   await expect(page.getByRole('button', { name: /^comparar$|^compare$/i })).toBeEnabled()
 }
 

@@ -4,7 +4,7 @@
 
 **Created**: 2026-08-17
 
-**Status**: Draft — amended 2026-08-17 for constitution v3.1.0 (invitation-only accounts)
+**Status**: Draft — amended 2026-08-17 for constitution v3.1.0 (invitation-only accounts); amended 2026-11-12 for the shared lab structure, the home page theory and the learning questionnaire (US10, US11)
 
 **Input**: User description: "A web app for the Technovation program where participants learn Explainable AI, in the spirit of Machine Learning for Kids and Teachable Machine. Learners capture images into several classes, fine-tune an image model on those captures, and test the model while seeing a heat map that explains the prediction. Accounts are created by invitation — an administrator invites educators, an educator invites her learners into a classroom — with a guided learning path and an educator dashboard. Training runs on the learner's own device."
 
@@ -21,6 +21,14 @@
 ### Session 2026-11-02
 
 - Q: How is the final model verdict of the comparison view produced? → A: In the browser, from the evidence already on screen: whether the prediction was correct, whether the strongest map is degenerate or diffuse, the agreement band between Grad-CAM and occlusion, and whether the evidence sits in the wrong area. No language model or external service is called (Principle II), so the verdict cannot contradict the visible evidence. It shows «pending» until there is evidence to judge, and lists the clues it used.
+
+### Session 2026-11-12
+
+- Q: How are the two labs organised, so the site reads as one product? → A: Both the Lab CV and the Lab LLM have the same three tabs: «Herramientas» (the instruments, used with the learner's own data), «Retos» (prepared cases with a hidden trap) and «Misiones» (a guided path with a task and a question for thinking each). Panels stay mounted, so switching tab never discards work.
+- Q: What are the Lab CV's challenges, and where do their photos come from? → A: Three prepared photo sets — «¿Husky o lobo?» (background shortcut), «Muchos perros, pocos gatos» (imbalance) and «¿Naranja o pelota?» (colour versus shape). The photos are supplied by the project team under a licence suitable for class use, placed in `public/datasets/<challenge>/` and listed in its `manifest.json`; none are bundled or downloaded by the application. Until they are in place, the challenge says so.
+- Q: What does the home page contain? → A: How the site works (five steps: starting quiz, theory, labs, project, final quiz, plus what each tab is for), the XAI theory (how a model learns, what XAI is, what a bias is, how a decision is explained, the limits of explanations), the «Tu proyecto y la XAI» questions and the way into the learning questionnaire. It is not specific to any programme.
+- Q: How are learning outcomes measured for research? → A: With a questionnaire taken twice, before using the labs (pre) and at the end (post), with the same items in the same order. Results stay on the device and are collected as a downloaded file (CSV, also JSON) that the learner hands in; nothing is sent to a server and no account is needed. The learner is identified only by an anonymous code given by the teacher.
+- Q: When does a learner see the correct answers? → A: Only after the post attempt, so that the pre attempt does not teach the answers.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -187,6 +195,44 @@ A program administrator signs in to a small administration area, invites an educ
 
 ---
 
+### User Story 10 - Find the same three tabs in both labs, and take on a challenge (Priority: P10)
+
+A learner opens the Lab CV and sees three tabs, the same as in the Lab LLM: «Herramientas», «Retos» and «Misiones». In «Retos» she picks «¿Husky o lobo?», reads the story, and loads it: a new project is created with the prepared photos, already in their classes, and she lands in «Herramientas». She trains, then explains the challenge's test photos — a husky in the snow — and the heat map lights up the snow. She opens the hint and reads that every wolf in the training set was on snow. In «Misiones» she ticks «Caza un atajo» and writes what shortcut the model learned.
+
+**Why this priority**: It turns the separate pieces of each lab into one path that reads the same in both, and gives the CV lab ready-made traps (US2, US3, US7) that a learner would otherwise have to stage herself. It depends on US1–US3 and on the team supplying photos.
+
+**Independent Test**: Testable by opening `/lab`, switching between the three tabs, loading a challenge whose photos are in place, training, explaining one of its test photos, and completing a mission whose state survives a reload.
+
+**Acceptance Scenarios**:
+
+1. **Given** either lab, **When** the learner looks at it, **Then** it offers the tabs «Herramientas», «Retos» and «Misiones», and switching tab never discards work in progress.
+2. **Given** a challenge whose photos are in place, **When** the learner loads it, **Then** a new project is created with the challenge's classes and photos, processed exactly as an upload, and the lab opens it in «Herramientas».
+3. **Given** a challenge whose photos are not in place, **When** the learner looks at it, **Then** it says that the photos are missing and where they go, and offers no load action.
+4. **Given** a project created from a challenge, **When** the learner is about to explain an image, **Then** the challenge's test photos are offered alongside freezing a camera frame, and she can also explain any photo from her device.
+5. **Given** the missions tab, **When** the learner ticks a mission or writes an answer and reloads, **Then** both are still there; «Ir a…» opens the tab the mission needs.
+
+---
+
+### User Story 11 - Learn the theory, connect it to my project, and show what I learned (Priority: P11)
+
+A learner arrives at the home page. It tells her how the site works in five steps, and the first step sends her to the questionnaire «¿Qué he aprendido?». She enters the code her teacher gave her, chooses «Antes de usar los laboratorios», answers twelve multiple-choice questions — choosing «No lo sé» where she does not know rather than guessing — four agreement statements and one open question, and downloads her result to hand in. She reads the theory on the home page, works through the labs, and answers the six «Tu proyecto y la XAI» questions about the app she is building. At the end she takes the questionnaire again as «Después», sees her score and the correct answer to each question, and downloads the second file. Her teacher collects both files and compares them.
+
+**Why this priority**: It gives the site a front door that explains it, ties the labs to the learner's own project, and produces evidence of learning that a researcher can analyse. It depends on the labs existing but on nothing about accounts.
+
+**Independent Test**: Testable entirely without an account: read the home page, fill in and download the project questions, complete a pre and a post attempt with the same code, and open both CSV files in a spreadsheet.
+
+**Acceptance Scenarios**:
+
+1. **Given** the home page, **When** a visitor reads it, **Then** it explains the five steps, what each lab tab is for, and the XAI theory (how a model learns, XAI, bias, ways of explaining, limits), without referring to any particular programme.
+2. **Given** the «Tu proyecto y la XAI» questions, **When** the learner writes answers and reloads, **Then** they are still there, and «Descargar mis respuestas» saves them as a text file.
+3. **Given** the questionnaire, **When** the learner types a code with spaces, accents or symbols, **Then** it is reduced to upper-case letters, digits and dashes, so no name slips in by accident.
+4. **Given** a pre attempt, **When** the learner finishes, **Then** she can download her result and is not shown the correct answers.
+5. **Given** a post attempt, **When** the learner finishes, **Then** she sees her score and the correct answer with a short explanation for each item, and can download her result.
+6. **Given** a downloaded CSV, **When** it is opened in a spreadsheet application, **Then** it holds one row with the questionnaire version, code, group, phase, language, start and finish times, duration, each item's chosen answer and a 0/1 correctness column, the score, the counts of «No lo sé» and blank items, the four agreement answers and the open answer, with accents intact.
+7. **Given** several learners on one shared device, **When** the teacher opens «Para el profesorado», **Then** she can download all attempts saved on that device in one CSV, and delete them after a confirmation.
+
+---
+
 ### Edge Cases
 
 - **Camera unavailable or denied**: no camera hardware, permission denied, or the camera is claimed by another application — the lab must explain the cause and offer file upload as an alternative sample source.
@@ -207,6 +253,11 @@ A program administrator signs in to a small administration area, invites an educ
 - **A reflection that looks like a spreadsheet formula**: a learner writes an answer beginning with `=`, `+`, `-`, or `@`, or containing commas, quotes, and line breaks. The export must preserve it as text and must not let it execute when an educator opens the file — untrusted text written by a child ends up in an adult's spreadsheet, so this is the one export path where the input is hostile by default.
 - **Identical class names, or a class renamed after training**: names must stay unambiguous, and results must remain correctly attributed after a rename.
 - **A class the model has never seen**: presented with an object matching no class, the model will still name one — the lab must make it possible for a learner to discover this, as it is a teaching point rather than a bug.
+
+- **Challenge photos missing or partly missing**: a challenge without its photos says so and cannot be loaded; a photo that fails to download or decode is skipped and counted, and the rest of the challenge still loads.
+- **Same participant code twice in one phase**: both attempts are kept and both carry their own timestamps; deduplication is the analysis's decision, not the application's.
+- **Questionnaire on a shared device**: attempts from several learners accumulate on the device until the teacher deletes them; each learner's own download contains only her attempt.
+- **Learner closes the page mid-questionnaire**: nothing is saved; an attempt exists only once she presses «Terminar».
 
 ## Requirements *(mandatory)*
 
@@ -287,6 +338,19 @@ A program administrator signs in to a small administration area, invites an educ
 - **FR-057**: An administrator MUST be able to reassign a classroom from one educator to another, so that deactivating an educator never leaves a group of learners unreadable by any adult. The receiving educator gains the same access she would have over a classroom she created herself.
 - **FR-058**: The system MUST record an append-only audit entry for each irreversible privileged action — deleting a learner's account, deactivating an educator, and reassigning a classroom — noting who acted, which action it was, which object it affected, and when. Reversible routine actions such as issuing or revoking an invitation are not recorded. An audit entry MUST NOT contain personal data, and the lab MUST NOT expose audit entries through any screen or export.
 
+**Lab structure, home page and learning questionnaire** *(added 2026-11-12)*
+
+- **FR-059**: Both labs MUST present the same three tabs, «Herramientas», «Retos» and «Misiones», keeping every panel mounted so that switching tab discards nothing.
+- **FR-060**: The Lab CV MUST offer prepared challenges, each with a story, a task, a hint revealed on demand, and photo sets read from `public/datasets/<challenge>/manifest.json`; loading one MUST create a new project whose photos go through the same crop and embedding as an upload.
+- **FR-061**: The application MUST NOT bundle or download challenge photos from anywhere other than its own `public/datasets/` folder, and MUST state plainly when a challenge's photos are missing.
+- **FR-062**: The explanation controls MUST accept a photo from the device and, for a project created from a challenge, that challenge's test photos, in addition to a frozen camera frame.
+- **FR-063**: The Lab CV MUST offer missions, each with a task, a question for thinking and a completion mark, kept on the device.
+- **FR-064**: The home page MUST explain how the site works and the XAI theory, and MUST contain the «Tu proyecto y la XAI» questions (technology and purpose, what it decides or recommends, who it affects, what XAI is, what a bias is, how XAI affects the project), kept on the device and downloadable.
+- **FR-065**: The application MUST offer a learning questionnaire with the same items in the same order for a pre and a post attempt, a «No lo sé» option on every multiple-choice item, agreement items on a 1–5 scale and one open question, all available without an account.
+- **FR-066**: The questionnaire MUST identify a learner only by an anonymous code restricted to letters, digits and dashes, and MUST NOT ask for a name or any other personal data.
+- **FR-067**: The questionnaire MUST NOT show correct answers after a pre attempt, and MUST show the score and the correct answers after a post attempt.
+- **FR-068**: Questionnaire results MUST stay on the device and leave it only as a file the learner or teacher downloads (CSV with one row per attempt, and JSON); every record MUST carry the questionnaire version, so that results from different versions are never pooled by mistake.
+
 **Cross-cutting**
 
 - **FR-044**: The lab MUST offer its interface in English by default and in Spanish by selection, persisting the learner's choice, with no untranslated user-facing text in either language.
@@ -314,6 +378,11 @@ A program administrator signs in to a small administration area, invites an educ
 - **Module**: A unit of the learning path with a learning goal, steps, a challenge, and reflection questions.
 - **Progress**: A learner's completion state for a module.
 - **Reflection**: A learner's own written answer to a module's question, readable by her educator.
+
+- **Challenge**: A prepared photo set for the Lab CV with a hidden trap — its classes, training photos and test photos, listed in a manifest beside the photos. Loading it creates an ordinary project; which project came from which challenge is remembered on the device.
+- **Mission (Lab CV)**: A step of the guided path inside the Lab CV, with the learner's completion mark and written answer, kept on the device.
+- **Project Questions**: The learner's answers to the six «Tu proyecto y la XAI» questions, kept on the device and downloadable as text.
+- **Questionnaire Attempt**: One completed pass of the learning questionnaire — questionnaire version, anonymous participant code, optional group code, phase (pre or post), language, start and finish times, the chosen option per item, agreement answers and the open answer. Kept on the device; leaves it only as a downloaded file.
 
 ## Success Criteria *(mandatory)*
 
@@ -357,5 +426,7 @@ A program administrator signs in to a small administration area, invites an educ
 - **Invitation code strength is a deliberate tradeoff**: 6 characters over a 32-symbol unambiguous alphabet is about 30 bits, chosen so a code can be dictated aloud in a classroom or written on a board without transcription errors — which is why the alphabet excludes `O`/`0` and `I`/`1`/`l`. At that length the rate limit is load-bearing rather than a secondary defence: roughly 360 guesses are available across a code's 72-hour life against about a billion possibilities. It must therefore be enforced where a modified client cannot remove it, and it carries its own test (SC-020). The exposure if a guess ever succeeded is bounded to one learner account in one classroom, which holds no personal data and no images, and whose unexpected redemption is visible to its educator.
 - **Learner identity holds no personal data**: A learner is a username and an alias. Because the authentication provider requires an address-shaped identifier, one is derived from the username in a domain that cannot receive mail; it is never displayed, never mailed, and is not a means of contact.
 - **First administrator**: The first administrator account exists because the system was installed with it, not because anything in the application created it.
+- **Learning questionnaire as a research instrument**: The items are a first draft by the project team and have not been validated; they must be reviewed (and the version bumped on any change) before results are used in research. The on-screen notice is generic; informed consent, and parental consent for minors, is obtained by the researcher outside the application. Collecting files rather than sending data keeps the application free of research data and of any server-side personal data.
+- **Audience of the shared structure**: The home page, the challenges and the questionnaire are written for learners aged 14 and over and do not refer to any particular programme.
 - **Data controller**: The school or program operating a classroom is the data controller for its learners and is responsible for obtaining whatever parental permission its jurisdiction requires, outside this application. The project's defensible position rests on collecting no learner personal data at all rather than on recording a consent decision it could not verify.
 - **Deletion**: Remote data is deleted by the educator, for a learner, or by the administrator deactivating an educator. Locally stored samples and models are on the learner's own device and are removed by her, or by clearing browser storage — the lab cannot reach them remotely, which is the intended consequence of keeping images local.

@@ -30,6 +30,7 @@ const Lab = lazy(() => import('@/features/capture/LabPage').then((m) => ({ defau
 const LlmLab = lazy(() =>
   import('@/features/llmLab/LlmLabPage').then((m) => ({ default: m.LlmLabPage })),
 )
+const Quiz = lazy(() => import('@/features/quiz/QuizPage').then((m) => ({ default: m.QuizPage })))
 const Lessons = lazy(() =>
   import('@/features/lessons/LessonsPage').then((m) => ({ default: m.LessonsPage })),
 )
@@ -61,6 +62,8 @@ export const router = createBrowserRouter([
       { path: 'lab/:projectId', element: <LearnerRoute>{<Lab />}</LearnerRoute> },
       { path: 'lab', element: <LearnerRoute>{<Lab />}</LearnerRoute> },
       { path: 'lab-llm', element: <LearnerRoute>{<LlmLab />}</LearnerRoute> },
+      // The learning questionnaire (pre and post). No account: the file is the result.
+      { path: 'quiz', element: <LearnerRoute>{<Quiz />}</LearnerRoute> },
 
       { path: 'lessons', element: <LearnerRoute>{<Lessons />}</LearnerRoute> },
       { path: 'lessons/:moduleId', element: <LearnerRoute>{<Lessons />}</LearnerRoute> },

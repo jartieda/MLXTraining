@@ -51,6 +51,13 @@ supabase/.branches/
 *.bin
 datasets/
 captures/
+# The Lab CV challenges' README and manifests are source; their photos are not committed
+# by default (see public/datasets/README.md).
+!public/datasets/
+public/datasets/**
+!public/datasets/**/
+!public/datasets/README.md
+!public/datasets/*/manifest.json
 
 # Backbone weights fetched by `npm run fetch:backbone` (T006) - large, reproducible, not source
 public/models/

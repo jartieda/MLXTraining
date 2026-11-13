@@ -1,0 +1,278 @@
+{
+  "hero": {
+    "title": "Explainable AI Lab",
+    "body": "Learn how artificial intelligence models decide and why you should not trust them blindly. You will train a model that recognises images, look inside a language model and apply what you learn to your own project."
+  },
+  "how": {
+    "title": "How this site works",
+    "intro": "Follow these steps in order. You do not need an account: everything runs and is saved on your device.",
+    "steps": {
+      "quizBefore": {
+        "title": "Starting quiz",
+        "body": "Answer the “What have I learned?” quiz before you start. It is fine not to know the answers."
+      },
+      "theory": {
+        "title": "A bit of theory",
+        "body": "Read what explainable AI is, what a bias is and how a decision is explained. It is further down this page."
+      },
+      "labs": {
+        "title": "The labs",
+        "body": "Practise in the Lab CV (images) and the Lab LLM (text). Both have the same three tabs."
+      },
+      "project": {
+        "title": "Your project",
+        "body": "Answer the “Your project and XAI” questions thinking about what you are building."
+      },
+      "quizAfter": {
+        "title": "Final quiz",
+        "body": "Answer the quiz again when you finish and hand in the file it downloads."
+      }
+    },
+    "tabsTitle": "The three tabs of each lab",
+    "tabs": {
+      "tools": "Tools: the instruments for looking inside the model, to use with your own data.",
+      "challenges": "Challenges: prepared cases with a hidden trap, like the husky in the snow or a question about something that does not exist.",
+      "missions": "Missions: a guided path with tasks and questions to think about. Tick the ones you complete."
+    }
+  },
+  "quizCallout": {
+    "title": "Quiz: what have I learned?",
+    "body": "Answer it twice: before using the labs and when you finish. There are 12 multiple-choice questions and a few about you; it takes about 10 minutes. At the end you download a file to hand in.",
+    "cta": "Go to the quiz"
+  },
+  "theory": {
+    "title": "Explainable AI theory",
+    "whatIsAi": {
+      "title": "How does an AI model learn?",
+      "paragraphs": [
+        "A machine-learning model does not follow rules written by a person: it learns from examples. If you show it many photos of dogs and cats, it looks for patterns in the pixels that help it tell them apart.",
+        "The problem is that we do not know in advance which patterns it found. It may look at the shape of the ears… or at the fact that every cat photo was taken on the sofa.",
+        "Language models, like chatbots, learn from huge amounts of text. To answer, they work out which word is most likely to come next, one after another."
+      ]
+    },
+    "whatIsXai": {
+      "title": "What is explainable AI (XAI)?",
+      "paragraphs": [
+        "Explainable AI (XAI) is the set of techniques that help us understand why a model gives a particular answer.",
+        "It helps to find mistakes and biases before trusting the model, lets the people using an app know why it recommends something, and makes it possible to challenge an automatic decision that harms them.",
+        "A good explanation is understandable to its reader, faithful to what the model really did and honest about its limits."
+      ]
+    },
+    "whatIsBias": {
+      "title": "What is a bias?",
+      "paragraphs": [
+        "A bias is a systematic tendency of a model to treat certain cases or groups of people differently without a good reason.",
+        "It nearly always comes from the data: if the examples contain many more cases of one kind, or if the data reflects society’s prejudices, the model learns them and repeats them.",
+        "Examples: an image recogniser that fails more often with dark-skinned people because it saw few of them in training, or a language model that rates the same job application differently depending on the person’s name.",
+        "Finding a bias means measuring: change one thing only (the name, the photo’s background) and compare the answers, and look at the accuracy for each group, not just the total."
+      ]
+    },
+    "howToExplain": {
+      "title": "How is a decision explained?",
+      "paragraphs": [
+        "Heat map: colours the parts of an image that weighed most in the decision. If it colours the background and not the object, the model has learned a shortcut.",
+        "Occlusion: hides parts of the input (a piece of the photo, a word of the text) and measures how much the answer changes. If hiding something changes the answer a lot, that something mattered.",
+        "Comparing two inputs: change one thing only and see whether the answer changes. It is the clearest way to test for a bias or see how sensitive a model is to how you ask.",
+        "Probabilities: a model does not just give an answer, it also gives how much it “bets” on it. Looking at the alternatives tells you whether it was sure or hesitant.",
+        "Self-explanation: asking a chatbot to explain its answer. Careful: that explanation is more generated text and may not match what really influenced it. Check it with the other techniques."
+      ]
+    },
+    "limits": {
+      "title": "The limits of explanations",
+      "paragraphs": [
+        "An explanation is also a model of what happened, not the whole truth. Two techniques may disagree, and that is information too.",
+        "A model being very sure does not mean it is right. And being right most of the time overall does not mean it is fair to every group.",
+        "So the key question is not just “is it right?”, but “is it right for the right reason, and for everyone?”."
+      ]
+    }
+  },
+  "project": {
+    "title": "Your project and XAI",
+    "intro": "Think about the app or project you are building and answer. Your answers are kept on this device only and you can download them.",
+    "questions": {
+      "technology": {
+        "label": "What kind of technology do you use, and what for?",
+        "hint": "For example: a model that recognises images to sort rubbish, or a chatbot that answers questions."
+      },
+      "decides": {
+        "label": "What does your project decide or recommend?",
+        "hint": "For example: which bin to use, which song to listen to or whether a message is offensive."
+      },
+      "affects": {
+        "label": "Who is affected by this decision?",
+        "hint": "Who uses your project and who could be harmed if it gets it wrong."
+      },
+      "whatIsXai": {
+        "label": "What is XAI?",
+        "hint": "Explain it in your own words, as you would to a classmate."
+      },
+      "whatIsBias": {
+        "label": "What is a bias?",
+        "hint": "Give an example of a bias a project like yours could have."
+      },
+      "xaiInProject": {
+        "label": "How does XAI affect your project?",
+        "hint": "What explanation would you give the people using it, and how would you check your model has no biases?"
+      }
+    },
+    "progress": "{{done}} of {{total}} answered",
+    "download": "Download my answers",
+    "downloaded": "Answers downloaded.",
+    "fileName": "my-project-and-xai.md",
+    "fileTitle": "My project and XAI",
+    "empty": "Not answered"
+  },
+  "quiz": {
+    "back": "Back to home",
+    "title": "Quiz: what have I learned?",
+    "intro": "Answer it before using the labs and again when you finish. If you do not know an answer, choose “I don’t know”: it is better than guessing.",
+    "research": "This quiz is used in research on how explainable AI is learned. Do not write your name: use the code your teacher gives you. Your answers only leave this device if you download the file and hand it in. You may leave questions unanswered.",
+    "participantLabel": "Your code",
+    "participantHint": "The one your teacher gave you (letters, numbers and dashes only). Use the same code at the start and at the end.",
+    "groupLabel": "Group code (optional)",
+    "groupHint": "For example, the class or the workshop.",
+    "phaseLabel": "When are you doing it?",
+    "phase": {
+      "pre": "Before using the labs",
+      "post": "After using the labs"
+    },
+    "start": "Start",
+    "who": "Code {{participant}} · {{phase}}",
+    "idk": "I don’t know",
+    "items": {
+      "q1": {
+        "question": "What is explainable AI (XAI) for?",
+        "a": "Making AI answer faster.",
+        "b": "Understanding why a model gives a particular answer.",
+        "c": "Making AI never wrong.",
+        "d": "Making AI talk more naturally.",
+        "why": "XAI does not make the model perfect: it helps to understand its decisions to find mistakes and biases."
+      },
+      "q2": {
+        "question": "A heat map on a photo of a dog mostly colours the grass in the background, not the dog. What does that mean?",
+        "a": "The model works perfectly.",
+        "b": "The decision depended mostly on the background.",
+        "c": "The photo is badly taken.",
+        "d": "The model did not see the photo.",
+        "why": "The heat map marks what weighed most in the decision: here the model looks at the grass, not the dog."
+      },
+      "q3": {
+        "question": "A model tells wolves from huskies 95% of the time, but in every training photo the wolves were on snow. What is most likely?",
+        "a": "It learned to detect snow instead of the animal.",
+        "b": "95% guarantees it looks at the animal.",
+        "c": "It learned the shape of the ears.",
+        "d": "Snow does not matter because it is only background.",
+        "why": "It is a shortcut: right for the wrong reason. A husky in the snow would give it away."
+      },
+      "q4": {
+        "question": "What is a bias in an AI model?",
+        "a": "A programming error that makes it crash.",
+        "b": "A systematic tendency to treat certain cases or groups differently without a good reason.",
+        "c": "Taking a long time to answer.",
+        "d": "Giving a different answer each time.",
+        "why": "A bias is systematic (it repeats) and treats some cases or groups differently without justification."
+      },
+      "q5": {
+        "question": "You train a model with 100 photos of dogs and 5 of cats. What is most likely?",
+        "a": "It is equally good with dogs and cats.",
+        "b": "It makes more mistakes with cats.",
+        "c": "It makes more mistakes with dogs.",
+        "d": "It cannot be trained.",
+        "why": "With few examples of a class, the model tends to answer the majority class."
+      },
+      "q6": {
+        "question": "A model is right 90% of the time overall. Is that enough to know it is fair?",
+        "a": "Yes, 90% is very high.",
+        "b": "No: you must look at the accuracy of each group or class separately.",
+        "c": "Yes, as long as it is above 80%.",
+        "d": "No: it must be trained for longer.",
+        "why": "The total can hide that it fails a lot with a small group."
+      },
+      "q7": {
+        "question": "You cover part of an image and the model’s confidence in its answer drops a lot. What does that tell you?",
+        "a": "That part was important for the decision.",
+        "b": "That part did not matter.",
+        "c": "The model is broken.",
+        "d": "You need to take another photo.",
+        "why": "That is occlusion: if removing something changes the answer a lot, it weighed in the decision."
+      },
+      "q8": {
+        "question": "What does a language model, such as a chatbot, do to write an answer?",
+        "a": "It looks the answer up on the internet.",
+        "b": "It works out which word is most likely to come next, one after another.",
+        "c": "It copies an answer it had stored.",
+        "d": "It understands the text just like a person.",
+        "why": "It generates text word by word (token by token), choosing among the most likely ones."
+      },
+      "q9": {
+        "question": "You ask a chatbot to explain why it answered something. How should you take that explanation?",
+        "a": "As the exact description of how it decided.",
+        "b": "As more generated text that may not match what really influenced it: check it.",
+        "c": "As always false.",
+        "d": "As reliable only if it is long.",
+        "why": "A self-explanation is more generated text. It may or may not be right; you check it by measuring, for instance by removing words."
+      },
+      "q10": {
+        "question": "You ask a chatbot about a book that does not exist and it gives you the author and a summary. What happened?",
+        "a": "The book exists, you just did not know it.",
+        "b": "It hallucinated: it made up information that looks believable.",
+        "c": "It searched a library.",
+        "d": "It spotted that it was a trick question.",
+        "why": "A hallucination is a made-up answer that looks convincing."
+      },
+      "q11": {
+        "question": "You change only the person’s name in a question (for example, Lucía to Javier) and the model’s answer changes a lot. What does that suggest?",
+        "a": "Nothing: models answer at random.",
+        "b": "A possible bias linked to the name (for example, gender or origin).",
+        "c": "The model has broken.",
+        "d": "The name was too long.",
+        "why": "If only the name changes and the answer changes, the name is having an influence: measure it with more pairs."
+      },
+      "q12": {
+        "question": "A model says it is 99% sure of its answer. What does that mean?",
+        "a": "The answer is definitely right.",
+        "b": "The model assigns that probability to its answer; it can be very sure and still be wrong.",
+        "c": "It checked on the internet.",
+        "d": "99 people agree.",
+        "why": "Confidence is a probability the model computes, not a guarantee of being right."
+      }
+    },
+    "likertTitle": "About you",
+    "likertIntro": "Mark how much you agree with each sentence. There are no right answers.",
+    "likert": {
+      "l1": "I can explain what explainable AI (XAI) is.",
+      "l2": "I know how to check whether an AI model has a bias.",
+      "l3": "I trust an AI’s answers without checking them.",
+      "l4": "I could explain how the AI in my project makes decisions."
+    },
+    "scale": {
+      "1": "Not at all",
+      "2": "A little",
+      "3": "Somewhat",
+      "4": "Quite",
+      "5": "Completely"
+    },
+    "openQuestion": "Explain in your own words what explainable AI is and what it is for.",
+    "unanswered_one": "{{count}} multiple-choice question is still unanswered. You can finish anyway.",
+    "unanswered_other": "{{count}} multiple-choice questions are still unanswered. You can finish anyway.",
+    "finish": "Finish",
+    "doneTitle": "Thank you!",
+    "doneBody": {
+      "pre": "Done. When you finish the labs you will answer the same questions again to see what you have learned.",
+      "post": "Done. Below are your result and the correct answer to each question."
+    },
+    "handIn": "Download the file and hand it in to your teacher:",
+    "downloadCsv": "Download result (CSV)",
+    "downloadJson": "Download (JSON)",
+    "score": "You got {{correct}} of {{total}} right",
+    "right": "Correct:",
+    "wrong": "The correct answer was:",
+    "teacher": {
+      "title": "For teachers",
+      "body": "If the whole group uses this same device, you can download every quiz saved on it here in a single CSV (one row per quiz). There are {{count}} now.",
+      "downloadAll": "Download all (CSV)",
+      "clear": "Delete the ones on this device",
+      "clearConfirm": "Delete the {{count}} quizzes saved on this device? This cannot be undone: download them first."
+    }
+  }
+}

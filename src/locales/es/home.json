@@ -1,0 +1,278 @@
+{
+  "hero": {
+    "title": "Laboratorio de IA explicable",
+    "body": "Aprende cómo deciden los modelos de inteligencia artificial y por qué no hay que creerlos a ciegas. Entrenarás un modelo que reconoce imágenes, mirarás dentro de un modelo de lenguaje y aplicarás lo aprendido a tu propio proyecto."
+  },
+  "how": {
+    "title": "Cómo funciona esta web",
+    "intro": "Sigue estos pasos en orden. No necesitas cuenta: todo funciona y se guarda en tu dispositivo.",
+    "steps": {
+      "quizBefore": {
+        "title": "Cuestionario inicial",
+        "body": "Contesta el cuestionario «¿Qué he aprendido?» antes de empezar. No pasa nada si no sabes las respuestas."
+      },
+      "theory": {
+        "title": "Un poco de teoría",
+        "body": "Lee qué es la IA explicable, qué es un sesgo y cómo se explica una decisión. Está más abajo en esta página."
+      },
+      "labs": {
+        "title": "Los laboratorios",
+        "body": "Practica en el Lab CV (imágenes) y en el Lab LLM (texto). Los dos tienen las mismas tres pestañas."
+      },
+      "project": {
+        "title": "Tu proyecto",
+        "body": "Responde las preguntas de «Tu proyecto y la XAI» pensando en lo que estás construyendo."
+      },
+      "quizAfter": {
+        "title": "Cuestionario final",
+        "body": "Vuelve a contestar el cuestionario al terminar y entrega el archivo que se descarga."
+      }
+    },
+    "tabsTitle": "Las tres pestañas de cada laboratorio",
+    "tabs": {
+      "tools": "Herramientas: los instrumentos para mirar dentro del modelo, para usarlos con tus propios datos.",
+      "challenges": "Retos: casos preparados con una trampa escondida, como el husky en la nieve o una pregunta sobre algo que no existe.",
+      "missions": "Misiones: un recorrido guiado con tareas y preguntas para pensar. Marca las que consigas."
+    }
+  },
+  "quizCallout": {
+    "title": "Cuestionario: ¿qué he aprendido?",
+    "body": "Contéstalo dos veces: antes de usar los laboratorios y al terminar. Son 12 preguntas tipo test y unas pocas sobre ti; se tarda unos 10 minutos. Al final descargas un archivo para entregarlo.",
+    "cta": "Ir al cuestionario"
+  },
+  "theory": {
+    "title": "Teoría de la IA explicable",
+    "whatIsAi": {
+      "title": "¿Cómo aprende un modelo de IA?",
+      "paragraphs": [
+        "Un modelo de aprendizaje automático no sigue reglas escritas por una persona: aprende a partir de ejemplos. Si le enseñas muchas fotos de perros y de gatos, busca patrones en los píxeles que le ayuden a separarlas.",
+        "El problema es que no sabemos de antemano qué patrones ha encontrado. Puede fijarse en la forma de las orejas… o en que todas las fotos de gatos se hicieron en el sofá.",
+        "Los modelos de lenguaje, como los chatbots, aprenden de enormes cantidades de texto. Para responder, calculan qué palabra es más probable que venga después, una tras otra."
+      ]
+    },
+    "whatIsXai": {
+      "title": "¿Qué es la IA explicable (XAI)?",
+      "paragraphs": [
+        "La IA explicable (XAI, del inglés «Explainable AI») es el conjunto de técnicas que nos ayudan a entender por qué un modelo da una respuesta concreta.",
+        "Sirve para detectar errores y sesgos antes de confiar en el modelo, para que quien usa una app sepa por qué le recomienda algo y para poder reclamar si una decisión automática le perjudica.",
+        "Una buena explicación es comprensible para quien la lee, fiel a lo que de verdad hizo el modelo y honesta sobre sus límites."
+      ]
+    },
+    "whatIsBias": {
+      "title": "¿Qué es un sesgo?",
+      "paragraphs": [
+        "Un sesgo es una tendencia sistemática del modelo a tratar de forma distinta a ciertos casos o grupos de personas sin un buen motivo.",
+        "Casi siempre viene de los datos: si en los ejemplos hay muchos más casos de un tipo, o si los datos reflejan prejuicios de la sociedad, el modelo los aprende y los repite.",
+        "Ejemplos: un reconocedor de imágenes que falla más con personas de piel oscura porque vio pocas en el entrenamiento, o un modelo de lenguaje que valora distinto la misma candidatura según el nombre de la persona.",
+        "Para encontrar un sesgo hay que medir: cambiar una sola cosa (el nombre, el fondo de la foto) y comparar las respuestas, y mirar los aciertos de cada grupo, no solo el total."
+      ]
+    },
+    "howToExplain": {
+      "title": "¿Cómo se explica una decisión?",
+      "paragraphs": [
+        "Mapa de calor: colorea las zonas de una imagen que más pesaron en la decisión. Si colorea el fondo y no el objeto, el modelo ha aprendido un atajo.",
+        "Oclusión: tapa partes de la entrada (un trozo de la foto, una palabra del texto) y mide cuánto cambia la respuesta. Si al tapar algo la respuesta cambia mucho, ese algo era importante.",
+        "Comparar dos entradas: cambia una sola cosa y mira si la respuesta cambia. Es la forma más clara de probar un sesgo o ver lo sensible que es un modelo a cómo le preguntas.",
+        "Probabilidades: un modelo no solo da una respuesta, también cuánto «apuesta» por ella. Mirar las alternativas te dice si estaba seguro o dudaba.",
+        "Autoexplicación: pedirle a un chatbot que explique su respuesta. Cuidado: esa explicación es otro texto generado y puede no coincidir con lo que de verdad influyó. Hay que comprobarla con las otras técnicas."
+      ]
+    },
+    "limits": {
+      "title": "Los límites de las explicaciones",
+      "paragraphs": [
+        "Una explicación también es un modelo de lo que pasó, no la verdad completa. Dos técnicas pueden no estar de acuerdo, y eso también es información.",
+        "Que un modelo esté muy seguro no significa que acierte. Y que acierte mucho en total no significa que sea justo con todos los grupos.",
+        "Por eso la pregunta clave no es solo «¿acierta?», sino «¿acierta por el motivo correcto y para todas las personas?»."
+      ]
+    }
+  },
+  "project": {
+    "title": "Tu proyecto y la XAI",
+    "intro": "Piensa en la app o el proyecto que estás construyendo y responde. Tus respuestas se guardan solo en este dispositivo y puedes descargarlas.",
+    "questions": {
+      "technology": {
+        "label": "¿Qué tipo de tecnología usas y para qué?",
+        "hint": "Por ejemplo: un modelo que reconoce imágenes para clasificar residuos, o un chatbot que responde dudas."
+      },
+      "decides": {
+        "label": "¿Qué decide o recomienda tu proyecto?",
+        "hint": "Por ejemplo: qué contenedor usar, qué canción escuchar o si un mensaje es ofensivo."
+      },
+      "affects": {
+        "label": "¿A quién afecta esta decisión?",
+        "hint": "Quién usa tu proyecto y quién puede salir perjudicado si se equivoca."
+      },
+      "whatIsXai": {
+        "label": "¿Qué es la XAI?",
+        "hint": "Explícalo con tus palabras, como se lo contarías a alguien de tu clase."
+      },
+      "whatIsBias": {
+        "label": "¿Qué es un sesgo?",
+        "hint": "Pon un ejemplo de sesgo que podría tener un proyecto como el tuyo."
+      },
+      "xaiInProject": {
+        "label": "¿Cómo afecta la XAI a tu proyecto?",
+        "hint": "Qué explicación darías a quien lo usa y cómo comprobarías que tu modelo no tiene sesgos."
+      }
+    },
+    "progress": "{{done}} de {{total}} respondidas",
+    "download": "Descargar mis respuestas",
+    "downloaded": "Respuestas descargadas.",
+    "fileName": "mi-proyecto-y-la-xai.md",
+    "fileTitle": "Mi proyecto y la XAI",
+    "empty": "Sin responder"
+  },
+  "quiz": {
+    "back": "Volver al inicio",
+    "title": "Cuestionario: ¿qué he aprendido?",
+    "intro": "Contéstalo antes de usar los laboratorios y otra vez al terminar. Si no sabes una respuesta, elige «No lo sé»: es mejor que adivinar.",
+    "research": "Este cuestionario se usa en una investigación sobre cómo se aprende IA explicable. No escribas tu nombre: usa el código que te dé tu profesor o profesora. Tus respuestas solo salen de este dispositivo si descargas el archivo y lo entregas. Puedes dejar preguntas sin contestar.",
+    "participantLabel": "Tu código",
+    "participantHint": "El que te ha dado tu profesor o profesora (solo letras, números y guiones). Usa el mismo código al principio y al final.",
+    "groupLabel": "Código del grupo (opcional)",
+    "groupHint": "Por ejemplo, la clase o el taller.",
+    "phaseLabel": "¿Cuándo lo estás haciendo?",
+    "phase": {
+      "pre": "Antes de usar los laboratorios",
+      "post": "Después de usar los laboratorios"
+    },
+    "start": "Empezar",
+    "who": "Código {{participant}} · {{phase}}",
+    "idk": "No lo sé",
+    "items": {
+      "q1": {
+        "question": "¿Qué busca la IA explicable (XAI)?",
+        "a": "Que la IA responda más rápido.",
+        "b": "Entender por qué un modelo da una respuesta concreta.",
+        "c": "Que la IA no se equivoque nunca.",
+        "d": "Que la IA hable de forma más natural.",
+        "why": "La XAI no hace al modelo perfecto: ayuda a entender sus decisiones para detectar errores y sesgos."
+      },
+      "q2": {
+        "question": "Un mapa de calor sobre la foto de un perro colorea sobre todo el césped del fondo, no el perro. ¿Qué significa?",
+        "a": "Que el modelo funciona perfectamente.",
+        "b": "Que la decisión dependió sobre todo del fondo.",
+        "c": "Que la foto está mal hecha.",
+        "d": "Que el modelo no ha visto la foto.",
+        "why": "El mapa de calor marca lo que más pesó en la decisión: aquí el modelo se fija en el césped, no en el perro."
+      },
+      "q3": {
+        "question": "Un modelo distingue lobos de huskies con un 95 % de aciertos, pero en todas las fotos de entrenamiento los lobos estaban sobre nieve. ¿Qué es lo más probable?",
+        "a": "Que haya aprendido a detectar la nieve en lugar del animal.",
+        "b": "Que el 95 % garantice que mira al animal.",
+        "c": "Que haya aprendido la forma de las orejas.",
+        "d": "Que la nieve no influya porque es solo el fondo.",
+        "why": "Es un atajo: el modelo acierta por el motivo equivocado. Un husky en la nieve lo delataría."
+      },
+      "q4": {
+        "question": "¿Qué es un sesgo en un modelo de IA?",
+        "a": "Un error de programación que hace que se bloquee.",
+        "b": "Una tendencia sistemática a tratar de forma distinta a ciertos casos o grupos sin un buen motivo.",
+        "c": "Que tarde mucho en responder.",
+        "d": "Que dé respuestas diferentes cada vez.",
+        "why": "Un sesgo es sistemático (se repite) y trata distinto a unos casos o grupos sin justificación."
+      },
+      "q5": {
+        "question": "Entrenas un modelo con 100 fotos de perros y 5 de gatos. ¿Qué es lo más probable?",
+        "a": "Que acierte igual con perros y con gatos.",
+        "b": "Que falle más con los gatos.",
+        "c": "Que falle más con los perros.",
+        "d": "Que no se pueda entrenar.",
+        "why": "Con pocos ejemplos de una clase, el modelo tiende a responder la clase mayoritaria."
+      },
+      "q6": {
+        "question": "Un modelo acierta el 90 % de las veces en total. ¿Basta eso para saber que es justo?",
+        "a": "Sí, un 90 % es muy alto.",
+        "b": "No: hay que mirar los aciertos de cada grupo o clase por separado.",
+        "c": "Sí, siempre que pase del 80 %.",
+        "d": "No: hay que entrenarlo durante más tiempo.",
+        "why": "El total puede esconder que falla mucho con un grupo pequeño."
+      },
+      "q7": {
+        "question": "Tapas una parte de una imagen y la seguridad del modelo en su respuesta baja mucho. ¿Qué te dice?",
+        "a": "Que esa parte era importante para la decisión.",
+        "b": "Que esa parte no importaba.",
+        "c": "Que el modelo está roto.",
+        "d": "Que hay que hacer otra foto.",
+        "why": "Es la idea de la oclusión: si quitar algo cambia mucho la respuesta, ese algo pesaba en la decisión."
+      },
+      "q8": {
+        "question": "¿Qué hace un modelo de lenguaje, como un chatbot, para escribir una respuesta?",
+        "a": "Busca la respuesta en internet.",
+        "b": "Calcula qué palabra es más probable que venga después, una tras otra.",
+        "c": "Copia una respuesta que tenía guardada.",
+        "d": "Entiende el texto igual que una persona.",
+        "why": "Genera el texto palabra a palabra (token a token) eligiendo entre las más probables."
+      },
+      "q9": {
+        "question": "Le pides a un chatbot que explique por qué ha respondido algo. ¿Cómo debes tomar esa explicación?",
+        "a": "Como la descripción exacta de cómo decidió.",
+        "b": "Como otro texto generado que puede no coincidir con lo que influyó de verdad: hay que comprobarla.",
+        "c": "Como algo siempre falso.",
+        "d": "Como fiable solo si es larga.",
+        "why": "La autoexplicación es más texto generado. Puede acertar o no; se comprueba midiendo, por ejemplo quitando palabras."
+      },
+      "q10": {
+        "question": "Preguntas a un chatbot por un libro que no existe y te da el autor y un resumen. ¿Qué ha pasado?",
+        "a": "El libro existe, pero tú no lo conocías.",
+        "b": "Ha alucinado: se ha inventado información que parece creíble.",
+        "c": "Ha buscado en una biblioteca.",
+        "d": "Ha detectado que era una pregunta trampa.",
+        "why": "Una alucinación es una respuesta inventada con apariencia convincente."
+      },
+      "q11": {
+        "question": "Cambias solo el nombre de la persona en una pregunta (por ejemplo, Lucía por Javier) y la respuesta del modelo cambia mucho. ¿Qué indica?",
+        "a": "Nada: los modelos responden al azar.",
+        "b": "Un posible sesgo asociado al nombre (por ejemplo, de género u origen).",
+        "c": "Que el modelo se ha estropeado.",
+        "d": "Que el nombre era demasiado largo.",
+        "why": "Si solo cambia el nombre y cambia la respuesta, el nombre está influyendo: hay que medirlo con más pares."
+      },
+      "q12": {
+        "question": "Un modelo dice que está seguro al 99 % de su respuesta. ¿Qué significa?",
+        "a": "Que la respuesta es correcta seguro.",
+        "b": "Que el modelo asigna esa probabilidad a su respuesta; puede estar muy seguro y equivocarse.",
+        "c": "Que lo ha comprobado en internet.",
+        "d": "Que 99 personas están de acuerdo.",
+        "why": "La seguridad es una probabilidad que calcula el modelo, no una garantía de acierto."
+      }
+    },
+    "likertTitle": "Sobre ti",
+    "likertIntro": "Marca lo de acuerdo que estás con cada frase. No hay respuestas correctas.",
+    "likert": {
+      "l1": "Sé explicar qué es la IA explicable (XAI).",
+      "l2": "Sé comprobar si un modelo de IA tiene un sesgo.",
+      "l3": "Me fío de las respuestas de una IA sin comprobarlas.",
+      "l4": "Sabría explicar cómo decide la IA que uso en mi proyecto."
+    },
+    "scale": {
+      "1": "Nada",
+      "2": "Poco",
+      "3": "Algo",
+      "4": "Bastante",
+      "5": "Totalmente"
+    },
+    "openQuestion": "Explica con tus palabras qué es la IA explicable y para qué sirve.",
+    "unanswered_one": "Te queda {{count}} pregunta tipo test sin contestar. Puedes terminar igualmente.",
+    "unanswered_other": "Te quedan {{count}} preguntas tipo test sin contestar. Puedes terminar igualmente.",
+    "finish": "Terminar",
+    "doneTitle": "¡Gracias!",
+    "doneBody": {
+      "pre": "Ya está. Al terminar los laboratorios volverás a contestar las mismas preguntas para ver qué has aprendido.",
+      "post": "Ya está. Abajo tienes tu resultado y la respuesta correcta de cada pregunta."
+    },
+    "handIn": "Descarga el archivo y entrégaselo a tu profesor o profesora:",
+    "downloadCsv": "Descargar resultado (CSV)",
+    "downloadJson": "Descargar (JSON)",
+    "score": "Has acertado {{correct}} de {{total}}",
+    "right": "Correcto:",
+    "wrong": "La respuesta correcta era:",
+    "teacher": {
+      "title": "Para el profesorado",
+      "body": "Si todo el grupo usa este mismo dispositivo, aquí puedes descargar todos los cuestionarios guardados en él en un solo CSV (una fila por cuestionario). Ahora hay {{count}}.",
+      "downloadAll": "Descargar todos (CSV)",
+      "clear": "Borrar los de este dispositivo",
+      "clearConfirm": "¿Borrar los {{count}} cuestionarios guardados en este dispositivo? No se puede deshacer: descárgalos antes."
+    }
+  }
+}
