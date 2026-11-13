@@ -14,6 +14,8 @@ import enAuth from '@/locales/en/auth.json'
 import enClassroom from '@/locales/en/classroom.json'
 import enAdmin from '@/locales/en/admin.json'
 import enLlm from '@/locales/en/llm.json'
+import enCvlab from '@/locales/en/cvlab.json'
+import enHome from '@/locales/en/home.json'
 
 import esCommon from '@/locales/es/common.json'
 import esProjects from '@/locales/es/projects.json'
@@ -26,6 +28,8 @@ import esAuth from '@/locales/es/auth.json'
 import esClassroom from '@/locales/es/classroom.json'
 import esAdmin from '@/locales/es/admin.json'
 import esLlm from '@/locales/es/llm.json'
+import esCvlab from '@/locales/es/cvlab.json'
+import esHome from '@/locales/es/home.json'
 
 /**
  * T012 / R11 / FR-044 — internationalisation.
@@ -60,6 +64,8 @@ export const EAGER_NAMESPACES = [
   'classroom',
   'admin',
   'llm',
+  'cvlab',
+  'home',
 ] as const
 export type Namespace = (typeof EAGER_NAMESPACES)[number] | 'lessons'
 
@@ -82,6 +88,8 @@ export const resources = {
     classroom: enClassroom,
     admin: enAdmin,
     llm: enLlm,
+    cvlab: enCvlab,
+    home: enHome,
   },
   es: {
     common: esCommon,
@@ -95,6 +103,8 @@ export const resources = {
     classroom: esClassroom,
     admin: esAdmin,
     llm: esLlm,
+    cvlab: esCvlab,
+    home: esHome,
   },
 } as const
 

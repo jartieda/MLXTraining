@@ -1,0 +1,116 @@
+{
+  "title": "Lab CV",
+  "intro": "Teach a model to recognise images and see what it looks at to decide. Everything runs on your device.",
+  "tabs": {
+    "label": "Lab CV sections",
+    "tools": "Tools",
+    "challenges": "Challenges",
+    "missions": "Missions"
+  },
+  "challenges": {
+    "title": "Challenges with prepared photos",
+    "intro": "Each challenge brings a set of photos with a hidden trap. Load it, train the model in “Tools” and use the heat map to find out what it really looks at.",
+    "taskLabel": "Your challenge:",
+    "trapLabel": "Hint (open it once you have tried)",
+    "checking": "Looking for the photos…",
+    "missing": "This challenge’s photos are not there yet. Whoever sets up the site must place them in {{folder}} (see public/datasets/README.md).",
+    "photos_one": "{{count}} prepared photo",
+    "photos_other": "{{count}} prepared photos",
+    "load": "Load the challenge",
+    "loadingLabel": "Loading the challenge",
+    "loading": "{{done}} of {{total}} photos",
+    "waitBackbone": "Wait for the base model to finish loading.",
+    "failed": "The challenge could not be loaded. Try again.",
+    "testPhoto": "Test {{number}}",
+    "items": {
+      "huskyWolf": {
+        "title": "Husky or wolf?",
+        "topic": "Shortcuts: the background fools it",
+        "story": "A model has to tell huskies from wolves. It is almost always right… but does it look at the animal?",
+        "task": "Train the model and explain the test photos. Which part of the photo does the heat map colour?",
+        "trap": "In the training photos every wolf is on snow. The model can learn “snow = wolf” and call a husky in the snow a wolf. That is a shortcut: right for the wrong reason.",
+        "projectName": "Challenge: husky or wolf",
+        "classes": {
+          "husky": "Husky",
+          "wolf": "Wolf"
+        }
+      },
+      "fewCats": {
+        "title": "Lots of dogs, few cats",
+        "topic": "Unbalanced data",
+        "story": "This set has loads of dog photos and very few cat photos.",
+        "task": "Train and look at the results per class. Is it as good with cats as with dogs?",
+        "trap": "With few examples of a class, the model tends to answer the majority class. Overall accuracy can look good while it gets cats wrong almost every time. Try balancing the classes and training again.",
+        "projectName": "Challenge: dogs and cats",
+        "classes": {
+          "dog": "Dog",
+          "cat": "Cat"
+        }
+      },
+      "orangeBall": {
+        "title": "Orange or ball?",
+        "topic": "Colour and shape",
+        "story": "Oranges and balls: both are round. What does the model use to tell them apart?",
+        "task": "Train the model and explain an orange ball. Compare the heat map with occlusion.",
+        "trap": "If the training balls are colourful and the oranges are orange, the model may learn colour alone. An orange ball gives it away.",
+        "projectName": "Challenge: orange or ball",
+        "classes": {
+          "orange": "Orange",
+          "ball": "Ball"
+        }
+      }
+    }
+  },
+  "missions": {
+    "title": "Missions",
+    "intro": "A path through the Lab CV. Each mission has something to do and a question to think about. Your answers are kept on this device only.",
+    "progressLabel": "Missions completed",
+    "progress": "{{done}} of {{total}}",
+    "done": "completed",
+    "pending": "to do",
+    "challengeLabel": "What to do:",
+    "markDone": "I did it",
+    "goTo": {
+      "tools": "Go to “Tools”",
+      "challenges": "Go to “Challenges”"
+    },
+    "items": {
+      "teach": {
+        "title": "Teach it to see",
+        "what": "A model learns from the examples you give it, not from rules.",
+        "challenge": "Create a class for each thing you want to recognise (2 or more), capture at least 10 photos of each and train.",
+        "question": "What do you think the model has learned from your photos?"
+      },
+      "heatmap": {
+        "title": "Read the heat map",
+        "what": "The heat map colours the parts of the image that weighed most in the decision.",
+        "challenge": "Freeze an image and ask for the explanation.",
+        "question": "Does the model look where you expected? If not, where?"
+      },
+      "shortcut": {
+        "title": "Catch a shortcut",
+        "what": "Sometimes the model is right for the wrong reason, such as the photo’s background.",
+        "challenge": "Load the “Husky or wolf?” challenge, train and explain the test photos.",
+        "question": "Which shortcut did the model learn, and how did you find out?"
+      },
+      "imbalance": {
+        "title": "Balance the data",
+        "what": "If one class has many more photos than another, the model can be unfair to the small one.",
+        "challenge": "Load “Lots of dogs, few cats”, train, look at the results per class and train again with balanced classes.",
+        "question": "What changed when you balanced the classes? Who would this mistake harm in a real app?"
+      },
+      "twoExplanations": {
+        "title": "Two explanations",
+        "what": "The heat map and occlusion are two different ways of explaining the same decision.",
+        "challenge": "Compare both explanations of the same image.",
+        "question": "Do they agree? If not, which do you trust more and why?"
+      },
+      "fool": {
+        "title": "Fool the model",
+        "what": "Breaking a model on purpose is the best way to see its limits.",
+        "challenge": "Find an image the model gets wrong with high confidence and explain it.",
+        "question": "Why was it wrong? Which photos would you add to fix it?"
+      }
+    }
+  }
+}

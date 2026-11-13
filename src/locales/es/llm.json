@@ -113,8 +113,8 @@
   },
   "compare": {
     "tab": {
-      "explore": "Explorar",
-      "compare": "Comparar dos prompts",
+      "tools": "Herramientas",
+      "challenges": "Retos",
       "label": "Secciones del Lab LLM",
       "missions": "Misiones"
     },
@@ -377,8 +377,8 @@
     "challenge": "Reto",
     "markDone": "He conseguido el reto",
     "goTo": {
-      "explore": "Ir a «Explorar»",
-      "compare": "Ir al comparador"
+      "tools": "Ir a «Herramientas»",
+      "challenges": "Ir a «Retos»"
     },
     "items": {
       "nextWord": {
@@ -463,5 +463,9 @@
     "listLabel": "Respuestas (vacías hasta que la función esté activa)",
     "slot": "Respuesta {{number}}",
     "run": "Repetir 5 veces"
+  },
+  "labTabs": {
+    "toolsIntro": "Las herramientas para mirar dentro del modelo: qué palabra viene después, el comparador de dos prompts y la lupa de palabras. Úsalas con tus propios textos.",
+    "challengesIntro": "Retos preparados: preguntas con trampa para ver cómo razona el modelo, si cambia de opinión por una palabra, si tiene sesgos o si se inventa cosas."
   }
 }

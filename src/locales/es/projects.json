@@ -9,13 +9,13 @@
     "cv": {
       "title": "Lab CV",
       "subtitle": "Visión por computador",
-      "body": "Clasificación de imágenes, mapas de calor y oclusión.",
+      "body": "Clasificación de imágenes, mapas de calor, oclusión y atajos.",
       "cta": "Ir a Lab CV"
     },
     "llm": {
       "title": "Lab LLM",
       "subtitle": "Modelos de lenguaje",
-      "body": "Probabilidades token a token, atención, sesgos y alucinaciones.",
+      "body": "Probabilidad de la siguiente palabra, comparador de prompts, lupa de palabras, sesgos y alucinaciones.",
       "cta": "Ir a Lab LLM"
     }
   },

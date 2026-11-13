@@ -39,8 +39,8 @@ function storedMission(page: Page, id: string): Promise<unknown> {
 test.describe('Lab LLM — missions', () => {
   test('a mission opens the comparator with the case it needs', async ({ page }) => {
     await openMissions(page)
-    await page.getByTestId('mission-name').getByRole('button', { name: /ir al comparador|go to the comparator/i }).click()
-    await expect(page.getByRole('tab', { name: /comparar dos prompts|compare two prompts/i })).toHaveAttribute('aria-selected', 'true')
+    await page.getByTestId('mission-name').getByRole('button', { name: /ir a «herramientas»|go to “tools”/i }).click()
+    await expect(page.getByRole('tab', { name: /herramientas|tools/i })).toHaveAttribute('aria-selected', 'true')
     await expect(page.getByLabel(/caso preparado|prepared case/i)).toHaveValue('biasName')
   })
 

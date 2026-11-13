@@ -113,8 +113,8 @@
   },
   "compare": {
     "tab": {
-      "explore": "Explore",
-      "compare": "Compare two prompts",
+      "tools": "Tools",
+      "challenges": "Challenges",
       "label": "Lab LLM sections",
       "missions": "Missions"
     },
@@ -377,8 +377,8 @@
     "challenge": "Challenge",
     "markDone": "I've completed the challenge",
     "goTo": {
-      "explore": "Go to “Explore”",
-      "compare": "Go to the comparator"
+      "tools": "Go to “Tools”",
+      "challenges": "Go to “Challenges”"
     },
     "items": {
       "nextWord": {
@@ -463,5 +463,9 @@
     "listLabel": "Answers (empty until the feature is active)",
     "slot": "Answer {{number}}",
     "run": "Repeat 5 times"
+  },
+  "labTabs": {
+    "toolsIntro": "The tools for looking inside the model: which word comes next, the two-prompt comparator and the word lens. Use them with your own texts.",
+    "challengesIntro": "Ready-made challenges: tricky questions to see how the model reasons, whether one word changes its mind, whether it has biases or makes things up."
   }
 }

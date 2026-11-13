@@ -9,13 +9,13 @@
     "cv": {
       "title": "Lab CV",
       "subtitle": "Computer vision",
-      "body": "Image classification, heat maps and occlusion.",
+      "body": "Image classification, heat maps, occlusion and shortcuts.",
       "cta": "Go to Lab CV"
     },
     "llm": {
       "title": "Lab LLM",
       "subtitle": "Language models",
-      "body": "Token-by-token probabilities, attention, bias and hallucinations.",
+      "body": "Next-word probabilities, prompt comparator, word lens, biases and hallucinations.",
       "cta": "Go to Lab LLM"
     }
   },
