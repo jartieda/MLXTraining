@@ -1,0 +1,100 @@
+{
+  "classes": {
+    "dog": [
+      "dog/dog_0001.jpg",
+      "dog/dog_0002.jpg",
+      "dog/dog_0003.jpg",
+      "dog/dog_0004.jpg",
+      "dog/dog_0005.jpg",
+      "dog/dog_0006.jpg",
+      "dog/dog_0007.jpg",
+      "dog/dog_0008.jpg",
+      "dog/dog_0009.jpg",
+      "dog/dog_0010.jpg",
+      "dog/dog_0011.jpg",
+      "dog/dog_0012.jpg",
+      "dog/dog_0013.jpg",
+      "dog/dog_0014.jpg",
+      "dog/dog_0015.jpg",
+      "dog/dog_0016.jpg",
+      "dog/dog_0017.jpg",
+      "dog/dog_0018.jpg",
+      "dog/dog_0019.jpg",
+      "dog/dog_0020.jpg",
+      "dog/dog_0021.jpg",
+      "dog/dog_0022.jpg",
+      "dog/dog_0023.jpg",
+      "dog/dog_0024.jpg",
+      "dog/dog_0025.jpg",
+      "dog/dog_0026.jpg",
+      "dog/dog_0027.jpg",
+      "dog/dog_0028.jpg",
+      "dog/dog_0029.jpg",
+      "dog/dog_0030.jpg"
+    ],
+    "chicken": [
+      "chicken/chicken_0001.jpg",
+      "chicken/chicken_0002.jpg",
+      "chicken/chicken_0003.jpg",
+      "chicken/chicken_0004.jpg",
+      "chicken/chicken_0005.jpg",
+      "chicken/chicken_0006.jpg",
+      "chicken/chicken_0007.jpg",
+      "chicken/chicken_0008.jpg",
+      "chicken/chicken_0009.jpg",
+      "chicken/chicken_0010.jpg",
+      "chicken/chicken_0011.jpg",
+      "chicken/chicken_0012.jpg",
+      "chicken/chicken_0013.jpg",
+      "chicken/chicken_0014.jpg",
+      "chicken/chicken_0015.jpg",
+      "chicken/chicken_0016.jpg",
+      "chicken/chicken_0017.jpg",
+      "chicken/chicken_0018.jpg",
+      "chicken/chicken_0019.jpg",
+      "chicken/chicken_0020.jpg",
+      "chicken/chicken_0021.jpg",
+      "chicken/chicken_0022.jpg",
+      "chicken/chicken_0023.jpg",
+      "chicken/chicken_0024.jpg",
+      "chicken/chicken_0025.jpg",
+      "chicken/chicken_0026.jpg",
+      "chicken/chicken_0027.jpg",
+      "chicken/chicken_0028.jpg",
+      "chicken/chicken_0029.jpg",
+      "chicken/chicken_0030.jpg"
+    ]
+  },
+  "test": [
+    {
+      "file": "test/dog-dog_0501.jpg"
+    },
+    {
+      "file": "test/dog-dog_0502.jpg"
+    },
+    {
+      "file": "test/dog-dog_0503.jpg"
+    },
+    {
+      "file": "test/dog-dog_0504.jpg"
+    },
+    {
+      "file": "test/dog-dog_0505.jpg"
+    },
+    {
+      "file": "test/chicken-chicken_0501.jpg"
+    },
+    {
+      "file": "test/chicken-chicken_0502.jpg"
+    },
+    {
+      "file": "test/chicken-chicken_0503.jpg"
+    },
+    {
+      "file": "test/chicken-chicken_0504.jpg"
+    },
+    {
+      "file": "test/chicken-chicken_0505.jpg"
+    }
+  ]
+}

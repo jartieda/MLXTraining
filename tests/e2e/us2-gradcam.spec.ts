@@ -72,6 +72,28 @@ test.describe('US2 — see where the model is looking', () => {
 
     await page.getByRole('button', { name: /freeze this frame|congelar esta imagen/i }).click()
     await expect(page.getByText(/frame frozen|imagen congelada/i)).toBeVisible()
+    await expect(
+      page.getByRole('button', {
+        name: /upload a photo from this device|cargar foto desde el ordenador/i,
+      }),
+    ).toBeVisible()
+    await page.getByRole('button', { name: /back to live|volver al directo/i }).click()
+    await page.getByRole('button', { name: /freeze this frame|congelar esta imagen/i }).click()
+    await expect(page.getByRole('button', { name: /back to live|volver al directo/i })).toBeVisible()
+
+    const frozenConfidence = page
+      .getByRole('heading', { name: /confidence for this frame|seguridad para esta imagen/i })
+      .locator('..')
+      .getByRole('meter')
+    await expect(frozenConfidence).toHaveCount(2)
+    await expect
+      .poll(async () => {
+        const values = await frozenConfidence.evaluateAll((meters) =>
+          meters.map((meter) => Number(meter.getAttribute('aria-valuenow'))),
+        )
+        return values.reduce((total, value) => total + value, 0)
+      })
+      .toBe(100)
 
     const startedAt = Date.now()
     await page.getByRole('button', { name: /show me why|muéstrame por qué/i }).click()

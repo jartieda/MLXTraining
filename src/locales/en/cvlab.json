@@ -16,6 +16,7 @@
     "missing": "This challenge’s photos are not there yet. Whoever sets up the site must place them in {{folder}} (see public/datasets/README.md).",
     "photos_one": "{{count}} prepared photo",
     "photos_other": "{{count}} prepared photos",
+    "back": "Back to the challenges",
     "load": "Load the challenge",
     "loadingLabel": "Loading the challenge",
     "loading": "{{done}} of {{total}} photos",
@@ -47,16 +48,16 @@
           "cat": "Cat"
         }
       },
-      "orangeBall": {
-        "title": "Orange or ball?",
-        "topic": "Colour and shape",
-        "story": "Oranges and balls: both are round. What does the model use to tell them apart?",
-        "task": "Train the model and explain an orange ball. Compare the heat map with occlusion.",
-        "trap": "If the training balls are colourful and the oranges are orange, the model may learn colour alone. An orange ball gives it away.",
-        "projectName": "Challenge: orange or ball",
+      "dogChicken": {
+        "title": "Dog or chicken?",
+        "topic": "Shortcuts: appearance and context",
+        "story": "The model has to tell dogs from chicken. But many chicken photos show prepared food, not live birds.",
+        "task": "Train the model and explain some test photos. Is it looking at the animal, or clues like the breading, plate and background?",
+        "trap": "The model may associate golden textures or plates with the “chicken” class instead of recognising a bird. Look at the heat maps and check which parts of the picture matter.",
+        "projectName": "Challenge: dog or chicken",
         "classes": {
-          "orange": "Orange",
-          "ball": "Ball"
+          "dog": "Dog",
+          "chicken": "Chicken"
         }
       }
     }

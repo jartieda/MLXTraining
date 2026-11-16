@@ -21,7 +21,11 @@
     "frozen": "Frame frozen",
     "hint": "Freeze a frame to look at why it decided that.",
     "alt": "The frozen frame being explained",
-    "photoLabel": "Or explain a photo from your device",
+    "confidenceHeading": "Confidence for this frame",
+    "confidenceLoading": "Calculating confidence for this frame…",
+    "confidenceUnavailable": "Train the model first to see its confidence for this frame.",
+    "confidenceError": "Could not calculate confidence for this frame. Freeze it again to retry.",
+    "photoLabel": "Upload a photo from this device",
     "testPhotos": "The challenge’s test photos"
   }
 }

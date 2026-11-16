@@ -68,6 +68,7 @@ export function CameraCapture({ videoRef, onActiveChange, onStartReady }: Camera
     projectId,
     project,
     classes,
+    sampleCounts,
     selectedClassId,
     backbone,
     backboneLoading,
@@ -87,6 +88,7 @@ export function CameraCapture({ videoRef, onActiveChange, onStartReady }: Camera
   const [notice, setNotice] = useState<Notice | null>(null)
 
   const selectedClass = classes.find((klass) => klass.id === selectedClassId) ?? null
+  const selectedSampleCount = selectedClass ? (sampleCounts[selectedClass.id] ?? 0) : null
 
   const stop = useCallback(() => {
     burstRef.current.stop = true
@@ -267,6 +269,16 @@ export function CameraCapture({ videoRef, onActiveChange, onStartReady }: Camera
     <div className="flex flex-col gap-3">
       <h3 className="text-base font-semibold">{t('camera.heading')}</h3>
 
+      {selectedClass ? (
+        <p aria-live="polite" className="text-sm text-ink-muted">
+          {t('classes.selected', { name: selectedClass.name })}
+          {' · '}
+          {selectedSampleCount === 0
+            ? t('classes.countZero')
+            : t('classes.count', { count: selectedSampleCount ?? 0 })}
+        </p>
+      ) : null}
+
       {failure ? <CameraFailure kind={failure} onRetry={() => void start()} /> : null}
 
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
@@ -295,15 +307,11 @@ export function CameraCapture({ videoRef, onActiveChange, onStartReady }: Camera
           </div>
         ) : (
           <div className="flex flex-1 flex-col gap-2">
-            {selectedClass ? (
-              <p className="text-sm text-ink-muted">
-                {t('classes.selected', { name: selectedClass.name })}
-              </p>
-            ) : (
+            {!selectedClass ? (
               <p role="alert" className="text-sm text-magenta">
                 {t('classes.selectFirst')}
               </p>
-            )}
+            ) : null}
 
             <Button onClick={() => void captureOne()} disabled={!canCapture} block>
               {t('camera.capture')}

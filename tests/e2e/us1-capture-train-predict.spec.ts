@@ -93,7 +93,13 @@ test.describe('US1 — teach a model and watch it work', () => {
     await expect(page.getByLabel(/camera preview|vista previa/i)).toBeVisible()
 
     await capture(page, 'Apple', 5)
+    await expect(
+      page.getByText(/capturing into Apple · 5 photos|capturando en Apple · 5 fotos/i),
+    ).toBeVisible()
     await capture(page, 'Pear', 5)
+    await expect(
+      page.getByText(/capturing into Pear · 5 photos|capturando en Pear · 5 fotos/i),
+    ).toBeVisible()
 
     // Both classes have photos, so Train is available. Before this point it is
     // disabled with a message naming what is missing (Scenario 1.3, T038).

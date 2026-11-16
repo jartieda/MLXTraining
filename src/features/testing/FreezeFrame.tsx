@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/Button'
-import { MODEL_INPUT_SIZE, type ImageSource } from '@/ml/types'
+import { Meter } from '@/components/Meter'
+import { useLab } from '@/features/lab/labStore'
+import { classify, topClass, toWholePercentages } from '@/ml/predict'
+import { MODEL_INPUT_SIZE, type ClassProbability, type ImageSource } from '@/ml/types'
 import { hashFrame } from './frameHash'
 import { decodeImage } from '@/features/capture/imageCrop'
 
@@ -26,6 +29,7 @@ export interface FrozenFrame {
   readonly hash: string
   /** For display and for `HeatmapCanvas`. */
   readonly canvas: HTMLCanvasElement
+  readonly source: 'camera' | 'photo' | 'test'
 }
 
 export interface FreezeFrameProps {
@@ -36,10 +40,57 @@ export interface FreezeFrameProps {
   readonly testPhotos?: readonly { readonly url: string; readonly label: string }[]
 }
 
+type FrozenConfidence =
+  | { readonly hash: string; readonly status: 'loading' | 'unavailable' | 'error' }
+  | {
+      readonly hash: string
+      readonly status: 'ready'
+      readonly probabilities: readonly ClassProbability[]
+    }
+
 export function FreezeFrame({ video, frozen, onFreeze, testPhotos = [] }: FreezeFrameProps) {
   const { t } = useTranslation('testing')
+  const { classes, model, backbone } = useLab()
   const displayRef = useRef<HTMLCanvasElement>(null)
+  const photoInputRef = useRef<HTMLInputElement>(null)
   const [problem, setProblem] = useState(false)
+  const [confidence, setConfidence] = useState<FrozenConfidence | null>(null)
+
+  useEffect(() => {
+    if (!frozen) {
+      setConfidence(null)
+      return
+    }
+    if (!model || !backbone) {
+      setConfidence({ hash: frozen.hash, status: 'unavailable' })
+      return
+    }
+
+    let active = true
+    setConfidence({ hash: frozen.hash, status: 'loading' })
+
+    // Score the exact pixels being explained, rather than snapshotting the
+    // asynchronously updated live bars.
+    void classify(model, backbone, frozen.image)
+      .then((probabilities) => {
+        if (active) setConfidence({ hash: frozen.hash, status: 'ready', probabilities })
+      })
+      .catch(() => {
+        if (active) setConfidence({ hash: frozen.hash, status: 'error' })
+      })
+
+    return () => {
+      active = false
+    }
+  }, [frozen, model, backbone])
+
+  const currentConfidence = frozen && confidence?.hash === frozen.hash ? confidence : null
+  const confidenceStatus =
+    currentConfidence?.status ?? (model && backbone ? 'loading' : 'unavailable')
+  const probabilities =
+    currentConfidence?.status === 'ready' ? currentConfidence.probabilities : []
+  const percentages = toWholePercentages(probabilities)
+  const leader = topClass(probabilities)
 
   const freeze = useCallback(() => {
     if (!video || video.videoWidth === 0) {
@@ -84,19 +135,25 @@ export function FreezeFrame({ video, frozen, onFreeze, testPhotos = [] }: Freeze
       image: { data, width: MODEL_INPUT_SIZE, height: MODEL_INPUT_SIZE },
       hash: hashFrame(data),
       canvas,
+      source: 'camera',
     })
   }, [video, onFreeze])
 
   /** Explain a photo instead of a camera frame: a file of hers or a challenge photo. */
   const freezePhoto = useCallback(
-    async (blob: Blob) => {
+    async (blob: Blob, source: 'photo' | 'test') => {
       const decoded = await decodeImage(blob)
       if (!decoded) {
         setProblem(true)
         return
       }
       setProblem(false)
-      onFreeze({ image: decoded.image, hash: hashFrame(decoded.image.data), canvas: decoded.canvas })
+      onFreeze({
+        image: decoded.image,
+        hash: hashFrame(decoded.image.data),
+        canvas: decoded.canvas,
+        source,
+      })
     },
     [onFreeze],
   )
@@ -105,7 +162,7 @@ export function FreezeFrame({ video, frozen, onFreeze, testPhotos = [] }: Freeze
     try {
       const response = await fetch(url)
       if (!response.ok) throw new Error(String(response.status))
-      await freezePhoto(await response.blob())
+      await freezePhoto(await response.blob(), 'test')
     } catch {
       setProblem(true)
     }
@@ -122,67 +179,118 @@ export function FreezeFrame({ video, frozen, onFreeze, testPhotos = [] }: Freeze
     display.getContext('2d')?.drawImage(frozen.canvas, 0, 0)
   }, [frozen])
 
+  const photoChoices = (
+    <>
+      <input
+        ref={photoInputRef}
+        type="file"
+        accept="image/*"
+        className="sr-only"
+        aria-hidden="true"
+        tabIndex={-1}
+        onChange={(event) => {
+          const file = event.target.files?.[0]
+          event.target.value = ''
+          if (file) void freezePhoto(file, 'photo')
+        }}
+      />
+      <Button
+        variant="secondary"
+        block
+        onClick={() => {
+          photoInputRef.current?.click()
+        }}
+      >
+        {t('freeze.photoLabel')}
+      </Button>
+      {testPhotos.length > 0 ? (
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-medium">{t('freeze.testPhotos')}</p>
+          <ul className="flex list-none flex-wrap gap-2 p-0">
+            {testPhotos.map((photo) => (
+              <li key={photo.url}>
+                <button
+                  type="button"
+                  onClick={() => void freezeUrl(photo.url)}
+                  className="flex flex-col items-center gap-1 rounded border border-border-subtle p-1 text-xs"
+                >
+                  <img src={photo.url} alt="" className="h-16 w-16 rounded object-cover" />
+                  {photo.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </>
+  )
+
   return (
     <div className="flex flex-col gap-2">
       {frozen ? (
-        <>
-          <canvas
-            ref={displayRef}
-            role="img"
-            aria-label={t('freeze.alt')}
-            className="h-auto w-full max-w-[224px] rounded border border-blue"
-            style={{ aspectRatio: '1 / 1' }}
-          />
-          <p aria-live="polite" className="text-sm text-ink-muted">
-            {t('freeze.frozen')}
-          </p>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              onFreeze(null)
-            }}
-          >
-            {t('freeze.unfreeze')}
-          </Button>
-        </>
+        <div className="grid gap-4 sm:grid-cols-[minmax(0,224px)_minmax(0,1fr)] sm:items-start">
+          <div className="flex flex-col items-start gap-2">
+            <canvas
+              ref={displayRef}
+              role="img"
+              aria-label={t('freeze.alt')}
+              className="h-auto w-full max-w-[224px] rounded border border-blue"
+              style={{ aspectRatio: '1 / 1' }}
+            />
+            <p aria-live="polite" className="text-sm text-ink-muted">
+              {t('freeze.frozen')}
+            </p>
+            {frozen.source === 'camera' ? (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  onFreeze(null)
+                }}
+              >
+                {t('freeze.unfreeze')}
+              </Button>
+            ) : null}
+            <div className="flex w-full flex-col gap-3 pt-2">{photoChoices}</div>
+          </div>
+
+          <div className="flex min-w-0 flex-col gap-2">
+            <h3 className="text-sm font-semibold">{t('freeze.confidenceHeading')}</h3>
+            {confidenceStatus === 'loading' ? (
+              <p className="text-sm text-ink-muted">{t('freeze.confidenceLoading')}</p>
+            ) : null}
+            {confidenceStatus === 'unavailable' ? (
+              <p className="text-sm text-ink-muted">{t('freeze.confidenceUnavailable')}</p>
+            ) : null}
+            {confidenceStatus === 'error' ? (
+              <p role="alert" className="text-sm text-magenta">
+                {t('freeze.confidenceError')}
+              </p>
+            ) : null}
+            {confidenceStatus === 'ready' ? (
+              <>
+                <div className="flex flex-col gap-2">
+                  {classes.map((klass, index) => (
+                    <Meter
+                      key={klass.id}
+                      label={klass.name}
+                      value={probabilities[index]?.probability ?? 0}
+                      valueText={`${String(percentages[index] ?? 0)}%`}
+                      tone={leader?.classIndex === index ? 'leading' : 'neutral'}
+                    />
+                  ))}
+                </div>
+                <p className="text-sm text-ink-muted">{t('confidence.sumNote')}</p>
+              </>
+            ) : null}
+          </div>
+        </div>
       ) : (
         <>
           <Button onClick={freeze} disabled={!video} block>
             {t('freeze.action')}
           </Button>
           <p className="text-sm text-ink-muted">{t('freeze.hint')}</p>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium">{t('freeze.photoLabel')}</span>
-            <input
-              type="file"
-              accept="image/*"
-              className="text-sm"
-              onChange={(event) => {
-                const file = event.target.files?.[0]
-                event.target.value = ''
-                if (file) void freezePhoto(file)
-              }}
-            />
-          </label>
-          {testPhotos.length > 0 ? (
-            <div className="flex flex-col gap-1">
-              <p className="text-sm font-medium">{t('freeze.testPhotos')}</p>
-              <ul className="flex list-none flex-wrap gap-2 p-0">
-                {testPhotos.map((photo) => (
-                  <li key={photo.url}>
-                    <button
-                      type="button"
-                      onClick={() => void freezeUrl(photo.url)}
-                      className="flex flex-col items-center gap-1 rounded border border-border-subtle p-1 text-xs"
-                    >
-                      <img src={photo.url} alt="" className="h-16 w-16 rounded object-cover" />
-                      {photo.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
+          {photoChoices}
           {problem ? (
             <p role="alert" className="text-sm text-magenta">
               {t('common:error.generic')}

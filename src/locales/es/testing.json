@@ -21,7 +21,11 @@
     "frozen": "Imagen congelada",
     "hint": "Congela una imagen para ver por qué ha decidido eso.",
     "alt": "La imagen congelada que se está explicando",
-    "photoLabel": "O explica una foto de tu dispositivo",
+    "confidenceHeading": "Seguridad para esta imagen",
+    "confidenceLoading": "Calculando la seguridad para esta imagen…",
+    "confidenceUnavailable": "Entrena primero el modelo para ver la seguridad de esta imagen.",
+    "confidenceError": "No se pudo calcular la seguridad para esta imagen. Congélala de nuevo para intentarlo otra vez.",
+    "photoLabel": "Cargar foto desde el ordenador",
     "testPhotos": "Fotos de prueba del reto"
   }
 }

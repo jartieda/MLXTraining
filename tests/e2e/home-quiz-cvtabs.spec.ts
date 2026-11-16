@@ -58,8 +58,8 @@ test.describe('Lab CV tabs', () => {
     await page.goto('/lab')
     await expect(page.getByRole('heading', { level: 1, name: 'Lab CV' })).toBeVisible()
     await page.getByRole('tab', { name: /retos|challenges/i }).click()
-    await expect(page.getByTestId('cv-challenge-huskyWolf')).toBeVisible()
-    await expect(page.getByTestId('cv-challenge-huskyWolf').getByTestId('cv-challenge-missing')).toBeVisible()
+    await expect(page.getByTestId('cv-challenge-fewCats')).toBeVisible()
+    await expect(page.getByTestId('cv-challenge-fewCats').getByTestId('cv-challenge-missing')).toBeVisible()
 
     await page.getByRole('tab', { name: /misiones|missions/i }).click()
     await page.getByTestId('cv-mission-shortcut').getByRole('checkbox').check()

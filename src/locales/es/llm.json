@@ -21,6 +21,17 @@
     },
     "loading": "Cargando el modelo local en tu navegador…",
     "loadingProgress": "Cargando el modelo local en tu navegador… {{percent}} %",
+    "loadingActivity": {
+      "title": "Un mini-reto mientras carga",
+      "prompt": "En el bosque con niebla encontré un…",
+      "choose": "Elige cómo sigue la historia",
+      "options": {
+        "dragon": "dragón",
+        "map": "mapa",
+        "robot": "robot"
+      },
+      "picked": "¡{{word}}! Sería una continuación divertida. Hay muchas respuestas posibles; el modelo calcula cuáles le parecen más probables."
+    },
     "modelUnavailable": "El modelo local todavía no está listo.",
     "modelError": "WebLLM no pudo cargar el modelo: {{error}}",
     "retry": "Reintentar",

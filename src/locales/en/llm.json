@@ -21,6 +21,17 @@
     },
     "loading": "Loading the local model in your browser…",
     "loadingProgress": "Loading the local model in your browser… {{percent}}%",
+    "loadingActivity": {
+      "title": "A little word game while it loads",
+      "prompt": "In the foggy forest, I found a…",
+      "choose": "Choose how the story continues",
+      "options": {
+        "dragon": "dragon",
+        "map": "map",
+        "robot": "robot"
+      },
+      "picked": "A {{word}}! That would be a fun continuation. There are lots of possible answers; the model works out which ones seem most likely."
+    },
     "modelUnavailable": "The local model is not ready yet.",
     "modelError": "WebLLM could not load the model: {{error}}",
     "retry": "Retry",

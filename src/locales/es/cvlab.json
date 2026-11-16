@@ -16,6 +16,7 @@
     "missing": "Las fotos de este reto todavía no están. Quien prepare la web debe ponerlas en {{folder}} (ver public/datasets/README.md).",
     "photos_one": "{{count}} foto preparada",
     "photos_other": "{{count}} fotos preparadas",
+    "back": "Volver a los retos",
     "load": "Cargar el reto",
     "loadingLabel": "Cargando el reto",
     "loading": "{{done}} de {{total}} fotos",
@@ -47,16 +48,16 @@
           "cat": "Gato"
         }
       },
-      "orangeBall": {
-        "title": "¿Naranja o pelota?",
-        "topic": "Color y forma",
-        "story": "Naranjas y pelotas: las dos son redondas. ¿En qué se fija el modelo para separarlas?",
-        "task": "Entrena el modelo y explica una pelota naranja. Compara el mapa de calor con la oclusión.",
-        "trap": "Si las pelotas del entrenamiento son de colores y las naranjas son naranjas, el modelo puede aprender solo el color. Una pelota naranja lo delata.",
-        "projectName": "Reto: naranja o pelota",
+      "dogChicken": {
+        "title": "¿Perro o pollo?",
+        "topic": "Atajos: apariencia y contexto",
+        "story": "El modelo tiene que distinguir perros de pollo. Pero muchas fotos de pollo muestran comida preparada, no aves vivas.",
+        "task": "Entrena el modelo y explica varias fotos de prueba. ¿Se fija en el animal o en pistas como el rebozado, el plato y el fondo?",
+        "trap": "El modelo puede aprender a asociar texturas doradas o platos con la clase «pollo», en vez de reconocer un ave. Mira los mapas de calor y comprueba qué partes de la imagen influyen.",
+        "projectName": "Reto: perro o pollo",
         "classes": {
-          "orange": "Naranja",
-          "ball": "Pelota"
+          "dog": "Perro",
+          "chicken": "Pollo"
         }
       }
     }

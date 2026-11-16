@@ -44,6 +44,7 @@ export function LabPage() {
   const navigate = useNavigate()
   const { t } = useTranslation(['capture', 'training', 'testing', 'explaining', 'cvlab'])
   const [tab, setTab] = useState<LabTab>('tools')
+  const [showChallenge, setShowChallenge] = useState(false)
   const [testPhotos, setTestPhotos] = useState<readonly { url: string; label: string }[]>([])
   const ownerId = useOwnerId()
 
@@ -155,6 +156,11 @@ export function LabPage() {
   // Disposes the backbone and the model on leaving the lab. The store owns both,
   // and this is the only place their lifetime ends (R8).
   useEffect(() => closeProject, [closeProject])
+
+  // A challenge opens in the same layout as «Herramientas», with its classes already
+  // loaded; the layout is rendered once, in whichever tab is showing it.
+  const activeChallenge = projectId ? challengeOfProject(projectId) : null
+  const inChallengeView = tab === 'challenges' && showChallenge && activeChallenge !== null
 
   let tools: ReactNode
   if (!projectId) {
@@ -353,7 +359,7 @@ export function LabPage() {
         aria-labelledby="cv-tab-tools"
         hidden={tab !== 'tools'}
       >
-        {tools}
+        {inChallengeView ? null : tools}
       </div>
       <div
         role="tabpanel"
@@ -361,12 +367,43 @@ export function LabPage() {
         aria-labelledby="cv-tab-challenges"
         hidden={tab !== 'challenges'}
       >
-        <CvChallenges
-          onLoaded={(id) => {
-            setTab('tools')
-            void navigate(`/lab/${id}`)
-          }}
-        />
+        {inChallengeView && activeChallenge ? (
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-4">
+              <Button
+                variant="ghost"
+                className="self-start"
+                onClick={() => {
+                  setShowChallenge(false)
+                }}
+              >
+                {t('cvlab:challenges.back')}
+              </Button>
+              <h3 className="font-display text-xl">
+                {t(`cvlab:challenges.items.${activeChallenge}.title`)}
+              </h3>
+              <p className="max-w-prose text-sm">{t(`cvlab:challenges.items.${activeChallenge}.story`)}</p>
+              <p className="max-w-prose text-sm">
+                <span className="font-medium">{t('cvlab:challenges.taskLabel')}</span>{' '}
+                {t(`cvlab:challenges.items.${activeChallenge}.task`)}
+              </p>
+              <details className="text-sm">
+                <summary className="cursor-pointer font-medium">{t('cvlab:challenges.trapLabel')}</summary>
+                <p className="mt-1 max-w-prose text-ink-muted">
+                  {t(`cvlab:challenges.items.${activeChallenge}.trap`)}
+                </p>
+              </details>
+            </div>
+            {tools}
+          </div>
+        ) : (
+          <CvChallenges
+            onLoaded={(id) => {
+              setShowChallenge(true)
+              void navigate(`/lab/${id}`)
+            }}
+          />
+        )}
       </div>
       <div
         role="tabpanel"

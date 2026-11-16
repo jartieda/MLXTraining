@@ -37,6 +37,13 @@ function storedMission(page: Page, id: string): Promise<unknown> {
 }
 
 test.describe('Lab LLM — missions', () => {
+  test('keeps the next-word prompt without a clear button', async ({ page }) => {
+    await page.goto('/lab-llm')
+
+    await expect(page.getByRole('textbox', { name: /your prompt|tu prompt/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /clear prompt|borrar prompt/i })).toHaveCount(0)
+  })
+
   test('a mission opens the comparator with the case it needs', async ({ page }) => {
     await openMissions(page)
     await page.getByTestId('mission-name').getByRole('button', { name: /ir a «herramientas»|go to “tools”/i }).click()

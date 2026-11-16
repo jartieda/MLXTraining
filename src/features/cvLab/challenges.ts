@@ -22,7 +22,7 @@ export interface CvChallenge {
 export const CV_CHALLENGES: readonly CvChallenge[] = [
   { id: 'huskyWolf', classes: ['husky', 'wolf'] },
   { id: 'fewCats', classes: ['dog', 'cat'] },
-  { id: 'orangeBall', classes: ['orange', 'ball'] },
+  { id: 'dogChicken', classes: ['dog', 'chicken'] },
 ]
 
 export interface ChallengeManifest {

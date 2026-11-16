@@ -41,4 +41,4 @@ subida por el alumnado. Con 15–30 fotos por clase basta.
 |---|---|---|---|
 | `huskyWolf` | `husky`, `wolf` | Todos los lobos sobre nieve; los huskies sobre hierba, en casa o en la calle. | Un husky en la nieve; un lobo sin nieve. |
 | `fewCats` | `dog`, `cat` | Muchos perros (unos 30) y pocos gatos (unos 5). | Algunos gatos que no estén en el entrenamiento. |
-| `orangeBall` | `orange`, `ball` | Naranjas (fruta) y pelotas de colores, ninguna pelota naranja. | Una pelota naranja (de baloncesto, por ejemplo). |
+| `dogChicken` | `dog`, `chicken` | Fotos de perros y pollo preparado; el contexto y las texturas pueden servir de atajo. | 5 fotos de prueba por clase. |
