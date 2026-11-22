@@ -286,8 +286,12 @@ export function ComparePanel({
   return (
     <section id="llm-compare" tabIndex={-1} aria-labelledby={`${formId}-title`} className="flex flex-col gap-4 rounded-lg border border-border-subtle bg-surface p-4">
       <header className="flex flex-col gap-1">
-        <h2 id={`${formId}-title`} className="font-display text-xl">{t('compare.title')}</h2>
-        <p className="max-w-prose text-sm text-ink-muted">{t('compare.intro')}</p>
+        <h2 id={`${formId}-title`} className="font-display text-xl">
+          {mode === 'models' ? t('compare.mode.title') : t('compare.title')}
+        </h2>
+        <p className="max-w-prose text-sm text-ink-muted">
+          {mode === 'models' ? t('compare.mode.intro') : t('compare.intro')}
+        </p>
       </header>
 
       <label className="flex flex-col gap-1">
@@ -455,6 +459,8 @@ export function ComparePanel({
         {status === 'failed' ? <p role="alert" className="w-full text-sm text-red-700">{t('compare.failed')}</p> : null}
       </div>
 
+      {mode === 'models' && firstRun && !result ? <FirstModelAnswer firstRun={firstRun} /> : null}
+
       {result ? (
         <ResultView
           result={result}
@@ -571,6 +577,43 @@ function TwoModelSteps({
   )
 }
 
+function FirstModelAnswer({ firstRun }: { readonly firstRun: FirstModelRun }) {
+  const { t } = useTranslation('llm')
+  const top = typeof firstRun.side === 'string'
+    ? null
+    : firstRun.side.scored.reduce<Scored | null>(
+        (best, item) =>
+          item.probability !== null && (best === null || item.probability > (best.probability ?? -1))
+            ? item
+            : best,
+        null,
+      )
+
+  return (
+    <article
+      className="rounded-lg border border-blue bg-surface-sunken p-4"
+      data-testid="two-models-first-result"
+    >
+      <h3 className="text-base font-semibold">{t('compare.mode.answerFrom', { model: firstRun.modelName })}</h3>
+      {typeof firstRun.side === 'string' ? (
+        <p className="mt-2 whitespace-pre-wrap break-words text-base leading-7">
+          {firstRun.side.trim() || t('chat.noOutput')}
+        </p>
+      ) : top && top.probability !== null ? (
+        <div className="mt-3 rounded-md border border-border-subtle bg-white p-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">
+            {t('compare.mode.predictionLabel')}
+          </p>
+          <p className="mt-1 break-words text-xl font-semibold">{top.label}</p>
+          <p className="mt-1 text-sm text-ink-muted">{percent(top.probability)} %</p>
+        </div>
+      ) : (
+        <p className="mt-2 text-sm text-ink-muted">{t('compare.mode.noAnswer')}</p>
+      )}
+    </article>
+  )
+}
+
 function PromptField({
   label,
   value,
@@ -667,6 +710,10 @@ function ResultView({
 }) {
   const { t } = useTranslation('llm')
   const band = result.layer === 'freeText' ? result.band : result.verdict.band
+  const modelA = result.modelNameB ? t('compare.mode.modelA', { model: result.modelName }) : t('compare.promptA')
+  const modelB = result.modelNameB ? t('compare.mode.modelB', { model: result.modelNameB }) : t('compare.promptB')
+  const answerA = result.modelNameB ? t('compare.mode.answerFrom', { model: result.modelName }) : t('compare.promptA')
+  const answerB = result.modelNameB ? t('compare.mode.answerFrom', { model: result.modelNameB }) : t('compare.promptB')
 
   return (
     <div className="flex flex-col gap-3" data-testid="compare-result">
@@ -678,14 +725,14 @@ function ResultView({
 
       {result.layer === 'freeText' ? (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <AnswerCard title={result.modelNameB ? result.modelName : t('compare.promptA')} segments={result.diff.a} />
-          <AnswerCard title={result.modelNameB ?? t('compare.promptB')} segments={result.diff.b} />
+          <AnswerCard title={answerA} segments={result.diff.a} />
+          <AnswerCard title={answerB} segments={result.diff.b} />
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <ScoreColumn title={result.modelNameB ? result.modelName : t('compare.promptA')} side="a" verdict={result.verdict} other={result.a.other} />
-            <ScoreColumn title={result.modelNameB ?? t('compare.promptB')} side="b" verdict={result.verdict} other={result.b.other} />
+            <ScoreColumn title={modelA} side="a" verdict={result.verdict} other={result.a.other} />
+            <ScoreColumn title={modelB} side="b" verdict={result.verdict} other={result.b.other} />
           </div>
           {[result.a.other, result.b.other].some((other) => other !== null && other > OFF_FORMAT_THRESHOLD) ? (
             <p className="rounded border border-amber-300 bg-amber-50 p-2 text-sm text-amber-900">
@@ -757,6 +804,16 @@ function ScoreColumn({
   return (
     <div className="flex min-w-0 flex-col gap-2 rounded-lg border border-border-subtle bg-white p-3" data-testid={`compare-column-${side}`}>
       <h3 className="text-sm font-semibold">{title}</h3>
+      {verdict[side === 'a' ? 'topA' : 'topB'] ? (
+        <div className="rounded-md border border-blue bg-surface-sunken p-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">
+            {t('compare.mode.predictionLabel')}
+          </p>
+          <p className="mt-1 break-words text-lg font-semibold">
+            {verdict[side === 'a' ? 'topA' : 'topB']}
+          </p>
+        </div>
+      ) : null}
       {verdict.rows.map((row) => {
         const value = row[side]
         const delta = side === 'b' && row.delta !== null ? Math.round(row.delta * 100) : null
@@ -779,9 +836,9 @@ function ScoreColumn({
 function AnswerCard({ title, segments }: { readonly title: string; readonly segments: readonly DiffSegment[] }) {
   const { t } = useTranslation('llm')
   return (
-    <article className="min-w-0 rounded-lg border border-border-subtle bg-white p-3 text-sm">
-      <h3 className="font-semibold">{title}</h3>
-      <p className="mt-1 whitespace-pre-wrap break-words leading-6">
+    <article className="min-w-0 rounded-lg border border-blue bg-white p-4">
+      <h3 className="text-base font-semibold">{title}</h3>
+      <p className="mt-2 whitespace-pre-wrap break-words text-base leading-7">
         {segments.length > 0 ? <Segments segments={segments} /> : t('chat.noOutput')}
       </p>
     </article>
@@ -800,6 +857,7 @@ function SavedExperiments({
   return (
     <div className="flex flex-col gap-2 border-t border-border-subtle pt-3">
       <h3 className="text-sm font-semibold">{t('compare.savedHeading')}</h3>
+      <p className="text-sm text-ink-muted">{t('compare.savedIntro')}</p>
       {experiments.length === 0 ? (
         <p className="text-sm text-ink-muted">{t('compare.savedEmpty')}</p>
       ) : (

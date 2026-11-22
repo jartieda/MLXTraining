@@ -88,6 +88,9 @@ test.describe('US1 — teach a model and watch it work', () => {
     await expect(projectsLink).toHaveClass(/border-border-subtle/)
     await expect(breadcrumb.getByText('Camera status test', { exact: true })).toBeVisible()
 
+    const previewFrame = page.getByTestId('camera-preview-frame')
+    await expect(previewFrame).toHaveClass(/h-px w-px/)
+
     await addClass(page, 'Apple')
     await page.getByRole('radio', { name: /Apple/i }).click()
     await expect(page.getByText(/capturing into Apple|capturando en Apple/i)).toHaveCount(0)
@@ -95,7 +98,9 @@ test.describe('US1 — teach a model and watch it work', () => {
 
     await page.getByRole('button', { name: /turn on the camera|encender la cámara/i }).click()
     await expect(page.getByText(/capturing into Apple|capturando en Apple/i)).toBeVisible()
+    await expect(previewFrame).toHaveClass(/max-w-/)
     await page.getByRole('button', { name: /turn off the camera|apagar la cámara/i }).click()
+    await expect(previewFrame).toHaveClass(/h-px w-px/)
   })
 
   test('captures into two classes, trains, and predicts with confidences summing to 100%', async ({

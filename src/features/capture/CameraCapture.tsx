@@ -281,22 +281,29 @@ export function CameraCapture({ videoRef, onActiveChange, onStartReady }: Camera
 
       {failure ? <CameraFailure kind={failure} onRetry={() => void start()} /> : null}
 
+      {starting ? (
+        <p role="status" className="text-sm text-ink-muted">
+          {t(active ? 'camera.switching' : 'camera.starting')}
+        </p>
+      ) : null}
+
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
-        <div className="relative mx-auto w-full max-w-[15rem] overflow-hidden rounded border border-border-subtle bg-navy sm:max-w-[18rem] md:mx-0 md:w-[18rem] md:max-w-none">
+        <div
+          data-testid="camera-preview-frame"
+          className={
+            active
+              ? 'relative mx-auto w-full max-w-[15rem] overflow-hidden rounded border border-border-subtle bg-navy sm:max-w-[18rem] md:mx-0 md:w-[18rem] md:max-w-none'
+              : 'h-px w-px overflow-hidden'
+          }
+        >
           <video
             ref={videoRef}
             playsInline
             muted
             aria-label={t('camera.preview')}
-            className="aspect-square w-full object-cover"
+            aria-hidden={!active}
+            className={active ? 'aspect-square w-full object-cover' : 'h-px w-px'}
           />
-          {!active ? (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="px-4 text-center text-sm text-ink-inverse">
-                {starting ? t('camera.starting') : ''}
-              </p>
-            </div>
-          ) : null}
         </div>
 
         {!active ? (

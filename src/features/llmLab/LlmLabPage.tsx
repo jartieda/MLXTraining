@@ -281,7 +281,7 @@ export function LlmLabPage() {
     ? {
         label: t('chat.status.loading'),
         tone: 'bg-amber-500',
-        text: t('chat.loadingProgress', { percent: Math.round((loadProgress ?? 0) * 100) }),
+        text: t('chat.loadingProgressLine1'),
       }
     : engineError
       ? { label: t('chat.status.error'), tone: 'bg-red-500', text: engineError.startsWith(WEBGPU_UNAVAILABLE) ? t(`chat.webGpuUnavailable.${engineError.slice(WEBGPU_UNAVAILABLE.length)}`) : t('chat.modelError', { error: engineError }) }
@@ -411,7 +411,23 @@ export function LlmLabPage() {
               </span>
               <span className="text-sm font-medium text-ink">{modelStatus.label}</span>
             </div>
-            <p className="text-sm leading-6 text-ink-muted">{modelStatus.text}</p>
+            <p className="text-sm leading-6 text-ink-muted">
+              {loadingModel ? (
+                <>
+                  <span className="block whitespace-nowrap">{modelStatus.text}</span>
+                  <span className="block whitespace-nowrap">
+                    {t('chat.loadingProgressLine2')}
+                    <span className="inline-block min-w-[5ch] text-right tabular-nums">
+                      {t('chat.loadingProgressPercent', {
+                        percent: Math.round((loadProgress ?? 0) * 100),
+                      })}
+                    </span>
+                  </span>
+                </>
+              ) : (
+                modelStatus.text
+              )}
+            </p>
             {engineError && !loadingModel ? (
               <Button
                 type="button"
