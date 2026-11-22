@@ -19,7 +19,8 @@
     "duplicate": "Ya tienes una clase que se llama «{{name}}». Las mayúsculas no la hacen distinta.",
     "tooLong": "Ese nombre es demasiado largo: 40 caracteres como máximo.",
     "tooShort": "Ponle un nombre a la clase.",
-    "selected": "Capturando en {{name}}",
+    "selected": "Clase seleccionada: {{name}}",
+    "capturing": "Capturando en {{name}}",
     "selectFirst": "Elige primero una clase, para que el ordenador sepa qué está mirando."
   },
   "camera": {

@@ -1,0 +1,65 @@
+{
+  "classes": {
+    "negative": [
+      "train/negative/19831.jpg",
+      "train/negative/19832.jpg",
+      "train/negative/19833.jpg",
+      "train/negative/19834.jpg",
+      "train/negative/19835.jpg",
+      "train/negative/19836.jpg",
+      "train/negative/19837.jpg",
+      "train/negative/19838.jpg",
+      "train/negative/19839.jpg",
+      "train/negative/19840.jpg",
+      "train/negative/19841.jpg",
+      "train/negative/19842.jpg",
+      "train/negative/19843.jpg",
+      "train/negative/19844.jpg",
+      "train/negative/19845.jpg",
+      "train/negative/19846.jpg",
+      "train/negative/19847.jpg",
+      "train/negative/19848.jpg",
+      "train/negative/19849.jpg",
+      "train/negative/19850.jpg"
+    ],
+    "positive": [
+      "train/positive/19969.jpg",
+      "train/positive/19970.jpg",
+      "train/positive/19971.jpg",
+      "train/positive/19972.jpg",
+      "train/positive/19973.jpg"
+    ]
+  },
+  "test": [
+    {
+      "file": "test/negative/19948.jpg"
+    },
+    {
+      "file": "test/negative/19949.jpg"
+    },
+    {
+      "file": "test/negative/19950.jpg"
+    },
+    {
+      "file": "test/negative/19951.jpg"
+    },
+    {
+      "file": "test/negative/19952.jpg"
+    },
+    {
+      "file": "test/positive/19996.jpg"
+    },
+    {
+      "file": "test/positive/19997.jpg"
+    },
+    {
+      "file": "test/positive/19998.jpg"
+    },
+    {
+      "file": "test/positive/19999.jpg"
+    },
+    {
+      "file": "test/positive/20000.jpg"
+    }
+  ]
+}

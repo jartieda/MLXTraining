@@ -53,8 +53,8 @@ afterAll(async () => {
   if (available) await disconnect()
 })
 
-suite('the nine tables exist', () => {
-  it('creates exactly the tables data-model.md specifies, plus two named support tables', async () => {
+suite('the remote schema tables exist', () => {
+  it('creates the documented tables and support tables', async () => {
     const rows = await asOwner<{ table_name: string }>(`
       select table_name from information_schema.tables
       where table_schema = 'public' and table_type = 'BASE TABLE'
@@ -62,6 +62,7 @@ suite('the nine tables exist', () => {
     `)
 
     expect(rows.map((r) => r.table_name)).toEqual([
+      'anonymous_quiz_submissions',
       'audit_log',
       'classrooms',
       // Support tables, documented in 0001_schema.sql. `code_pepper` is what stops

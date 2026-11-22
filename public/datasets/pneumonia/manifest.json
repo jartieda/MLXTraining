@@ -1,0 +1,80 @@
+{
+  "classes": {
+    "normal": [
+      "train/NORMAL/NORMAL2-IM-1271-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1272-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1273-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1274-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1275-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1321-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1322-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1323-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1326-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1327-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1328-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1329-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1330-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1332-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1333-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1334-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1335-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1336-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1337-0001.jpeg",
+      "train/NORMAL/NORMAL2-IM-1338-0001.jpeg"
+    ],
+    "pneumonia": [
+      "train/PNEUMONIA/person9_bacteria_38.jpg",
+      "train/PNEUMONIA/person9_bacteria_41.jpg",
+      "train/PNEUMONIA/person96_virus_179.jpg",
+      "train/PNEUMONIA/person940_bacteria_2865.jpg",
+      "train/PNEUMONIA/person940_virus_1602.jpg",
+      "train/PNEUMONIA/person942_bacteria_2867.jpg",
+      "train/PNEUMONIA/person944_bacteria_2869.jpg",
+      "train/PNEUMONIA/person945_bacteria_2870.jpg",
+      "train/PNEUMONIA/person947_bacteria_2872.jpg",
+      "train/PNEUMONIA/person950_virus_1621.jpg",
+      "train/PNEUMONIA/person954_virus_1626.jpg",
+      "train/PNEUMONIA/person955_virus_1627.jpg",
+      "train/PNEUMONIA/person956_virus_1628.jpg",
+      "train/PNEUMONIA/person969_bacteria_2894.jpg",
+      "train/PNEUMONIA/person970_bacteria_2895.jpg",
+      "train/PNEUMONIA/person971_bacteria_2896.jpg",
+      "train/PNEUMONIA/person972_bacteria_2897.jpg",
+      "train/PNEUMONIA/person974_bacteria_2899.jpg",
+      "train/PNEUMONIA/person978_virus_1653.jpg",
+      "train/PNEUMONIA/person998_bacteria_2927.jpg"
+    ]
+  },
+  "test": [
+    {
+      "file": "test/NORMAL/NORMAL2-IM-0052-0001.jpeg"
+    },
+    {
+      "file": "test/NORMAL/NORMAL2-IM-0086-0001.jpeg"
+    },
+    {
+      "file": "test/NORMAL/NORMAL2-IM-0110-0001.jpeg"
+    },
+    {
+      "file": "test/NORMAL/NORMAL2-IM-0112-0001.jpeg"
+    },
+    {
+      "file": "test/NORMAL/NORMAL2-IM-0123-0001.jpeg"
+    },
+    {
+      "file": "test/NORMAL/TEST_SANA_NORMAL2-IM-0110-0001.jpg"
+    },
+    {
+      "file": "test/PNEUMONIA/person61_virus_118.jpeg"
+    },
+    {
+      "file": "test/PNEUMONIA/person78_bacteria_387.jpeg"
+    },
+    {
+      "file": "test/PNEUMONIA/person80_bacteria_393.jpeg"
+    },
+    {
+      "file": "test/PNEUMONIA/person83_bacteria_411.jpeg"
+    }
+  ]
+}

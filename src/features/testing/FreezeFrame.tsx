@@ -206,15 +206,15 @@ export function FreezeFrame({ video, frozen, onFreeze, testPhotos = [] }: Freeze
       {testPhotos.length > 0 ? (
         <div className="flex flex-col gap-1">
           <p className="text-sm font-medium">{t('freeze.testPhotos')}</p>
-          <ul className="flex list-none flex-wrap gap-2 p-0">
+          <ul className="grid w-full list-none grid-cols-4 gap-2 p-0">
             {testPhotos.map((photo) => (
-              <li key={photo.url}>
+              <li key={photo.url} className="min-w-0">
                 <button
                   type="button"
                   onClick={() => void freezeUrl(photo.url)}
-                  className="flex flex-col items-center gap-1 rounded border border-border-subtle p-1 text-xs"
+                  className="flex w-full min-w-0 flex-col items-center gap-1 rounded border border-border-subtle p-1 text-center text-xs"
                 >
-                  <img src={photo.url} alt="" className="h-16 w-16 rounded object-cover" />
+                  <img src={photo.url} alt="" className="aspect-square w-full rounded object-cover" />
                   {photo.label}
                 </button>
               </li>

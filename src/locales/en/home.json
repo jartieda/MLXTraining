@@ -9,7 +9,7 @@
     "steps": {
       "quizBefore": {
         "title": "Starting quiz",
-        "body": "Answer the “What have I learned?” quiz before you start. It is fine not to know the answers."
+        "body": "Before you begin, answer what you know about explainable AI and mark how much you agree with the statements about yourself."
       },
       "theory": {
         "title": "A bit of theory",
@@ -25,7 +25,7 @@
       },
       "quizAfter": {
         "title": "Final quiz",
-        "body": "Answer the quiz again when you finish and hand in the file it downloads."
+        "body": "When you finish, take the final quiz (basic or advanced), answer the open question again, and download your result."
       }
     },
     "tabsTitle": "The three tabs of each lab",
@@ -36,9 +36,10 @@
     }
   },
   "quizCallout": {
-    "title": "Quiz: what have I learned?",
-    "body": "Answer it twice: before using the labs and when you finish. There are 12 multiple-choice questions and a few about you; it takes about 10 minutes. At the end you download a file to hand in.",
-    "cta": "Go to the quiz"
+    "title": "Initial and final quizzes",
+    "body": "The initial quiz asks what you know about explainable AI and records how you see yourself. After the labs, take the final test and answer the open question again to compare.",
+    "initialCta": "Initial quiz",
+    "finalCta": "Final quiz"
   },
   "theory": {
     "title": "Explainable AI theory",
@@ -124,20 +125,34 @@
   },
   "quiz": {
     "back": "Back to home",
-    "title": "Quiz: what have I learned?",
-    "intro": "Answer it before using the labs and again when you finish. If you do not know an answer, choose “I don’t know”: it is better than guessing.",
-    "research": "This quiz is used in research on how explainable AI is learned. Do not write your name: use the code your teacher gives you. Your answers only leave this device if you download the file and hand it in. You may leave questions unanswered.",
+    "title": {
+      "pre": "Initial quiz",
+      "post": "Final quiz: what have I learned?"
+    },
+    "intro": {
+      "pre": "Answer in your own words what you know about explainable AI and what it is for. Then mark how much you agree with each statement about yourself.",
+      "post": "Choose the basic or advanced level. At the end, explain in your own words what explainable AI is and what it is for."
+    },
+    "research": "This quiz is used in research on how explainable AI is learned. When you select Finish, your multiple-choice answers and scales are sent to the server for aggregate analysis; your participant code, group code, open responses and account are not sent. The server adds the submission date in UTC. Your selected country is included with your consent. Do not write your name. You may leave questions unanswered.",
     "participantLabel": "Your code",
     "participantHint": "The one your teacher gave you (letters, numbers and dashes only). Use the same code at the start and at the end.",
     "groupLabel": "Group code (optional)",
     "groupHint": "For example, the class or the workshop.",
-    "phaseLabel": "When are you doing it?",
     "phase": {
       "pre": "Before using the labs",
       "post": "After using the labs"
     },
     "start": "Start",
     "who": "Code {{participant}} · {{phase}}",
+    "testTypeLabel": "Choose a test",
+    "testType": {
+      "basic": "Basic",
+      "advanced": "Advanced"
+    },
+    "testTypeHint": {
+      "basic": "The current questionnaire on foundational concepts.",
+      "advanced": "Twelve scenarios to apply what you have learned."
+    },
     "idk": "I don’t know",
     "items": {
       "q1": {
@@ -237,6 +252,107 @@
         "why": "Confidence is a probability the model computes, not a guarantee of being right."
       }
     },
+    "advancedItems": {
+      "q1": {
+        "question": "A model classifies X-rays as “healthy” or “ill” with 96% accuracy. Its heat map almost always highlights a corner where the hospital label appears. What is the most reasonable conclusion?",
+        "a": "The 96% proves the model correctly detects the disease.",
+        "b": "The heat map confirms that the label causes the disease.",
+        "c": "It may be using the label as a shortcut; test it with that clue removed and with data from other hospitals.",
+        "d": "Heat maps cannot help detect problems.",
+        "why": "The label may correlate with the class and become a shortcut. Check the behavior with controlled changes and external data."
+      },
+      "q2": {
+        "question": "Of 200 test photos, 180 are dogs and 20 are cats. The model gets 190 right (95%) and gets all 180 dogs right. What happens with the cats?",
+        "a": "It gets 10 of the 20 cats right: its accuracy on cats is 50%.",
+        "b": "It gets all 20 cats right because the overall score is 95%.",
+        "c": "It gets all 20 cats wrong.",
+        "d": "It cannot be calculated even though we know it got all the dogs right.",
+        "why": "Of the 190 correct answers, 180 are dogs, leaving 10 correct among 20 cats. The overall percentage hid a much worse result for the minority class."
+      },
+      "q3": {
+        "question": "You train a model with photos of apples and bananas. You show it an orange and it says “apple, 97%.” Why?",
+        "a": "The 97% guarantees the orange looks like an apple.",
+        "b": "The model looked up an answer on the internet.",
+        "c": "The orange turned into an apple when you uploaded the photo.",
+        "d": "It only knows its training classes and may assign a known class with high confidence to something new.",
+        "why": "Many classifiers choose among known classes even when an input belongs to none of them. High confidence does not reliably mean the input is familiar."
+      },
+      "q4": {
+        "question": "A model assigns 90% to “cat.” You cover area A and it drops to 85%; cover B and it drops to 30%; cover C and it drops to 88%. Which area mattered most, and why?",
+        "a": "Area A, because it was tested first.",
+        "b": "Area B: covering it caused the largest drop, 60 percentage points.",
+        "c": "Area C, because its result stayed closest to the original.",
+        "d": "All three areas mattered equally.",
+        "why": "The biggest drop occurs when B is covered. This is evidence that the area influenced this prediction, though occlusion alone does not establish a complete causal explanation."
+      },
+      "q5": {
+        "question": "For the same photo, the heat map highlights the dog's face while occlusion highlights the background. What should you do?",
+        "a": "Treat both explanations as clues and run more controlled tests on several images and methods.",
+        "b": "Conclude that the heat map is always correct.",
+        "c": "Average the colours from both results.",
+        "d": "Choose whichever explanation seems more intuitive.",
+        "why": "Methods measure different things and can be unstable. Disagreement is a reason to investigate with perturbations and more examples, not to take one explanation as the truth."
+      },
+      "q6": {
+        "question": "You suspect your “husky or wolf” model is looking at snow. Which test gives the best evidence?",
+        "a": "Measure overall accuracy again on the same photos.",
+        "b": "Ask the model whether it looks at snow.",
+        "c": "Compare the same kinds of animals against varied or swapped backgrounds and measure whether predictions change.",
+        "d": "Look at one correct prediction of a wolf in snow.",
+        "why": "Keeping the animal fixed while varying the background, or vice versa, tests whether predictions follow an irrelevant clue such as snow."
+      },
+      "q7": {
+        "question": "You change “Lucía” to “Javier” in a job application and the response changes from 62% to 58% “Yes.” Is this evidence of bias?",
+        "a": "Yes, this alone proves the system discriminates.",
+        "b": "No, a name can never have an effect.",
+        "c": "No, because both answers are above 50%.",
+        "d": "It is a signal worth investigating, but repeat controlled pairs and measure variability before concluding.",
+        "why": "A single four-point difference may be variation. Repeated controlled pairs and group-level measures provide stronger evidence."
+      },
+      "q8": {
+        "question": "A company trains a model on résumés from the last 10 years, when it mostly hired men. It removes the “gender” column. What is most likely?",
+        "a": "The bias automatically disappears when that column is removed.",
+        "b": "The model may reproduce the historical pattern through other clues related to gender.",
+        "c": "The model can no longer learn anything from résumés.",
+        "d": "Historical data guarantees fair decisions.",
+        "why": "Other variables can act as proxies for gender, and historical labels reflect past decisions. Evaluate outcomes by group and review the data and process."
+      },
+      "q9": {
+        "question": "A chatbot says it classified a text as positive “because of the word happy.” Removing “happy” lowers confidence by 2 points, while removing “helped” lowers it by 40. What can you conclude?",
+        "a": "The self-explanation proves “happy” was the main cause.",
+        "b": "Removing a word never provides information.",
+        "c": "The measurement suggests “helped” had more influence in this test than the chatbot said.",
+        "d": "The chatbot classified the text randomly.",
+        "why": "The chatbot's written explanation does not necessarily match what influenced it. Removing words measures an effect on that input, though it does not fully explain the model."
+      },
+      "q10": {
+        "question": "You ask the same question with options A/B, then reverse them to B/A. The model answers “A” both times, even though A now means the opposite text. What does this indicate?",
+        "a": "There may be a position or option-label bias; counterbalance the order and compare the selected content.",
+        "b": "The model understands the first option better.",
+        "c": "Answer A is correct in both cases.",
+        "d": "Changing the order invalidates every evaluation.",
+        "why": "If the model chooses A even when A refers to a different answer, it may be following the position or label rather than the content."
+      },
+      "q11": {
+        "question": "You ask about a book that does not exist and the chatbot gives an author, year, and summary with great confidence. What best helps detect that it made this up?",
+        "a": "Ask it to repeat the answer with more confidence.",
+        "b": "Ask the same chatbot whether it is sure.",
+        "c": "Trust that so many details must be correct.",
+        "d": "Check the book and its details in reliable independent catalogues or sources.",
+        "why": "Fluency and confidence do not verify facts. An independent check in trustworthy sources can confirm whether the book exists."
+      },
+      "q12": {
+        "question": "Your app recommends an activity to a group of students. What is the best explanation for someone using it?",
+        "a": "A long technical description of the model that does not explain this recommendation.",
+        "b": "A clear, useful reason for the recommendation, which factors mattered, and how the person can review it or choose another option.",
+        "c": "A promise that the recommendation is always right.",
+        "d": "Only the model's confidence percentage.",
+        "why": "A useful explanation addresses the user's needs, allows them to question the recommendation, and does not present it as infallible."
+      }
+    },
+    "initialOpenQuestion": "Do you know what explainable AI is and what it is for?",
+    "reviewTitle": "Correct answers and explanations",
+    "rubricTitle": "Open-response rubric (0–2 points)",
     "likertTitle": "About you",
     "likertIntro": "Mark how much you agree with each sentence. There are no right answers.",
     "likert": {
@@ -253,13 +369,27 @@
       "5": "Completely"
     },
     "openQuestion": "Explain in your own words what explainable AI is and what it is for.",
-    "unanswered_one": "{{count}} multiple-choice question is still unanswered. You can finish anyway.",
-    "unanswered_other": "{{count}} multiple-choice questions are still unanswered. You can finish anyway.",
+    "openQuestionRubric": "Suggested rubric (0–2): 0 = no or incorrect explanation; 1 = says it helps understand decisions; 2 = explains that it helps understand specific decisions and detect errors or bias.",
+    "country": {
+      "consent": "I agree to send the anonymous quiz for aggregate analysis and include my selected country.",
+      "label": "Select your country",
+      "choose": "Choose a country"
+    },
+    "unanswered_one": "{{count}} multiple-choice question is still unanswered. Answer it before you can finish.",
+    "unanswered_other": "{{count}} multiple-choice questions are still unanswered. Answer them before you can finish.",
     "finish": "Finish",
+    "submitting": "Sending anonymous answers to the server…",
+    "submitted": "Answers sent to the server for aggregate analysis.",
+    "submitFailed": "The quiz is still saved on this device, but it could not be sent to the server.",
+    "submitNotConfigured": "The server connection is not configured. The quiz was not sent.",
+    "submitMigrationMissing": "The quiz migration (0004) is not installed on the server. Apply it in Supabase.",
+    "submitPermissions": "The server rejected the submission due to permissions. Check migration 0004.",
+    "submitNetworkError": "Could not connect to the server. Check your connection and try again.",
+    "retrySubmit": "Retry submission",
     "doneTitle": "Thank you!",
     "doneBody": {
-      "pre": "Done. When you finish the labs you will answer the same questions again to see what you have learned.",
-      "post": "Done. Below are your result and the correct answer to each question."
+      "pre": "Your initial answers are saved. When you finish the labs, complete the final quiz and answer again to compare what you have learned.",
+      "post": "Done. Below are your score, the correct answers, and your open response to compare with the initial one."
     },
     "handIn": "Download the file and hand it in to your teacher:",
     "downloadCsv": "Download result (CSV)",

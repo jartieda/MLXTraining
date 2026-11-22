@@ -160,7 +160,7 @@ export function WordLens({
       </label>
 
       <div className="flex flex-wrap items-center gap-2">
-        <Button onClick={handleLens} disabled={running || loadingModel || !engine || wordCount(text) === 0}>
+        <Button busy={running} onClick={handleLens} disabled={running || loadingModel || !engine || wordCount(text) === 0}>
           {t('lens.run')}
         </Button>
         <Button
@@ -205,7 +205,7 @@ export function WordLens({
           <h3 className="font-semibold">{t('lens.selfReport.title')}</h3>
           <p className="max-w-prose text-sm text-ink-muted">{t('lens.selfReport.intro')}</p>
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="secondary" onClick={handleAsk} disabled={running || !engine}>
+            <Button variant="secondary" busy={phase === 'ask'} onClick={handleAsk} disabled={running || !engine}>
               {t('lens.selfReport.ask')}
             </Button>
             {phase === 'ask' ? (
@@ -218,7 +218,13 @@ export function WordLens({
                 >
                   {t('chat.stop')}
                 </Button>
-                <span role="status" className="text-sm text-ink-muted">{t('lens.selfReport.asking')}</span>
+                <span role="status" className="inline-flex items-center gap-2 text-sm text-ink-muted">
+                  <span
+                    aria-hidden="true"
+                    className="size-4 motion-safe:animate-spin rounded-full border-2 border-blue border-t-transparent"
+                  />
+                  {t('lens.selfReport.asking')}
+                </span>
               </>
             ) : null}
           </div>

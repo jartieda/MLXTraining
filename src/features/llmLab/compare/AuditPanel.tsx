@@ -82,6 +82,7 @@ export function AuditPanel({
       <div className="flex flex-wrap items-center gap-2">
         <Button
           variant="secondary"
+          busy={running}
           disabled={running || disabled || !engine}
           onClick={() => {
             void handleAudit()

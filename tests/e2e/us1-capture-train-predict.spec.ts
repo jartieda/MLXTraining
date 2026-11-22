@@ -36,7 +36,7 @@ async function addClass(page: Page, name: string): Promise<void> {
   await page.getByRole('button', { name: /add a class|añadir una clase/i }).click()
   await page.getByLabel(/class name|nombre de la clase/i).fill(name)
   await page.keyboard.press('Enter')
-  await expect(page.getByText(name, { exact: true })).toBeVisible()
+  await expect(page.getByRole('radio', { name: new RegExp(name, 'i') })).toBeVisible()
 }
 
 async function capture(page: Page, className: string, count: number): Promise<void> {
@@ -77,6 +77,27 @@ async function upload(page: Page, className: string, files: readonly string[]): 
 }
 
 test.describe('US1 — teach a model and watch it work', () => {
+  test('shows the project breadcrumb and only says capturing when the camera is on', async ({
+    page,
+  }) => {
+    await createProject(page, 'Camera status test')
+    const breadcrumb = page.getByRole('navigation', { name: /breadcrumb|ruta de navegación/i })
+    const projectsLink = breadcrumb.getByRole('link', { name: /my projects|mis proyectos/i })
+
+    await expect(projectsLink).toHaveAttribute('href', '/projects')
+    await expect(projectsLink).toHaveClass(/border-border-subtle/)
+    await expect(breadcrumb.getByText('Camera status test', { exact: true })).toBeVisible()
+
+    await addClass(page, 'Apple')
+    await page.getByRole('radio', { name: /Apple/i }).click()
+    await expect(page.getByText(/capturing into Apple|capturando en Apple/i)).toHaveCount(0)
+    await expect(page.getByText(/selected class: Apple|clase seleccionada: Apple/i)).toBeVisible()
+
+    await page.getByRole('button', { name: /turn on the camera|encender la cámara/i }).click()
+    await expect(page.getByText(/capturing into Apple|capturando en Apple/i)).toBeVisible()
+    await page.getByRole('button', { name: /turn off the camera|apagar la cámara/i }).click()
+  })
+
   test('captures into two classes, trains, and predicts with confidences summing to 100%', async ({
     page,
   }) => {

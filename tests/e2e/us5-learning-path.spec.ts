@@ -54,6 +54,13 @@ test.describe('the path is readable with no account (FR-023)', () => {
   test('a module shows its goal, steps, challenge and questions (FR-034)', async ({ page }) => {
     await page.goto('/lessons/what-the-model-sees')
 
+    const breadcrumb = page.getByRole('navigation', { name: /breadcrumb|ruta de navegación/i })
+    await expect(breadcrumb.getByRole('link', { name: /back to the learning path|volver al camino de aprendizaje/i })).toHaveAttribute(
+      'href',
+      '/lessons',
+    )
+    await expect(breadcrumb.locator('[aria-current="page"]')).toBeVisible()
+
     // The four things FR-034 requires, in the order they are taught.
     await expect(page.getByRole('heading', { name: /what you will learn|qué vas a aprender/i })).toBeVisible()
     await expect(page.getByRole('heading', { name: /do this in the lab|haz esto en el laboratorio/i })).toBeVisible()

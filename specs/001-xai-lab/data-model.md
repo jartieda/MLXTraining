@@ -275,6 +275,27 @@ Each row is written **inside the same transaction** as the action it records, by
 `SECURITY DEFINER` function performing it. Writing it afterwards would allow the deletion to succeed
 while the record is lost, which is precisely the failure the log exists to rule out.
 
+### `anonymous_quiz_submissions`
+
+One row per submitted initial or final questionnaire, for aggregate research analysis.
+
+| Field | Type | Rules |
+|---|---|---|
+| `submission_id` | UUID (primary key) | Random idempotency key; not linked to an account or participant code |
+| `quiz_version` | text | Version of the questionnaire |
+| `phase` | `pre` \| `post` | Initial or final questionnaire |
+| `quiz_type` | `basic` \| `advanced` | |
+| `language` | `en` \| `es` | |
+| `answers` | jsonb | Closed choices only; empty for the initial questionnaire |
+| `likert` | jsonb | Four 1–5 scale values or `null` |
+| `country_code` | ISO-style two-letter code | Required, selected by the participant |
+| `country_consent` | boolean | Must be true for every submission |
+| `submitted_on` | date | Assigned by Postgres in UTC; no client-supplied date or time |
+
+The public application can submit through `submit_anonymous_quiz` but cannot read this table.
+Participant and group codes, open responses, account identifiers, and client timestamps are
+excluded. `service_role` is the only application role granted read access for aggregate analysis.
+
 ### Remote store invariants
 
 These are the assertions the row-level-security test suite must prove:
@@ -309,3 +330,6 @@ These are the assertions the row-level-security test suite must prove:
     (FR-051).
 11. **The last administrator cannot be deactivated.** Enforced inside `deactivate_educator` and by a
     partial constraint, so the program cannot be locked out of its own administration (FR-056).
+12. **Anonymous questionnaire submissions contain structured answers only and are unreadable
+    through the application.** The server assigns the UTC submission date, and a country is
+    accepted only with explicit consent.

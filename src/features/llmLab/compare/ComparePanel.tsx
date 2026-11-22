@@ -417,6 +417,7 @@ export function ComparePanel({
           <TwoModelSteps
             firstRun={firstRun}
             modelName={modelName}
+            loadingModel={loadingModel}
             ready={!running && !loadingModel && engine !== null && promptA.trim().length > 0}
             onFirst={() => {
               void handleFirstModel()
@@ -441,7 +442,11 @@ export function ComparePanel({
           </Button>
         ) : null}
         {running ? (
-          <span role="status" className="text-sm text-ink-muted">
+          <span role="status" className="inline-flex items-center gap-2 text-sm text-ink-muted">
+            <span
+              aria-hidden="true"
+              className="size-4 motion-safe:animate-spin rounded-full border-2 border-blue border-t-transparent"
+            />
             {auditRunning ? t('compare.audit.runningShort') : mode === 'models' ? t('compare.mode.running', { model: modelName }) : t(`compare.running.${phase}`)}
           </span>
         ) : null}
@@ -506,6 +511,7 @@ function verdictLine(result: CompareResult, t: Translate): string {
 function TwoModelSteps({
   firstRun,
   modelName,
+  loadingModel,
   ready,
   onFirst,
   onSecond,
@@ -513,6 +519,7 @@ function TwoModelSteps({
 }: {
   readonly firstRun: FirstModelRun | null
   readonly modelName: string
+  readonly loadingModel: boolean
   readonly ready: boolean
   readonly onFirst: () => void
   readonly onSecond: () => void
@@ -522,7 +529,13 @@ function TwoModelSteps({
   if (!firstRun) {
     return (
       <div className="flex w-full flex-col gap-2">
+        <h3 className="text-sm font-semibold text-ink">{t('compare.mode.step1Title')}</h3>
         <p className="text-sm text-ink-muted">{t('compare.mode.step1')}</p>
+        {loadingModel ? (
+          <p role="status" className="text-sm text-ink-muted">
+            {t('compare.mode.loadingModel', { model: modelName })}
+          </p>
+        ) : null}
         <div>
           <Button onClick={onFirst} disabled={!ready}>
             {t('compare.mode.runFirst', { model: modelName })}
@@ -534,8 +547,18 @@ function TwoModelSteps({
   const sameModel = firstRun.modelName === modelName
   return (
     <div className="flex w-full flex-col gap-2" data-testid="two-models-step2">
+      <h3 className="text-sm font-semibold text-ink">{t('compare.mode.step2Title')}</h3>
       <p className="text-sm">{t('compare.mode.firstDone', { model: firstRun.modelName })}</p>
-      {sameModel ? <p className="text-sm text-ink-muted">{t('compare.mode.switchModel')}</p> : null}
+      {sameModel ? (
+        <p className="text-sm text-ink-muted">
+          {t('compare.mode.switchModel', { model: modelName })}
+        </p>
+      ) : null}
+      {loadingModel ? (
+        <p role="status" className="text-sm text-ink-muted">
+          {t('compare.mode.loadingModel', { model: modelName })}
+        </p>
+      ) : null}
       <div className="flex flex-wrap gap-2">
         <Button onClick={onSecond} disabled={!ready || sameModel}>
           {t('compare.mode.runSecond', { model: modelName })}

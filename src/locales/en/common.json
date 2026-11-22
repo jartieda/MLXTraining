@@ -6,6 +6,7 @@
   },
   "nav": {
     "label": "Main navigation",
+    "breadcrumbs": "Breadcrumb",
     "home": "Home",
     "projects": "My projects",
     "lab": "Lab",

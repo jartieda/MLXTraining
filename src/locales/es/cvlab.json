@@ -36,16 +36,28 @@
           "wolf": "Lobo"
         }
       },
-      "fewCats": {
-        "title": "Muchos perros, pocos gatos",
-        "topic": "Datos desequilibrados",
-        "story": "Este conjunto tiene muchísimas fotos de perros y muy pocas de gatos.",
-        "task": "Entrena y mira los resultados por clase. ¿Acierta igual con los gatos que con los perros?",
-        "trap": "Con pocos ejemplos de una clase, el modelo tiende a responder la clase mayoritaria. La precisión total puede parecer buena aunque falle casi siempre con los gatos. Prueba a equilibrar las clases y vuelve a entrenar.",
-        "projectName": "Reto: perros y gatos",
+      "concrete_crack": {
+        "title": "¿Detecta las grietas?",
+        "topic": "Clases desequilibradas: pocas grietas",
+        "story": "Hay muchas fotos de hormigón sin grietas y pocas con grietas.",
+        "task": "Entrena y compara los resultados por clase. ¿Detecta las grietas o parece preciso porque casi todo está intacto?",
+        "trap": "En el entrenamiento hay 20 fotos sin grietas y solo 5 con grietas. Un modelo puede acertar la mayoría respondiendo «sin grieta» y aun así pasar por alto muchas grietas.",
+        "projectName": "Reto: detección de grietas",
         "classes": {
-          "dog": "Perro",
-          "cat": "Gato"
+          "negative": "Sin grieta",
+          "positive": "Con grieta"
+        }
+      },
+      "pneumonia": {
+        "title": "¿Detecta neumonía?",
+        "topic": "Atajos: una marca del hospital",
+        "story": "El entrenamiento tiene igual número de radiografías normales y con neumonía. Solo las imágenes con neumonía tienen la marca «GREY SLOAN MEMORIAL».",
+        "task": "Entrena el modelo y explica fotos de prueba. ¿Se fija en los pulmones o en la marca del hospital? Prueba también la radiografía normal con la misma marca.",
+        "trap": "El entrenamiento está balanceado: hay 20 imágenes de cada clase, pero solo las de neumonía muestran la marca del hospital. El modelo puede usarla como atajo en vez de fijarse en los pulmones. En las fotos de prueba hay una radiografía normal con la misma marca: si el modelo la sigue, podría confundirla con neumonía. Es un experimento educativo, no sirve para diagnosticar.",
+        "projectName": "Reto educativo: neumonía",
+        "classes": {
+          "normal": "Sin neumonía",
+          "pneumonia": "Con neumonía"
         }
       },
       "dogChicken": {
@@ -97,8 +109,8 @@
       "imbalance": {
         "title": "Equilibra los datos",
         "what": "Si una clase tiene muchas más fotos que otra, el modelo puede ser injusto con la pequeña.",
-        "challenge": "Carga el reto «Muchos perros, pocos gatos», entrena, mira los resultados por clase y vuelve a entrenar con clases equilibradas.",
-        "question": "¿Qué cambió al equilibrar las clases? ¿A quién perjudicaría este fallo en una app real?"
+        "challenge": "Carga el reto «¿Detecta las grietas?», compara los resultados por clase y prueba a equilibrar los datos.",
+        "question": "¿Puede una precisión total alta ocultar que el modelo no detecta las grietas?"
       },
       "twoExplanations": {
         "title": "Dos explicaciones",

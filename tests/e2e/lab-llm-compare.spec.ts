@@ -15,6 +15,14 @@ async function withFakeEngine(page: Page): Promise<void> {
   await page.addInitScript(() => {
     const NEGATIVE = /harta|fed up|No es saludable dormir|Isn't it healthy/i
     const lp = (p: number) => Math.log(p)
+    const testWindow = window as unknown as {
+      __ML4G_FAKE_LLM_UNLOADS__?: number
+      __ML4G_FAKE_LLM_REPEAT_CALLS__?: number
+      __ML4G_FAKE_LLM_REPEAT_SYSTEM_PROMPT__?: string
+    }
+    testWindow.__ML4G_FAKE_LLM_UNLOADS__ = 0
+    testWindow.__ML4G_FAKE_LLM_REPEAT_CALLS__ = 0
+    testWindow.__ML4G_FAKE_LLM_REPEAT_SYSTEM_PROMPT__ = ''
     ;(window as unknown as Record<string, unknown>).__ML4G_FAKE_LLM_ENGINE__ = {
       backend: 'gpu',
       nextTokenAlternatives: (prompt: string, prefix = '') => {
@@ -43,8 +51,28 @@ async function withFakeEngine(page: Page): Promise<void> {
           { token: feminine ? 'exigente' : 'estricto', logprob: lp(0.2) },
         ])
       },
-      generate: (messages: { content: string }[], _max: number, signal?: AbortSignal) =>
-        new Promise<string>((resolve, reject) => {
+      generate: (
+        messages: { role?: string; content: string }[],
+        _max: number,
+        signal?: AbortSignal,
+        options?: { temperature?: number },
+      ) => {
+        if (options?.temperature !== undefined) {
+          const call = (testWindow.__ML4G_FAKE_LLM_REPEAT_CALLS__ ?? 0) + 1
+          testWindow.__ML4G_FAKE_LLM_REPEAT_CALLS__ = call
+          testWindow.__ML4G_FAKE_LLM_REPEAT_SYSTEM_PROMPT__ =
+            messages.find((message) => message.role === 'system')?.content ?? ''
+          return new Promise<string>((resolve, reject) => {
+            const timer = setTimeout(() => resolve(`Sampled answer ${call}`), 100)
+            signal?.addEventListener('abort', () => {
+              clearTimeout(timer)
+              const error = new Error('stopped')
+              error.name = 'LlmAbortedError'
+              reject(error)
+            })
+          })
+        }
+        return new Promise<string>((resolve, reject) => {
           // Asked which words influenced it, the fake names one the lens agrees with
           // and two it does not: «coinciden en parte».
           const content = messages[0]?.content ?? ''
@@ -61,8 +89,12 @@ async function withFakeEngine(page: Page): Promise<void> {
             error.name = 'LlmAbortedError'
             reject(error)
           })
-        }),
-      unload: () => Promise.resolve(),
+        })
+      },
+      unload: () => {
+        testWindow.__ML4G_FAKE_LLM_UNLOADS__ = (testWindow.__ML4G_FAKE_LLM_UNLOADS__ ?? 0) + 1
+        return Promise.resolve()
+      },
     }
   })
 }
@@ -75,6 +107,23 @@ async function openComparator(page: Page): Promise<void> {
 }
 
 test.describe('Lab LLM — compare two prompts', () => {
+  test('keeps the model loaded when navigating away and back within the site', async ({ page }) => {
+    await withFakeEngine(page)
+    await page.goto('/lab-llm')
+    await expect(page.getByRole('button', { name: /enviar al modelo|send to model/i })).toBeEnabled()
+
+    await page.getByRole('link', { name: /lab cv/i }).click()
+    await page.getByRole('link', { name: /lab llm/i }).click()
+
+    await expect(page.getByRole('button', { name: /enviar al modelo|send to model/i })).toBeEnabled()
+    await expect.poll(() =>
+      page.evaluate(
+        () =>
+          (window as unknown as { __ML4G_FAKE_LLM_UNLOADS__?: number }).__ML4G_FAKE_LLM_UNLOADS__ ?? 0,
+      ),
+    ).toBe(0)
+  })
+
   test('the sentiment example: one word flips the answer and the verdict says so', async ({ page }) => {
     await openComparator(page)
 
@@ -154,10 +203,16 @@ test.describe('Lab LLM — compare two prompts', () => {
 
   test('one prompt, two models: A waits while the model is switched', async ({ page }) => {
     await openComparator(page)
-    await page.getByRole('button', { name: /un prompt, dos modelos|one prompt, two models/i }).click()
+    await expect(page.locator('#main header').first().locator('img')).toHaveAttribute(
+      'src',
+      '/icons/lab-llm-chat.png',
+    )
+    await page.getByRole('button', { name: /una misma pregunta, dos modelos|same question, two models/i }).click()
+    await expect(page.getByRole('heading', { name: /paso 1 de 2|step 1 of 2/i })).toBeVisible()
     await page.getByRole('button', { name: /probar con gemma|try with gemma/i }).click()
     const step2 = page.getByTestId('two-models-step2')
-    await expect(step2).toContainText(/cambia de modelo|switch model/i)
+    await expect(step2.getByRole('heading', { name: /paso 2 de 2|step 2 of 2/i })).toBeVisible()
+    await expect(step2).toContainText(/tarjeta de modelo distinta|different model card/i)
     await expect(step2.getByRole('button', { name: /probar con|try with/i })).toBeDisabled()
 
     await page.getByRole('button', { name: /^llama$/i }).click()
@@ -166,12 +221,35 @@ test.describe('Lab LLM — compare two prompts', () => {
     await expect(page.getByTestId('compare-band')).toHaveText(/casi igual|almost the same/i)
   })
 
-  test('«Repeat 5 times» is a mock-up and says so', async ({ page }) => {
+  test('repeats one prompt four times with sampling and shows a calculating indicator', async ({ page }) => {
     await openComparator(page)
-    const mockup = page.getByTestId('repeat-mockup')
-    await expect(mockup.getByTestId('repeat-badge')).toHaveText(/próximamente|coming soon/i)
-    await expect(mockup).toContainText(/siempre igual|always answers the same/i)
-    await expect(mockup.getByRole('button', { name: /repetir 5 veces|repeat 5 times/i })).toBeDisabled()
+    await expect(page.getByTestId('loading-insight')).toBeVisible()
+    for (const label of [/herramientas|tools/i, /retos|challenges/i, /misiones|missions/i]) {
+      await expect(page.getByRole('tab', { name: label }).locator('img')).toHaveCount(0)
+    }
+    const repeat = page.getByTestId('repeat-panel')
+    await repeat.getByRole('textbox', { name: /tu pregunta o prompt|your question or prompt/i })
+      .fill('What might happen next?')
+    await repeat.getByRole('button', { name: /generar 4 respuestas|generate 4 answers/i }).click()
+
+    await expect(repeat.locator('button').first()).toHaveAttribute('aria-busy', 'true')
+    await expect(repeat.getByTestId('repeat-answers').getByRole('listitem')).toHaveCount(4)
+    await expect(repeat.getByTestId('repeat-answers')).toContainText('Sampled answer 1')
+    await expect(repeat.getByTestId('repeat-answers')).toContainText('Sampled answer 4')
+    await expect.poll(() =>
+      page.evaluate(
+        () =>
+          (window as unknown as { __ML4G_FAKE_LLM_REPEAT_SYSTEM_PROMPT__?: string })
+            .__ML4G_FAKE_LLM_REPEAT_SYSTEM_PROMPT__ ?? '',
+      ),
+    ).toMatch(/brief|breve/i)
+    await expect.poll(() =>
+      page.evaluate(
+        () =>
+          (window as unknown as { __ML4G_FAKE_LLM_REPEAT_CALLS__?: number })
+            .__ML4G_FAKE_LLM_REPEAT_CALLS__ ?? 0,
+      ),
+    ).toBe(4)
   })
 
   test('fits a 360 px screen without horizontal scrolling', async ({ page }) => {

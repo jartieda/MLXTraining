@@ -22,15 +22,29 @@
     "loading": "Loading the local model in your browser…",
     "loadingProgress": "Loading the local model in your browser… {{percent}}%",
     "loadingActivity": {
-      "title": "A little word game while it loads",
-      "prompt": "In the foggy forest, I found a…",
-      "choose": "Choose how the story continues",
-      "options": {
-        "dragon": "dragon",
-        "map": "map",
-        "robot": "robot"
-      },
-      "picked": "A {{word}}! That would be a fun continuation. There are lots of possible answers; the model works out which ones seem most likely."
+      "title": "Did you know…?",
+      "items": {
+        "tokens": {
+          "title": "Words can be split into tokens",
+          "text": "The model processes text fragments called tokens. A word can be one token or split into several."
+        },
+        "explanation": {
+          "title": "An explanation is not a window into the model's mind",
+          "text": "An explanation it generates is another model response; it does not reveal its internal calculations with certainty."
+        },
+        "probability": {
+          "title": "Most likely does not always mean true",
+          "text": "Probability indicates which continuation best fits the model, not whether the answer is true."
+        },
+        "prompt": {
+          "title": "Mini challenge: change one word",
+          "text": "Change just one word in your prompt and see whether the answer or probabilities change."
+        },
+        "bias": {
+          "title": "Mini challenge: try two names",
+          "text": "Change only a person's name in a question. If the answer changes, investigate: one difference alone does not prove bias."
+        }
+      }
     },
     "modelUnavailable": "The local model is not ready yet.",
     "modelError": "WebLLM could not load the model: {{error}}",
@@ -69,6 +83,12 @@
       "llama": "Llama",
       "qwen": "Qwen (Alibaba)"
     },
+    "modelDetails": {
+      "gemma": "Google's family of open models",
+      "llama": "Meta's family of open models",
+      "qwen": "Alibaba's multilingual model family"
+    },
+    "selected": "Selected",
     "stop": "Stop",
     "stopped": "Stopped. You can ask again whenever you like."
   },
@@ -307,12 +327,15 @@
     "mode": {
       "label": "What do you want to compare?",
       "prompts": "Two prompts, one model",
-      "models": "One prompt, two models",
-      "prompt": "Prompt",
-      "step1": "First try the prompt with the model you have loaded. Then switch model at the top and try it again.",
+      "models": "Same question, two models",
+      "prompt": "Same prompt for both models",
+      "step1Title": "Step 1 of 2: try the first model",
+      "step1": "Choose a model card above and wait for it to finish loading. Then press “Try with…” to save its answer.",
+      "loadingModel": "Loading {{model}}… Wait for it to finish before trying it.",
       "runFirst": "Try with {{model}}",
-      "firstDone": "Result kept with {{model}}. Now choose another model at the top and try the same prompt.",
-      "switchModel": "You still have the same model loaded. Switch model at the top to continue.",
+      "firstDone": "The answer from {{model}} is saved. Now choose another model card above and wait for it to load; keep the same prompt.",
+      "step2Title": "Step 2 of 2: try another model",
+      "switchModel": "{{model}} is still selected. Choose a different model card; the Step 2 button will become available when it finishes loading.",
       "runSecond": "Try with {{model}}",
       "restart": "Start again",
       "running": "Trying with {{model}}…",
@@ -467,13 +490,20 @@
     }
   },
   "repeat": {
-    "title": "Repeat 5 times",
-    "badge": "Coming soon",
-    "intro": "If you ask the same thing several times and the answer changes, it's a sign the model is unsure. The 5 answers would appear here, one under the other.",
-    "why": "With the current settings the model always answers the same way: it generates without randomness, so the 5 answers would be identical. That's why this feature isn't active yet.",
-    "listLabel": "Answers (empty until the feature is active)",
-    "slot": "Answer {{number}}",
-    "run": "Repeat 5 times"
+    "title": "What answers does it give to the same question?",
+    "badge": "Sampling on",
+    "intro": "Write a question and generate four answers to observe how they can vary.",
+    "hiddenPrompt": "Answer briefly, in no more than two sentences.",
+    "note": "Generation uses sampling to allow different answers. Variation alone does not measure the model's certainty or show whether an answer is correct.",
+    "promptLabel": "Your question or prompt",
+    "promptPlaceholder": "Why does the sky change color at sunset?",
+    "run": "Generate 4 answers",
+    "running": "Generating {{done}} of {{total}}…",
+    "progress": "{{done}} of {{total}} answers generated.",
+    "listLabel": "Generated answers",
+    "answer": "Answer {{number}}",
+    "stopped": "Stopped. Generated answers are kept.",
+    "failed": "Not all answers could be generated. Any answers already generated are kept."
   },
   "labTabs": {
     "toolsIntro": "The tools for looking inside the model: which word comes next, the two-prompt comparator and the word lens. Use them with your own texts.",

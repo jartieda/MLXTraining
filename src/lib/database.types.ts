@@ -27,6 +27,7 @@ export type InvitationKind = 'educator' | 'learner'
 export type InvitationPurpose = 'initial' | 'password_reset'
 export type ProgressState = 'not_started' | 'in_progress' | 'completed'
 export type UiLocale = 'en' | 'es'
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export interface PerClassMetric {
   readonly classId: string
@@ -234,6 +235,20 @@ export interface Database {
       delete_learner: { Args: { id: string }; Returns: undefined }
       deactivate_educator: { Args: { id: string }; Returns: undefined }
       reassign_classroom: { Args: { classroom: string; to_educator: string }; Returns: undefined }
+      submit_anonymous_quiz: {
+        Args: {
+          p_submission_id: string
+          p_quiz_version: string
+          p_phase: string
+          p_quiz_type: string
+          p_language: string
+          p_answers: Json
+          p_likert: Json
+          p_country_code: string | null
+          p_country_consent: boolean
+        }
+        Returns: undefined
+      }
     }
 
     Enums: {

@@ -37,8 +37,12 @@ const Lessons = lazy(() =>
 const Classroom = lazy(() =>
   import('@/features/classroom/ClassroomPage').then((m) => ({ default: m.ClassroomPage })),
 )
-const Admin = lazy(() => import('@/features/admin/AdminPage').then((m) => ({ default: m.AdminPage })))
-const Login = lazy(() => import('@/features/auth/LoginPage').then((m) => ({ default: m.LoginPage })))
+const Admin = lazy(() =>
+  import('@/features/admin/AdminPage').then((m) => ({ default: m.AdminPage })),
+)
+const Login = lazy(() =>
+  import('@/features/auth/LoginPage').then((m) => ({ default: m.LoginPage })),
+)
 const Redeem = lazy(() =>
   import('@/features/auth/RedeemPage').then((m) => ({ default: m.RedeemPage })),
 )
@@ -62,7 +66,7 @@ export const router = createBrowserRouter([
       { path: 'lab/:projectId', element: <LearnerRoute>{<Lab />}</LearnerRoute> },
       { path: 'lab', element: <LearnerRoute>{<Lab />}</LearnerRoute> },
       { path: 'lab-llm', element: <LearnerRoute>{<LlmLab />}</LearnerRoute> },
-      // The learning questionnaire (pre and post). No account: the file is the result.
+      // Initial and final questionnaires. No account: the downloaded file is the result.
       { path: 'quiz', element: <LearnerRoute>{<Quiz />}</LearnerRoute> },
 
       { path: 'lessons', element: <LearnerRoute>{<Lessons />}</LearnerRoute> },

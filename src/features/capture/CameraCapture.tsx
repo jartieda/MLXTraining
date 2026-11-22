@@ -271,7 +271,7 @@ export function CameraCapture({ videoRef, onActiveChange, onStartReady }: Camera
 
       {selectedClass ? (
         <p aria-live="polite" className="text-sm text-ink-muted">
-          {t('classes.selected', { name: selectedClass.name })}
+          {t(active ? 'classes.capturing' : 'classes.selected', { name: selectedClass.name })}
           {' · '}
           {selectedSampleCount === 0
             ? t('classes.countZero')

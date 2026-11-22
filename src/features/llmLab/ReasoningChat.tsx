@@ -202,6 +202,7 @@ export function ReasoningChat({
 
         <div className="flex flex-wrap items-center gap-2">
           <Button
+            busy={asking}
             onClick={() => {
               void handleAsk()
             }}
@@ -245,7 +246,7 @@ export function ReasoningChat({
               className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800"
             >
               <span
-                className="h-3 w-3 animate-spin rounded-full border-2 border-amber-600 border-t-transparent motion-reduce:animate-pulse"
+                className="size-3 motion-safe:animate-spin rounded-full border-2 border-amber-600 border-t-transparent"
                 aria-hidden="true"
               />
               {t('reasoning.thinking')}

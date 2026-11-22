@@ -9,7 +9,7 @@
     "steps": {
       "quizBefore": {
         "title": "Cuestionario inicial",
-        "body": "Contesta el cuestionario «¿Qué he aprendido?» antes de empezar. No pasa nada si no sabes las respuestas."
+        "body": "Antes de empezar, responde qué sabes sobre la IA explicable y marca cuánto estás de acuerdo con las frases sobre ti."
       },
       "theory": {
         "title": "Un poco de teoría",
@@ -25,7 +25,7 @@
       },
       "quizAfter": {
         "title": "Cuestionario final",
-        "body": "Vuelve a contestar el cuestionario al terminar y entrega el archivo que se descarga."
+        "body": "Al terminar, contesta el cuestionario final (básico o avanzado), responde de nuevo la pregunta abierta y descarga el resultado."
       }
     },
     "tabsTitle": "Las tres pestañas de cada laboratorio",
@@ -36,9 +36,10 @@
     }
   },
   "quizCallout": {
-    "title": "Cuestionario: ¿qué he aprendido?",
-    "body": "Contéstalo dos veces: antes de usar los laboratorios y al terminar. Son 12 preguntas tipo test y unas pocas sobre ti; se tarda unos 10 minutos. Al final descargas un archivo para entregarlo.",
-    "cta": "Ir al cuestionario"
+    "title": "Cuestionarios inicial y final",
+    "body": "El inicial pregunta qué sabes sobre la IA explicable y recoge cómo te ves. Al terminar los laboratorios, completa el test final y vuelve a responder la pregunta para comparar.",
+    "initialCta": "Cuestionario inicial",
+    "finalCta": "Cuestionario final"
   },
   "theory": {
     "title": "Teoría de la IA explicable",
@@ -124,20 +125,34 @@
   },
   "quiz": {
     "back": "Volver al inicio",
-    "title": "Cuestionario: ¿qué he aprendido?",
-    "intro": "Contéstalo antes de usar los laboratorios y otra vez al terminar. Si no sabes una respuesta, elige «No lo sé»: es mejor que adivinar.",
-    "research": "Este cuestionario se usa en una investigación sobre cómo se aprende IA explicable. No escribas tu nombre: usa el código que te dé tu profesor o profesora. Tus respuestas solo salen de este dispositivo si descargas el archivo y lo entregas. Puedes dejar preguntas sin contestar.",
+    "title": {
+      "pre": "Cuestionario inicial",
+      "post": "Cuestionario final: ¿qué he aprendido?"
+    },
+    "intro": {
+      "pre": "Responde con tus palabras qué sabes sobre la IA explicable y para qué sirve. Después, marca cuánto estás de acuerdo con cada frase sobre ti.",
+      "post": "Elige el nivel básico o avanzado. Al final, responde con tus palabras qué es la IA explicable y para qué sirve."
+    },
+    "research": "Este cuestionario se usa en una investigación sobre cómo se aprende IA explicable. Al pulsar «Terminar», se envían al servidor tus respuestas cerradas y escalas para analizar resultados agregados; no se envían tu código, el del grupo, tus respuestas abiertas ni tu cuenta. El servidor añade la fecha de envío en UTC. El país seleccionado se incluye con tu consentimiento. No escribas tu nombre. Puedes dejar preguntas sin contestar.",
     "participantLabel": "Tu código",
     "participantHint": "El que te ha dado tu profesor o profesora (solo letras, números y guiones). Usa el mismo código al principio y al final.",
     "groupLabel": "Código del grupo (opcional)",
     "groupHint": "Por ejemplo, la clase o el taller.",
-    "phaseLabel": "¿Cuándo lo estás haciendo?",
     "phase": {
       "pre": "Antes de usar los laboratorios",
       "post": "Después de usar los laboratorios"
     },
     "start": "Empezar",
     "who": "Código {{participant}} · {{phase}}",
+    "testTypeLabel": "Elige el test",
+    "testType": {
+      "basic": "Básico",
+      "advanced": "Avanzado"
+    },
+    "testTypeHint": {
+      "basic": "El cuestionario actual, con conceptos fundamentales.",
+      "advanced": "Doce situaciones para aplicar lo aprendido."
+    },
     "idk": "No lo sé",
     "items": {
       "q1": {
@@ -237,6 +252,107 @@
         "why": "La seguridad es una probabilidad que calcula el modelo, no una garantía de acierto."
       }
     },
+    "advancedItems": {
+      "q1": {
+        "question": "Un modelo clasifica radiografías como «sano» o «enfermo» con un 96 % de aciertos. El mapa de calor marca casi siempre una esquina donde aparece la etiqueta del hospital. ¿Qué conclusión es la más razonable?",
+        "a": "El 96 % demuestra que el modelo detecta correctamente la enfermedad.",
+        "b": "El mapa de calor confirma que la etiqueta causa la enfermedad.",
+        "c": "Puede estar usando la etiqueta como atajo; hay que probarlo con datos sin esa pista y de otros hospitales.",
+        "d": "Los mapas de calor no sirven para detectar problemas.",
+        "why": "La etiqueta puede estar correlacionada con la clase y convertirse en un atajo. Hay que comprobar el comportamiento con cambios controlados y datos externos."
+      },
+      "q2": {
+        "question": "De 200 fotos de prueba, 180 son de perros y 20 de gatos. El modelo acierta 190 (95 %) y acierta los 180 perros. ¿Qué pasa con los gatos?",
+        "a": "Acierta 10 de los 20 gatos: su precisión con gatos es del 50 %.",
+        "b": "Acierta los 20 gatos porque el total es 95 %.",
+        "c": "Falla los 20 gatos.",
+        "d": "No se puede calcular aunque sepamos que acertó todos los perros.",
+        "why": "De los 190 aciertos, 180 son perros; quedan 10 aciertos entre los 20 gatos. El porcentaje total escondía un resultado mucho peor en la clase minoritaria."
+      },
+      "q3": {
+        "question": "Entrenas un modelo con fotos de manzanas y plátanos. Le enseñas una naranja y dice «manzana, 97 %». ¿Por qué?",
+        "a": "El 97 % garantiza que la naranja se parece a una manzana.",
+        "b": "El modelo buscó una respuesta en internet.",
+        "c": "La naranja se convirtió en una manzana al subir la foto.",
+        "d": "Solo conoce las clases de entrenamiento y puede asignar con mucha confianza una clase conocida a algo nuevo.",
+        "why": "Muchos clasificadores eligen entre las clases conocidas aunque la entrada no pertenezca a ninguna. La confianza alta no es una medida fiable de que la entrada esté dentro de lo conocido."
+      },
+      "q4": {
+        "question": "Un modelo da un 90 % a «gato». Tapas la zona A y baja a 85 %; tapas la zona B y baja a 30 %; tapas la zona C y baja a 88 %. ¿Qué zona pesó más y por qué?",
+        "a": "La zona A, porque se probó primero.",
+        "b": "La zona B: al taparla la confianza bajó más, 60 puntos porcentuales.",
+        "c": "La zona C, porque su resultado quedó más cerca del original.",
+        "d": "Las tres zonas pesaron lo mismo.",
+        "why": "La caída más grande ocurre al tapar B. Es evidencia de que esa zona influyó más en esta predicción, aunque la oclusión no demuestra por sí sola una explicación causal completa."
+      },
+      "q5": {
+        "question": "Para la misma foto, el mapa de calor marca la cara del perro y la oclusión marca el fondo. ¿Qué haces?",
+        "a": "Tratar ambas explicaciones como pistas y hacer más pruebas controladas con varias imágenes y métodos.",
+        "b": "Concluir que el mapa de calor siempre es correcto.",
+        "c": "Promediar los colores de los dos resultados.",
+        "d": "Escoger la explicación que parezca más intuitiva.",
+        "why": "Los métodos miden cosas distintas y pueden ser inestables. La discrepancia es un motivo para investigar con perturbaciones y ejemplos adicionales, no para tomar una explicación como verdad."
+      },
+      "q6": {
+        "question": "Sospechas que tu modelo de «husky o lobo» mira la nieve. ¿Qué prueba te da la mejor evidencia?",
+        "a": "Medir otra vez la precisión total en las mismas fotos.",
+        "b": "Preguntarle al modelo si se fija en la nieve.",
+        "c": "Comparar el mismo tipo de animal con fondos variados o intercambiados y medir si cambian las predicciones.",
+        "d": "Mirar una sola predicción acertada de un lobo en la nieve.",
+        "why": "Mantener el animal y variar el fondo, o viceversa, permite comprobar si las predicciones siguen una pista irrelevante como la nieve."
+      },
+      "q7": {
+        "question": "Cambias «Lucía» por «Javier» en una solicitud de empleo y la respuesta pasa de 62 % a 58 % de «Sí». ¿Es evidencia de sesgo?",
+        "a": "Sí, demuestra por sí solo que el sistema discrimina.",
+        "b": "No, un cambio de nombre nunca puede influir.",
+        "c": "No, porque ambas respuestas superan el 50 %.",
+        "d": "Es una señal que conviene investigar, pero hay que repetir pares controlados y medir la variabilidad antes de concluir.",
+        "why": "Una diferencia aislada de cuatro puntos puede deberse a variación. Los pares controlados repetidos y las medidas por grupo dan evidencia más sólida."
+      },
+      "q8": {
+        "question": "Una empresa entrena un modelo con los currículums de los últimos 10 años, y en esa época contrataron sobre todo a hombres. Quitan la columna «género». ¿Qué es lo más probable?",
+        "a": "El sesgo desaparece automáticamente al quitar esa columna.",
+        "b": "El modelo puede reproducir el patrón histórico mediante otras pistas relacionadas con el género.",
+        "c": "El modelo ya no puede aprender nada de los currículums.",
+        "d": "Los datos históricos garantizan decisiones justas.",
+        "why": "Otras variables pueden actuar como sustitutos del género, y las etiquetas históricas reflejan decisiones pasadas. Hay que evaluar resultados por grupo y revisar los datos y el proceso."
+      },
+      "q9": {
+        "question": "Un chatbot dice que clasificó un texto como positivo «por la palabra contenta». Al quitar «contenta» la seguridad baja 2 puntos y al quitar «ayudado» baja 40. ¿Qué concluyes?",
+        "a": "La autoexplicación demuestra que «contenta» fue la causa principal.",
+        "b": "Quitar una palabra nunca aporta información.",
+        "c": "La medición sugiere que «ayudado» influyó más en esta prueba que lo que dijo el chatbot.",
+        "d": "El chatbot clasificó el texto al azar.",
+        "why": "La explicación escrita por el chatbot no coincide necesariamente con lo que influyó. La prueba de quitar palabras mide un efecto en esa entrada, aunque tampoco explica por completo el modelo."
+      },
+      "q10": {
+        "question": "Haces la misma pregunta con las opciones A/B y luego con las opciones invertidas B/A. El modelo contesta «A» las dos veces, aunque ahora «A» es el texto contrario. ¿Qué indica?",
+        "a": "Puede haber un sesgo por la posición o la etiqueta de la opción; conviene contrabalancear el orden y comparar el contenido elegido.",
+        "b": "El modelo entiende mejor la primera opción.",
+        "c": "La respuesta A es correcta en ambos casos.",
+        "d": "Cambiar el orden invalida cualquier evaluación.",
+        "why": "Si el modelo elige A aunque A ahora signifique otra respuesta, puede estar siguiendo la posición o la etiqueta y no el contenido."
+      },
+      "q11": {
+        "question": "Preguntas por un libro que no existe y el chatbot da autor, año y resumen con mucha seguridad. ¿Qué te ayuda más a detectar que se lo inventa?",
+        "a": "Pedirle que repita la respuesta con más seguridad.",
+        "b": "Preguntarle al mismo chatbot si está seguro.",
+        "c": "Confiar en que tantos detalles deben ser correctos.",
+        "d": "Comprobar el libro y sus datos en catálogos o fuentes independientes y fiables.",
+        "why": "La fluidez y la confianza no verifican los hechos. Una comprobación independiente en fuentes confiables puede confirmar si el libro existe."
+      },
+      "q12": {
+        "question": "Tu app recomienda a un grupo de estudiantes qué actividad hacer. ¿Cuál es la mejor explicación para quien la usa?",
+        "a": "Una descripción técnica larga del modelo, sin explicar la recomendación concreta.",
+        "b": "Una razón clara y útil para esa recomendación, qué factores influyeron y cómo la persona puede revisarla o elegir otra opción.",
+        "c": "Asegurar que la recomendación siempre es correcta.",
+        "d": "Mostrar solo el porcentaje de confianza del modelo.",
+        "why": "Una explicación útil responde a la necesidad de quien usa la app, permite cuestionar la recomendación y no la presenta como infalible."
+      }
+    },
+    "initialOpenQuestion": "¿Sabes qué es la IA explicable y para qué sirve?",
+    "reviewTitle": "Respuestas correctas y explicaciones",
+    "rubricTitle": "Rúbrica de la respuesta abierta (0–2 puntos)",
     "likertTitle": "Sobre ti",
     "likertIntro": "Marca lo de acuerdo que estás con cada frase. No hay respuestas correctas.",
     "likert": {
@@ -253,13 +369,27 @@
       "5": "Totalmente"
     },
     "openQuestion": "Explica con tus palabras qué es la IA explicable y para qué sirve.",
-    "unanswered_one": "Te queda {{count}} pregunta tipo test sin contestar. Puedes terminar igualmente.",
-    "unanswered_other": "Te quedan {{count}} preguntas tipo test sin contestar. Puedes terminar igualmente.",
+    "openQuestionRubric": "Rúbrica orientativa (0–2): 0 = no lo explica o es incorrecto; 1 = dice que ayuda a entender decisiones; 2 = explica que ayuda a entender decisiones concretas y a detectar errores o sesgos.",
+    "country": {
+      "consent": "Acepto enviar el cuestionario anónimo para su análisis agregado e incluir el país seleccionado.",
+      "label": "Selecciona tu país",
+      "choose": "Selecciona un país"
+    },
+    "unanswered_one": "Te queda {{count}} pregunta tipo test sin contestar. Debes responderla para poder terminar.",
+    "unanswered_other": "Te quedan {{count}} preguntas tipo test sin contestar. Debes responderlas para poder terminar.",
     "finish": "Terminar",
+    "submitting": "Enviando respuestas anónimas al servidor…",
+    "submitted": "Respuestas enviadas al servidor para analizar resultados agregados.",
+    "submitFailed": "El cuestionario sigue guardado en este dispositivo, pero no se pudo enviar al servidor.",
+    "submitNotConfigured": "La conexión con el servidor no está configurada. El cuestionario no se ha enviado.",
+    "submitMigrationMissing": "El servidor no tiene instalada la migración del cuestionario (0004). Hay que aplicarla en Supabase.",
+    "submitPermissions": "El servidor rechazó el envío por permisos. Revisa la configuración de la migración 0004.",
+    "submitNetworkError": "No se pudo conectar con el servidor. Comprueba la conexión e inténtalo de nuevo.",
+    "retrySubmit": "Reintentar envío",
     "doneTitle": "¡Gracias!",
     "doneBody": {
-      "pre": "Ya está. Al terminar los laboratorios volverás a contestar las mismas preguntas para ver qué has aprendido.",
-      "post": "Ya está. Abajo tienes tu resultado y la respuesta correcta de cada pregunta."
+      "pre": "Tus respuestas iniciales están guardadas. Al terminar los laboratorios completa el cuestionario final y responde de nuevo para comparar lo que has aprendido.",
+      "post": "Ya está. Abajo tienes tu nota, las respuestas correctas y tu respuesta abierta para compararla con la inicial."
     },
     "handIn": "Descarga el archivo y entrégaselo a tu profesor o profesora:",
     "downloadCsv": "Descargar resultado (CSV)",

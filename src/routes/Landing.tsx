@@ -25,7 +25,7 @@ const THEORY = ['whatIsAi', 'whatIsXai', 'whatIsBias', 'howToExplain', 'limits']
  *
  * It also explains how the site works (the two labs share three tabs: tools,
  * challenges, missions), holds the XAI theory, the «Tu proyecto y la XAI» questions
- * and the way into the learning questionnaire, taken before and after.
+ * and separate links to the initial and final questionnaires.
  *
  * Its most important job is to send a visitor straight into the lab. FR-023 gives
  * an unauthenticated visitor the complete local experience, so a landing page
@@ -63,7 +63,10 @@ export function Landing() {
         <p className="max-w-prose text-sm text-ink-muted">{t('home:how.intro')}</p>
         <ol className="grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-5">
           {STEPS.map((step, index) => (
-            <li key={step} className="flex flex-col gap-1 rounded-lg border border-border-subtle bg-surface p-3">
+            <li
+              key={step}
+              className="flex flex-col gap-1 rounded-lg border border-border-subtle bg-surface p-3"
+            >
               <span className="font-display text-2xl text-magenta">{index + 1}</span>
               <h3 className="font-semibold">{t(`home:how.steps.${step}.title`)}</h3>
               <p className="text-sm text-ink-muted">{t(`home:how.steps.${step}.body`)}</p>
@@ -84,16 +87,31 @@ export function Landing() {
         aria-labelledby="quiz-callout"
         className="flex flex-col gap-2 rounded-lg border-l-4 border-blue bg-surface-sunken p-4"
       >
-        <h2 id="quiz-callout" className="font-display text-xl">
-          {t('home:quizCallout.title')}
-        </h2>
+        <div className="flex items-center gap-3">
+          <img src="/icons/exam-list.png" alt="" aria-hidden="true" className="size-16 shrink-0 object-contain" />
+          <h2 id="quiz-callout" className="font-display text-xl">
+            {t('home:quizCallout.title')}
+          </h2>
+        </div>
         <p className="max-w-prose text-sm text-ink-muted">{t('home:quizCallout.body')}</p>
-        <div>
+        <div className="flex flex-wrap gap-3">
           <Link
-            to="/quiz"
+            to="/quiz?phase=pre"
             className="flex min-h-touch w-fit items-center rounded bg-blue px-4 text-sm font-medium text-ink-inverse no-underline"
           >
-            {t('home:quizCallout.cta')}
+            <span className="inline-flex items-center gap-2">
+              <img src="/icons/exam-list.png" alt="" aria-hidden="true" className="size-5 object-contain" />
+              {t('home:quizCallout.initialCta')}
+            </span>
+          </Link>
+          <Link
+            to="/quiz?phase=post"
+            className="flex min-h-touch w-fit items-center rounded bg-magenta px-4 text-sm font-medium text-ink-inverse no-underline"
+          >
+            <span className="inline-flex items-center gap-2">
+              <img src="/icons/exam-list.png" alt="" aria-hidden="true" className="size-5 object-contain" />
+              {t('home:quizCallout.finalCta')}
+            </span>
           </Link>
         </div>
       </section>
@@ -104,7 +122,10 @@ export function Landing() {
         </h2>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <article className="flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-4">
-            <h3 className="font-display text-lg">{t('projects:tracks.cv.title')}</h3>
+            <div className="flex items-center gap-3">
+              <img src="/icons/lab-cv-search.png" alt="" aria-hidden="true" className="size-16 shrink-0 object-contain" />
+              <h3 className="font-display text-lg">{t('projects:tracks.cv.title')}</h3>
+            </div>
             <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">
               {t('projects:tracks.cv.subtitle')}
             </p>
@@ -120,7 +141,10 @@ export function Landing() {
           </article>
 
           <article className="flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-4">
-            <h3 className="font-display text-lg">{t('projects:tracks.llm.title')}</h3>
+            <div className="flex items-center gap-3">
+              <img src="/icons/lab-llm-chat.png" alt="" aria-hidden="true" className="size-16 shrink-0 object-contain" />
+              <h3 className="font-display text-lg">{t('projects:tracks.llm.title')}</h3>
+            </div>
             <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">
               {t('projects:tracks.llm.subtitle')}
             </p>
@@ -146,11 +170,15 @@ export function Landing() {
         </p>
         {THEORY.map((topic) => (
           <details key={topic} className="rounded-lg border border-border-subtle bg-surface p-4">
-            <summary className="cursor-pointer font-semibold">{t(`home:theory.${topic}.title`)}</summary>
+            <summary className="cursor-pointer font-semibold">
+              {t(`home:theory.${topic}.title`)}
+            </summary>
             <div className="mt-2 flex max-w-prose flex-col gap-2 text-sm">
-              {(t(`home:theory.${topic}.paragraphs`, { returnObjects: true }) as string[]).map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
+              {(t(`home:theory.${topic}.paragraphs`, { returnObjects: true }) as string[]).map(
+                (paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ),
+              )}
             </div>
           </details>
         ))}

@@ -48,14 +48,26 @@ variables at build time with `--build-arg VITE_SUPABASE_URL=...` and
 `--build-arg VITE_SUPABASE_ANON_KEY=...`. Vite embeds these values in the static bundle,
 so do not pass service-role credentials.
 
-The lab works completely with no account and no Supabase configuration — that is FR-023, not a
-degraded mode. For the signed-in half you also need a local Supabase:
+The local labs and downloadable quiz results work with no account and no Supabase configuration —
+that is FR-023, not a degraded mode. Server submission of anonymous quiz answers and the
+signed-in features require Supabase. Without it, quiz answers stay on the device and the interface
+reports that they were not sent.
 
 ```bash
 npx supabase start                     # needs Docker
 cp .env.example .env.local             # then paste in the printed anon key
 npx supabase db reset                  # applies migrations and the seed
 ```
+
+For a linked remote project, apply new schema migrations before deploying the frontend:
+
+```bash
+npx supabase link --project-ref <project-ref>
+npx supabase db push
+```
+
+The website build also needs `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Never use the
+service-role key in the browser build.
 
 ### There is no sign-up, so the seed is the only way in
 
@@ -110,7 +122,7 @@ src/
 ├── locales/       en and es. A missing key fails the build.
 └── routes/        Route table and the role gates.
 
-supabase/migrations/   Schema, the nine SECURITY DEFINER functions, and the RLS policies.
+supabase/migrations/   Schema, SECURITY DEFINER functions, and the RLS policies.
 specs/001-xai-lab/     The specification, plan, research and task list this was built from.
 ```
 

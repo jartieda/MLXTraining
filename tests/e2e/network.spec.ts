@@ -15,8 +15,11 @@ test.describe('no image or model bytes leave the device', () => {
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
-    await page.getByRole('link', { name: /my projects|mis proyectos/i }).first().click()
+    await page.goto('/projects')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: /saved on this device|guardados en este dispositivo/i }),
+    ).toBeVisible()
 
     assertNothingEscaped(escapes)
 

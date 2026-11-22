@@ -36,16 +36,28 @@
           "wolf": "Wolf"
         }
       },
-      "fewCats": {
-        "title": "Lots of dogs, few cats",
-        "topic": "Unbalanced data",
-        "story": "This set has loads of dog photos and very few cat photos.",
-        "task": "Train and look at the results per class. Is it as good with cats as with dogs?",
-        "trap": "With few examples of a class, the model tends to answer the majority class. Overall accuracy can look good while it gets cats wrong almost every time. Try balancing the classes and training again.",
-        "projectName": "Challenge: dogs and cats",
+      "concrete_crack": {
+        "title": "Can it detect cracks?",
+        "topic": "Unbalanced classes: few cracks",
+        "story": "There are many photos of uncracked concrete and few with cracks.",
+        "task": "Train and compare the results per class. Does it detect cracks, or does it look accurate because most concrete is intact?",
+        "trap": "The training set has 20 photos without cracks and only 5 with cracks. A model can get most photos right by answering “no crack” and still miss many cracks.",
+        "projectName": "Challenge: crack detection",
         "classes": {
-          "dog": "Dog",
-          "cat": "Cat"
+          "negative": "No crack",
+          "positive": "Crack"
+        }
+      },
+      "pneumonia": {
+        "title": "Can it detect pneumonia?",
+        "topic": "Shortcuts: a hospital mark",
+        "story": "The training set has the same number of normal and pneumonia X-rays. Only the pneumonia images carry the “GREY SLOAN MEMORIAL” mark.",
+        "task": "Train the model and explain test photos. Is it looking at the lungs or the hospital mark? Also try the normal X-ray with the same mark.",
+        "trap": "The training set is balanced, with 20 images in each class, but only the pneumonia images show the hospital mark. The model may use it as a shortcut instead of looking at the lungs. One normal test image carries the same mark: if the model follows it, it could mistake that image for pneumonia. This is a classroom experiment, not a diagnostic tool.",
+        "projectName": "Classroom challenge: pneumonia",
+        "classes": {
+          "normal": "No pneumonia",
+          "pneumonia": "Pneumonia"
         }
       },
       "dogChicken": {
@@ -97,8 +109,8 @@
       "imbalance": {
         "title": "Balance the data",
         "what": "If one class has many more photos than another, the model can be unfair to the small one.",
-        "challenge": "Load “Lots of dogs, few cats”, train, look at the results per class and train again with balanced classes.",
-        "question": "What changed when you balanced the classes? Who would this mistake harm in a real app?"
+        "challenge": "Load “Can it detect cracks?”, compare the results per class and try balancing the data.",
+        "question": "Could high overall accuracy hide that the model misses cracks?"
       },
       "twoExplanations": {
         "title": "Two explanations",

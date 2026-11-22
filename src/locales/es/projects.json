@@ -20,6 +20,7 @@
     }
   },
   "storageLocation": "Se guarda localmente en la base de datos IndexedDB de tu navegador en este dispositivo. No se sincroniza con ninguna cuenta ni se sube a ningún sitio.",
+  "onDeviceTitle": "Guardados en este dispositivo",
   "empty": "Todavía no tienes proyectos. Crea uno y empieza a enseñar.",
   "create": "Nuevo proyecto",
   "createTitle": "Ponle nombre a tu proyecto",

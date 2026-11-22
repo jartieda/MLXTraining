@@ -1327,3 +1327,70 @@ suite('redemption end to end (FR-024, FR-027, FR-051)', () => {
     expect(error.message).toMatch(/not in a classroom you own/i)
   })
 })
+
+suite('anonymous questionnaire submissions', () => {
+  const submissionId = '00000000-0000-4000-f000-000000000001'
+  const answers = JSON.stringify({})
+  const likert = JSON.stringify({ l1: 2, l2: null, l3: 5, l4: null })
+  const params = [
+    submissionId,
+    '2026-11-v4',
+    'pre',
+    'basic',
+    'es',
+    answers,
+    likert,
+    'ES',
+    true,
+  ]
+
+  it('lets an anonymous caller submit valid data but not read submissions', async () => {
+    await asRole(null, async (session) => {
+      await session.query(
+        `select public.submit_anonymous_quiz($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        params,
+      )
+      const error = await session.expectError(`select * from public.anonymous_quiz_submissions`)
+      expect(error.message).toMatch(/permission denied/i)
+    })
+  })
+
+  it('rejects submissions without country and explicit consent', async () => {
+    const error = await asRole(null, (session) =>
+      session.expectError(
+        `select public.submit_anonymous_quiz($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [...params.slice(0, 7), null, false],
+      ),
+    )
+    expect(error.message).toMatch(/invalid anonymous quiz submission/i)
+  })
+
+  it('accepts a country when consent is recorded', async () => {
+    await asRole(null, (session) =>
+      session.query(
+        `select public.submit_anonymous_quiz($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        params,
+      ),
+    )
+  })
+
+  it('sets the submission date on the server in UTC', async () => {
+    const id = '00000000-0000-4000-f000-000000000002'
+    await asRoleCommitted(null, (session) =>
+      session.query(
+        `select public.submit_anonymous_quiz($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [id, ...params.slice(1)],
+      ),
+    )
+
+    const [row] = await asOwner<{ submitted_on: string }>(
+      `select submitted_on::text from public.anonymous_quiz_submissions where submission_id = $1`,
+      [id],
+    )
+    const [today] = await asOwner<{ today: string }>(
+      `select (now() at time zone 'UTC')::date::text as today`,
+    )
+    expect(row?.submitted_on).toBe(today?.today)
+    await asOwner(`delete from public.anonymous_quiz_submissions where submission_id = $1`, [id])
+  })
+})

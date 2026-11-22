@@ -14,7 +14,7 @@ import type { Database } from './database.types'
  * **The anon key is the only key that exists in this codebase.** There is no
  * `service_role` key anywhere, and there must never be one — it bypasses every
  * row-level-security policy, and those policies are the entire authorisation
- * model (Principle II). Elevated operations go through the nine SECURITY DEFINER
+ * model (Principle II). Elevated operations go through the SECURITY DEFINER
  * functions instead, which is why `rpc` below is the only privileged surface.
  *
  * **The environment is validated at module load, not at first use.** A missing or

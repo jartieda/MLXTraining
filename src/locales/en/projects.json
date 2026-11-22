@@ -20,6 +20,7 @@
     }
   },
   "storageLocation": "Stored locally in your browser's IndexedDB database on this device. It is not synced to an account or uploaded anywhere.",
+  "onDeviceTitle": "Saved on this device",
   "empty": "You have no projects yet. Make one and start teaching.",
   "create": "New project",
   "createTitle": "Name your project",

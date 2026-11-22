@@ -203,7 +203,9 @@ export function LabPage() {
               <Button type="submit">{t('projects:create', { ns: 'projects' })}</Button>
             </div>
           </form>
-          <TextLink to="/projects">{t('common:nav.projects', { ns: 'common' })}</TextLink>
+          <TextLink variant="button" to="/projects">
+            {t('common:nav.projects', { ns: 'common' })}
+          </TextLink>
         </div>
       )
     }
@@ -212,14 +214,34 @@ export function LabPage() {
       <div className="flex flex-col gap-3">
         <h2 className="font-display text-2xl">{t('common:error.notFound', { ns: 'common' })}</h2>
         <p className="text-ink-muted">{t('common:error.notFoundBody', { ns: 'common' })}</p>
-        <TextLink to="/projects">{t('common:nav.projects', { ns: 'common' })}</TextLink>
+        <TextLink variant="button" to="/projects">
+          {t('common:nav.projects', { ns: 'common' })}
+        </TextLink>
       </div>
     )
   } else {
     tools = (
       <div className="flex flex-col gap-6">
         <header className="flex flex-col gap-1">
-          <TextLink to="/projects">{t('common:nav.projects', { ns: 'common' })}</TextLink>
+          <nav aria-label={t('common:nav.breadcrumbs', { ns: 'common' })}>
+            <ol className="flex list-none flex-wrap items-center gap-2 p-0">
+              <li>
+                <TextLink variant="button" to="/projects">
+                  {t('common:nav.projects', { ns: 'common' })}
+                </TextLink>
+              </li>
+              {project?.name ? (
+                <>
+                  <li aria-hidden="true" className="text-ink-muted">
+                    /
+                  </li>
+                  <li aria-current="page" className="text-sm font-medium">
+                    {project.name}
+                  </li>
+                </>
+              ) : null}
+            </ol>
+          </nav>
           <h2 className="font-display text-2xl">{project?.name ?? ''}</h2>
           <p className="text-sm text-ink-muted">{t('common:privacy.onDevice', { ns: 'common' })}</p>
         </header>
@@ -328,9 +350,17 @@ export function LabPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="font-display text-3xl">{t('cvlab:title')}</h1>
-        <p className="max-w-prose text-ink-muted">{t('cvlab:intro')}</p>
+      <header className="flex items-center gap-3">
+        <img
+          src="/icons/lab-cv-search.png"
+          alt=""
+          aria-hidden="true"
+          className="size-16 shrink-0 object-contain"
+        />
+        <div className="flex flex-col gap-1">
+          <h1 className="font-display text-3xl">{t('cvlab:title')}</h1>
+          <p className="max-w-prose text-ink-muted">{t('cvlab:intro')}</p>
+        </div>
       </header>
 
       {/* Every panel stays mounted (hidden, not unmounted): the camera and the lab
@@ -371,7 +401,7 @@ export function LabPage() {
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-4">
               <Button
-                variant="ghost"
+                variant="secondary"
                 className="self-start"
                 onClick={() => {
                   setShowChallenge(false)

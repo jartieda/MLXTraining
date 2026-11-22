@@ -12,7 +12,7 @@ import {
 import { ReasoningChat } from './ReasoningChat'
 import { ComparePanel } from './compare/ComparePanel'
 import { WordLens } from './compare/WordLens'
-import { RepeatMockup } from './compare/RepeatMockup'
+import { RepeatPanel } from './compare/RepeatPanel'
 import { LlmMissions } from './missions/LlmMissions'
 import type { MissionTarget } from './missions/missions'
 import { MODEL_DISPLAY_NAME } from './webllm'
@@ -42,43 +42,54 @@ interface ChatMessage {
 
 const MODEL_ORDER: readonly ModelId[] = ['gemma', 'llama', 'qwen']
 const BACKEND_ORDER: readonly LlmBackend[] = ['gpu', 'cpu']
+const LOADING_INSIGHT_ORDER = ['tokens', 'explanation', 'probability', 'prompt', 'bias'] as const
+const INSIGHT_ROTATION_MS = 5_000
 /** The same three tabs as the Lab CV: tools, challenges and missions. */
 const LAB_TABS = ['tools', 'challenges', 'missions'] as const
 
 /** Sentinel stored in `engineError` so the message is translated when rendered. */
 const WEBGPU_UNAVAILABLE = 'webgpu-unavailable:'
 
-function LoadingWordGame() {
+function LoadingInsight({ loading }: { readonly loading: boolean }) {
   const { t } = useTranslation('llm')
-  const [choice, setChoice] = useState<string | null>(null)
-  const options = ['dragon', 'map', 'robot'] as const
+  const [insight, setInsight] = useState(() => {
+    const index = Math.floor(Math.random() * LOADING_INSIGHT_ORDER.length)
+    return LOADING_INSIGHT_ORDER[index] ?? LOADING_INSIGHT_ORDER[0]
+  })
+
+  useEffect(() => {
+    if (!loading) return
+
+    const interval = window.setInterval(() => {
+      setInsight((current) => {
+        const index = LOADING_INSIGHT_ORDER.indexOf(current)
+        return LOADING_INSIGHT_ORDER[(index + 1) % LOADING_INSIGHT_ORDER.length] ?? LOADING_INSIGHT_ORDER[0]
+      })
+    }, INSIGHT_ROTATION_MS)
+    return () => window.clearInterval(interval)
+  }, [loading])
 
   return (
-    <aside className="flex flex-col gap-3 rounded-lg border border-border-subtle bg-surface-sunken p-4">
-      <h2 className="font-display text-lg">{t('chat.loadingActivity.title')}</h2>
-      <p className="text-sm text-ink-muted">{t('chat.loadingActivity.prompt')}</p>
-      <div role="group" aria-label={t('chat.loadingActivity.choose')} className="flex flex-wrap gap-2">
-        {options.map((option) => (
-          <Button
-            key={option}
-            type="button"
-            variant={choice === option ? 'primary' : 'secondary'}
-            aria-pressed={choice === option}
-            onClick={() => setChoice(option)}
-          >
-            {t(`chat.loadingActivity.options.${option}`)}
-          </Button>
-        ))}
+    <aside data-testid="loading-insight" className="rounded-xl border border-blue/30 bg-sky-100 p-4">
+      <div className="flex items-start gap-3">
+        <span
+          aria-hidden="true"
+          className="flex size-9 shrink-0 items-center justify-center rounded-full bg-navy font-display text-lg font-bold text-ink-inverse"
+        >
+          ?
+        </span>
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wide text-blue-ink">
+            {t('chat.loadingActivity.title')}
+          </p>
+          <h2 className="mt-1 font-display text-base">
+            {t(`chat.loadingActivity.items.${insight}.title`)}
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-ink">
+            {t(`chat.loadingActivity.items.${insight}.text`)}
+          </p>
+        </div>
       </div>
-      {choice ? (
-        <p role="status" className="text-sm text-ink-muted">
-          {t('chat.loadingActivity.picked', {
-            word: t(`chat.loadingActivity.options.${choice}`),
-          })}
-        </p>
-      ) : (
-        <p className="text-sm text-ink-muted">{t('chat.loadingActivity.choose')}</p>
-      )}
     </aside>
   )
 }
@@ -87,6 +98,11 @@ function LoadingWordGame() {
 // (StrictMode double effects, switching models quickly) makes requestAdapter fail with
 // "Unable to find a compatible GPU", so every load/unload is chained on this queue.
 let engineQueue: Promise<unknown> = Promise.resolve()
+let retainedEngine: {
+  readonly model: ModelId
+  readonly backend: LlmBackend
+  readonly engine: LlmEngine
+} | null = null
 
 /**
  * End-to-end tests (and a reviewer without access to the model CDN) can provide a fake
@@ -106,6 +122,7 @@ export function LlmLabPage() {
   const [tab, setTab] = useState<(typeof LAB_TABS)[number]>('tools')
   const [compareRunning, setCompareRunning] = useState(false)
   const [lensRunning, setLensRunning] = useState(false)
+  const [repeatRunning, setRepeatRunning] = useState(false)
   const [presetRequest, setPresetRequest] = useState<{ id: string; nonce: number } | null>(null)
 
   /** A mission's «Ir a…»: open the tab, pick the preset it needs and scroll to the tool. */
@@ -138,7 +155,6 @@ export function LlmLabPage() {
 
   useEffect(() => {
     let active = true
-    let createdEngine: LlmEngine | null = null
 
     setEngine(null)
     setLoadingModel(true)
@@ -149,15 +165,25 @@ export function LlmLabPage() {
     async function initializeEngine() {
       if (!active) return
       try {
+        if (
+          retainedEngine &&
+          (retainedEngine.model !== selectedModel || retainedEngine.backend !== selectedBackend)
+        ) {
+          const previousEngine = retainedEngine.engine
+          retainedEngine = null
+          await previousEngine.unload().catch(() => undefined)
+        }
+
+        if (!active) return
+
         const nextEngine =
+          retainedEngine?.engine ??
           injectedTestEngine() ??
           (await createLlmEngine(selectedModel, selectedBackend, (progress) => {
             if (active) setLoadProgress(progress)
           }))
-        createdEngine = nextEngine
 
-        // If the model was switched or the page closed while loading, the cleanup
-        // below unloads this engine once loading has settled.
+        retainedEngine ??= { model: selectedModel, backend: selectedBackend, engine: nextEngine }
         if (active) setEngine(nextEngine)
       } catch (error) {
         console.warn('WebLLM engine could not start:', error)
@@ -183,9 +209,6 @@ export function LlmLabPage() {
 
     return () => {
       active = false
-      engineQueue = loadTask.then(async () => {
-        if (createdEngine) await createdEngine.unload().catch(() => undefined)
-      })
     }
   }, [selectedModel, selectedBackend, retryKey])
 
@@ -268,72 +291,139 @@ export function LlmLabPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-2">
-        <h1 className="font-display text-2xl">{t('title')}</h1>
-        <p className="max-w-prose text-ink-muted">{t('intro')}</p>
+      <header className="flex items-center gap-3">
+        <img
+          src="/icons/lab-llm-chat.png"
+          alt=""
+          aria-hidden="true"
+          className="size-16 shrink-0 object-contain"
+        />
+        <div className="flex flex-col gap-1">
+          <h1 className="font-display text-3xl">{t('title')}</h1>
+          <p className="max-w-prose text-ink-muted">{t('intro')}</p>
+        </div>
       </header>
 
-      <section aria-label={t('chat.modelLabel')} className="rounded-lg border border-border-subtle bg-surface p-4">
-        <div className={loadingModel ? 'grid gap-6 md:grid-cols-2 md:items-start' : ''}>
-          <div className="min-w-0 md:max-w-xl">
-            <p className="mb-2 text-sm font-medium text-ink">{t('chat.modelLabel')}</p>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 md:grid-cols-1">
-              {MODEL_ORDER.map((modelId) => (
-                <Button
-                  key={modelId}
-                  type="button"
-                  variant={selectedModel === modelId ? 'primary' : 'secondary'}
-                  aria-pressed={selectedModel === modelId}
-                  disabled={isProcessingPrompt || compareRunning || lensRunning}
-                  onClick={() => {
-                    setSelectedModel(modelId)
-                  }}
-                >
-                  {t(`chat.models.${modelId}`)}
-                </Button>
-              ))}
+      <section aria-label={t('chat.modelLabel')} className="rounded-2xl border border-border-subtle bg-surface p-4 sm:p-5">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.8fr)_minmax(17rem,1fr)]">
+          <div className="flex min-w-0 flex-col gap-5">
+            <fieldset>
+              <legend className="text-sm font-semibold text-ink">{t('chat.modelLabel')}</legend>
+              <div role="group" aria-label={t('chat.modelLabel')} className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {MODEL_ORDER.map((modelId) => {
+                  const selected = selectedModel === modelId
+                  const descriptionId = `llm-model-description-${modelId}`
+                  return (
+                    <button
+                      key={modelId}
+                      type="button"
+                      aria-label={t(`chat.models.${modelId}`)}
+                      aria-describedby={descriptionId}
+                      aria-pressed={selected}
+                      disabled={isProcessingPrompt || compareRunning || lensRunning || repeatRunning}
+                      onClick={() => setSelectedModel(modelId)}
+                      className={[
+                        'flex min-h-32 flex-col items-start gap-3 rounded-xl border p-3 text-left transition-colors',
+                        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue',
+                        'disabled:cursor-not-allowed disabled:opacity-50',
+                        selected
+                          ? 'border-blue bg-sky-100 shadow-sm'
+                          : 'border-border-subtle bg-surface hover:border-blue hover:bg-surface-sunken',
+                      ].join(' ')}
+                    >
+                      <span className="flex w-full items-center justify-between gap-2">
+                        <span className="flex size-9 items-center justify-center rounded-lg bg-navy font-display text-lg font-bold text-ink-inverse">
+                          {modelId[0]?.toUpperCase()}
+                        </span>
+                        {selected ? (
+                          <span className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-blue-ink">
+                            {t('chat.selected')}
+                          </span>
+                        ) : null}
+                      </span>
+                      <span id={descriptionId} className="flex flex-col items-start gap-1">
+                        <span className="font-semibold text-ink">{t(`chat.models.${modelId}`)}</span>
+                        <span className="text-xs leading-5 text-ink-muted">
+                          {t(`chat.modelDetails.${modelId}`)}
+                        </span>
+                        <span className="text-xs font-medium text-blue-ink">
+                          {MODEL_DISPLAY_NAME[selectedBackend][modelId]}
+                        </span>
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend className="text-sm font-semibold text-ink">{t('chat.backendLabel')}</legend>
+              <div role="group" aria-label={t('chat.backendLabel')} className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {BACKEND_ORDER.map((backendId) => {
+                  const selected = selectedBackend === backendId
+                  const descriptionId = `llm-backend-description-${backendId}`
+                  return (
+                    <button
+                      key={backendId}
+                      type="button"
+                      aria-label={t(`chat.backends.${backendId}`)}
+                      aria-describedby={descriptionId}
+                      aria-pressed={selected}
+                      disabled={isProcessingPrompt || compareRunning || lensRunning || repeatRunning}
+                      onClick={() => setSelectedBackend(backendId)}
+                      className={[
+                        'flex min-h-24 items-start gap-3 rounded-xl border p-3 text-left transition-colors',
+                        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue',
+                        'disabled:cursor-not-allowed disabled:opacity-50',
+                        selected
+                          ? 'border-blue bg-sky-100 shadow-sm'
+                          : 'border-border-subtle bg-surface hover:border-blue hover:bg-surface-sunken',
+                      ].join(' ')}
+                    >
+                      <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-navy text-xs font-bold tracking-wide text-ink-inverse">
+                        {backendId.toUpperCase()}
+                      </span>
+                      <span id={descriptionId} className="flex min-w-0 flex-col gap-1">
+                        <span className="font-semibold text-ink">{t(`chat.backends.${backendId}`)}</span>
+                        <span className="text-xs leading-5 text-ink-muted">
+                          {t(`chat.backendHint.${backendId}`)}
+                        </span>
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </fieldset>
+          </div>
+
+          <aside className="flex min-w-0 flex-col gap-3 rounded-xl bg-surface-sunken p-4" aria-label={t('chat.status.label')}>
+            <div role="status" aria-live="polite" className="flex items-center gap-2">
+              {loadingModel ? (
+                <span
+                  aria-hidden="true"
+                  className="size-4 motion-safe:animate-spin rounded-full border-2 border-amber-600 border-t-transparent"
+                />
+              ) : (
+                <span className={`size-2.5 rounded-full ${modelStatus.tone}`} aria-hidden="true" />
+              )}
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
+                {t('chat.status.label')}
+              </span>
+              <span className="text-sm font-medium text-ink">{modelStatus.label}</span>
             </div>
-            <p className="mb-2 mt-4 text-sm font-medium text-ink">{t('chat.backendLabel')}</p>
-            <div className="grid grid-cols-2 gap-2">
-              {BACKEND_ORDER.map((backendId) => (
-                <Button
-                  key={backendId}
-                  type="button"
-                  variant={selectedBackend === backendId ? 'primary' : 'secondary'}
-                  aria-pressed={selectedBackend === backendId}
-                  disabled={isProcessingPrompt || compareRunning || lensRunning}
-                  onClick={() => {
-                    setSelectedBackend(backendId)
-                  }}
-                >
-                  {t(`chat.backends.${backendId}`)}
-                </Button>
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-ink-muted">{t(`chat.backendHint.${selectedBackend}`)}</p>
-            <div
-              aria-live="polite"
-              className="mt-3 flex items-center gap-2 rounded-full border border-border-subtle bg-surface-sunken px-2.5 py-1.5"
-            >
-              <span className={`h-2.5 w-2.5 rounded-full ${modelStatus.tone}`} aria-hidden="true" />
-              <span className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">{t('chat.status.label')}</span>
-              <span className="text-xs text-ink">{modelStatus.label}</span>
-            </div>
-            <p className="mt-2 text-xs text-ink-muted">{modelStatus.text}</p>
+            <p className="text-sm leading-6 text-ink-muted">{modelStatus.text}</p>
             {engineError && !loadingModel ? (
               <Button
                 type="button"
                 variant="secondary"
-                className="mt-2"
-                onClick={() => {
-                  setRetryKey((key) => key + 1)
-                }}
+                className="self-start"
+                onClick={() => setRetryKey((key) => key + 1)}
               >
                 {t('chat.retry')}
               </Button>
             ) : null}
-          </div>
-          {loadingModel ? <LoadingWordGame /> : null}
+            <LoadingInsight loading={loadingModel} />
+          </aside>
         </div>
       </section>
 
@@ -385,6 +475,7 @@ export function LlmLabPage() {
 
               <div className="flex flex-wrap items-center gap-2">
                 <Button
+                  busy={isProcessingPrompt}
                   onClick={() => {
                     void handleSubmitPrompt()
                   }}
@@ -410,7 +501,10 @@ export function LlmLabPage() {
                 ) : null}
                 {isProcessingPrompt ? (
                   <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800">
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-amber-600" aria-hidden="true" />
+                    <span
+                      className="size-3 motion-safe:animate-spin rounded-full border-2 border-amber-600 border-t-transparent"
+                      aria-hidden="true"
+                    />
                     {t('chat.processing')}
                   </span>
                 ) : null}
@@ -464,7 +558,11 @@ export function LlmLabPage() {
               modelName={engine ? MODEL_DISPLAY_NAME[engine.backend][selectedModel] : t(`chat.models.${selectedModel}`)}
               onRunningChange={setLensRunning}
             />
-            <RepeatMockup />
+            <RepeatPanel
+              engine={engine}
+              loadingModel={loadingModel}
+              onRunningChange={setRepeatRunning}
+            />
           </div>
         </div>
       </div>

@@ -64,7 +64,7 @@ export function RoleGate({
       <p className="max-w-prose text-ink-muted">
         {account ? t('error.forbiddenForRole') : t('error.forbiddenSignIn')}
       </p>
-      <TextLink to={account?.role === 'administrator' ? '/admin' : '/'}>
+      <TextLink variant="button" to={account?.role === 'administrator' ? '/admin' : '/'}>
         {account?.role === 'administrator' ? t('nav.admin') : t('nav.home')}
       </TextLink>
     </div>

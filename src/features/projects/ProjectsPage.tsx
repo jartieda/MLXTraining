@@ -160,7 +160,13 @@ export function ProjectsPage() {
         <p className="max-w-prose text-ink-muted">{t('intro')}</p>
       </header>
 
-      <section className="flex flex-col gap-3">
+      <section
+        aria-labelledby="on-device-projects"
+        className="flex flex-col gap-3 rounded-lg border-l-4 border-blue bg-surface-sunken p-4"
+      >
+        <h2 id="on-device-projects" className="font-display text-xl">
+          {t('onDeviceTitle')}
+        </h2>
         {projects.length === 0 ? <p className="text-ink-muted">{t('empty')}</p> : null}
 
         <ul role="list" className="grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
@@ -169,15 +175,15 @@ export function ProjectsPage() {
             return (
               <li
                 key={project.id}
-                className="flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-4"
+                className="flex flex-col gap-2 rounded-lg border border-blue/30 bg-surface p-4 shadow-sm"
               >
-                <h2 className="truncate font-display text-lg">{project.name}</h2>
-                <p className="text-sm text-ink-muted">
+                <h3 className="truncate font-display text-lg">{project.name}</h3>
+                <p className="text-sm text-ink">
                   {summary && summary.classes > 0
                     ? t('summary', { classes: summary.classes, samples: summary.samples })
                     : t('noClasses')}
                 </p>
-                <p className="text-sm text-ink-muted">
+                <p className="text-sm font-medium text-blue-ink">
                   {t(`model.${summary?.model ?? 'none'}`)}
                 </p>
                 <p className="text-sm text-ink-muted">

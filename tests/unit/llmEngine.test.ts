@@ -1,17 +1,24 @@
 import { describe, expect, it } from 'vitest'
-import { LlmAbortedError, serialize, type RawLlmEngine } from '@/features/llmLab/llmEngine'
+import {
+  LlmAbortedError,
+  serialize,
+  type LlmGenerationOptions,
+  type RawLlmEngine,
+} from '@/features/llmLab/llmEngine'
 import { buildRawChatPrompt, stripControlTokens } from '@/features/llmLab/webllm'
 
 /** A fake engine whose generations only finish when released or interrupted. */
 function fakeEngine() {
   const calls: string[] = []
+  const generationOptions: (LlmGenerationOptions | undefined)[] = []
   let interrupts = 0
   let release: ((text: string) => void) | null = null
   const engine: RawLlmEngine = {
     backend: 'gpu',
     nextTokenAlternatives: () => Promise.resolve([]),
-    generate: (messages) => {
+    generate: (messages, _maxTokens, options) => {
       calls.push(messages.at(-1)?.content ?? '')
+      generationOptions.push(options)
       return new Promise<string>((resolve) => {
         release = resolve
       })
@@ -25,6 +32,7 @@ function fakeEngine() {
   return {
     engine,
     calls,
+    generationOptions,
     interrupts: () => interrupts,
     finish: (text: string) => release?.(text),
   }
@@ -57,6 +65,22 @@ describe('serialised engine', () => {
     await expect(first).resolves.toBe('done')
     await expect(second).rejects.toBeInstanceOf(LlmAbortedError)
     expect(fake.calls).toEqual(['first'])
+  })
+
+  it('passes sampling options through the serial queue', async () => {
+    const fake = fakeEngine()
+    const engine = serialize(fake.engine)
+    const request = engine.generate(
+      [{ role: 'user', content: 'same question' }],
+      10,
+      undefined,
+      { temperature: 0.7 },
+    )
+    await Promise.resolve()
+    await Promise.resolve()
+    fake.finish('sampled answer')
+    await expect(request).resolves.toBe('sampled answer')
+    expect(fake.generationOptions).toEqual([{ temperature: 0.7 }])
   })
 })
 

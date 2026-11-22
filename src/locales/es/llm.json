@@ -22,15 +22,29 @@
     "loading": "Cargando el modelo local en tu navegador…",
     "loadingProgress": "Cargando el modelo local en tu navegador… {{percent}} %",
     "loadingActivity": {
-      "title": "Un mini-reto mientras carga",
-      "prompt": "En el bosque con niebla encontré un…",
-      "choose": "Elige cómo sigue la historia",
-      "options": {
-        "dragon": "dragón",
-        "map": "mapa",
-        "robot": "robot"
-      },
-      "picked": "¡{{word}}! Sería una continuación divertida. Hay muchas respuestas posibles; el modelo calcula cuáles le parecen más probables."
+      "title": "¿Sabías que…?",
+      "items": {
+        "tokens": {
+          "title": "Las palabras pueden dividirse en tokens",
+          "text": "El modelo procesa fragmentos de texto llamados tokens. Una palabra puede ser un token o dividirse en varios."
+        },
+        "explanation": {
+          "title": "Una explicación no es una ventana a la mente del modelo",
+          "text": "La explicación que genera es otra respuesta del modelo; no revela con certeza sus cálculos internos."
+        },
+        "probability": {
+          "title": "Lo más probable no siempre es verdad",
+          "text": "La probabilidad indica qué continuación encaja mejor con el modelo, no si la respuesta es cierta."
+        },
+        "prompt": {
+          "title": "Mini reto: cambia una palabra",
+          "text": "Modifica una sola palabra de tu prompt y observa si cambian la respuesta o las probabilidades."
+        },
+        "bias": {
+          "title": "Mini reto: prueba con dos nombres",
+          "text": "Cambia solo el nombre de una persona en una pregunta. Si la respuesta cambia, investígalo: una diferencia por sí sola no demuestra un sesgo."
+        }
+      }
     },
     "modelUnavailable": "El modelo local todavía no está listo.",
     "modelError": "WebLLM no pudo cargar el modelo: {{error}}",
@@ -69,6 +83,12 @@
       "llama": "Llama",
       "qwen": "Qwen (Alibaba)"
     },
+    "modelDetails": {
+      "gemma": "Familia de modelos abiertos de Google",
+      "llama": "Familia de modelos abiertos de Meta",
+      "qwen": "Familia multilingüe de Alibaba"
+    },
+    "selected": "Seleccionado",
     "stop": "Parar",
     "stopped": "Parado. Puedes volver a preguntar cuando quieras."
   },
@@ -307,12 +327,15 @@
     "mode": {
       "label": "Qué quieres comparar",
       "prompts": "Dos prompts, un modelo",
-      "models": "Un prompt, dos modelos",
-      "prompt": "Prompt",
-      "step1": "Primero prueba el prompt con el modelo que tienes cargado. Después cambia de modelo arriba y pruébalo otra vez.",
+      "models": "Una misma pregunta, dos modelos",
+      "prompt": "Pregunta para los dos modelos",
+      "step1Title": "Paso 1 de 2: prueba el primer modelo",
+      "step1": "Elige un modelo en las tarjetas de arriba y espera a que termine de cargar. Después, pulsa «Probar con…» para guardar su respuesta.",
+      "loadingModel": "Cargando {{model}}… Espera a que termine antes de probarlo.",
       "runFirst": "Probar con {{model}}",
-      "firstDone": "Resultado guardado con {{model}}. Ahora elige otro modelo arriba y pruébalo con el mismo prompt.",
-      "switchModel": "Todavía tienes cargado el mismo modelo. Cambia de modelo arriba para continuar.",
+      "firstDone": "Respuesta de {{model}} guardada. Ahora selecciona otro modelo en las tarjetas de arriba y espera a que se cargue; no cambies la pregunta.",
+      "step2Title": "Paso 2 de 2: prueba otro modelo",
+      "switchModel": "El modelo seleccionado sigue siendo {{model}}. Elige una tarjeta de modelo distinta; el botón del paso 2 se activará cuando termine de cargar.",
       "runSecond": "Probar con {{model}}",
       "restart": "Empezar de nuevo",
       "running": "Probando con {{model}}…",
@@ -467,13 +490,20 @@
     }
   },
   "repeat": {
-    "title": "Repetir 5 veces",
-    "badge": "Próximamente",
-    "intro": "Si preguntas lo mismo varias veces y la respuesta cambia, es una señal de que el modelo duda. Aquí aparecerían las 5 respuestas, una debajo de otra.",
-    "why": "Con la configuración actual el modelo responde siempre igual: genera sin azar, así que las 5 respuestas serían idénticas. Por eso esta función todavía no está activa.",
-    "listLabel": "Respuestas (vacías hasta que la función esté activa)",
-    "slot": "Respuesta {{number}}",
-    "run": "Repetir 5 veces"
+    "title": "¿Qué respuestas da a la misma pregunta?",
+    "badge": "Muestreo activado",
+    "intro": "Escribe una pregunta y genera cuatro respuestas para observar cómo pueden variar.",
+    "hiddenPrompt": "Responde de forma breve, en un máximo de dos frases.",
+    "note": "La generación usa muestreo para permitir respuestas distintas. La variación por sí sola no mide la certeza del modelo ni indica si una respuesta es correcta.",
+    "promptLabel": "Tu pregunta o prompt",
+    "promptPlaceholder": "¿Por qué cambia el color del cielo al atardecer?",
+    "run": "Generar 4 respuestas",
+    "running": "Generando {{done}} de {{total}}…",
+    "progress": "{{done}} de {{total}} respuestas generadas.",
+    "listLabel": "Respuestas generadas",
+    "answer": "Respuesta {{number}}",
+    "stopped": "Proceso detenido. Se conservan las respuestas generadas.",
+    "failed": "No se pudieron generar todas las respuestas. Se conservan las respuestas ya obtenidas."
   },
   "labTabs": {
     "toolsIntro": "Las herramientas para mirar dentro del modelo: qué palabra viene después, el comparador de dos prompts y la lupa de palabras. Úsalas con tus propios textos.",

@@ -12,8 +12,12 @@ import type { ModelTokenAlternative } from './wordCompletion'
 export type LlmBackend = 'gpu' | 'cpu'
 
 export interface ChatTurn {
-  readonly role: 'user' | 'assistant'
+  readonly role: 'system' | 'user' | 'assistant'
   readonly content: string
+}
+
+export interface LlmGenerationOptions {
+  readonly temperature?: number
 }
 
 /** What the lab needs from a model: next-token alternatives and free-text chat replies. */
@@ -33,7 +37,12 @@ export interface LlmEngine {
    * `signal` drops the request if it is still queued, or stops it mid-generation and
    * rejects with `LlmAbortedError`.
    */
-  generate(messages: readonly ChatTurn[], maxTokens: number, signal?: AbortSignal): Promise<string>
+  generate(
+    messages: readonly ChatTurn[],
+    maxTokens: number,
+    signal?: AbortSignal,
+    options?: LlmGenerationOptions,
+  ): Promise<string>
   unload(): Promise<void>
 }
 
@@ -49,7 +58,7 @@ export class LlmAbortedError extends Error {
 export interface RawLlmEngine {
   readonly backend: LlmBackend
   nextTokenAlternatives(userMessage: string, assistantPrefix?: string): Promise<readonly ModelTokenAlternative[]>
-  generate(messages: readonly ChatTurn[], maxTokens: number): Promise<string>
+  generate(messages: readonly ChatTurn[], maxTokens: number, options?: LlmGenerationOptions): Promise<string>
   /** Stop the generation in progress, if any; it then resolves early with partial text. */
   interrupt(): void
   unload(): Promise<void>
@@ -154,7 +163,8 @@ export function serialize(engine: RawLlmEngine): LlmEngine {
     backend: engine.backend,
     nextTokenAlternatives: (userMessage, assistantPrefix, signal) =>
       enqueue(() => engine.nextTokenAlternatives(userMessage, assistantPrefix), signal),
-    generate: (messages, maxTokens, signal) => enqueue(() => engine.generate(messages, maxTokens), signal),
+    generate: (messages, maxTokens, signal, options) =>
+      enqueue(() => engine.generate(messages, maxTokens, options), signal),
     unload: () => engine.unload(),
   }
 }
@@ -185,11 +195,13 @@ async function createGpuEngine(
       })
       return completion.choices[0]?.logprobs?.content?.[0]?.top_logprobs ?? []
     },
-    async generate(messages, maxTokens) {
+    async generate(messages, maxTokens, options) {
+      const temperature = options?.temperature ?? 0
       const completion = await engine.chat.completions.create({
         messages: cleanTurns(messages),
-        // Greedy, like the CPU engine (WebLLM clamps 0 to 1e-6, which is argmax).
-        temperature: 0,
+        // Default to greedy; callers can opt into sampling for repeated-answer analysis.
+        temperature,
+        top_p: temperature > 0 ? 0.9 : 1,
         repetition_penalty: REPETITION_PENALTY,
         max_tokens: maxTokens,
       })
@@ -299,7 +311,8 @@ async function createCpuEngine(
         logits.dispose()
       }
     },
-    async generate(messages, maxTokens) {
+    async generate(messages, maxTokens, options) {
+      const temperature = options?.temperature ?? 0
       const prompt = tokenizer.apply_chat_template(
         cleanTurns(messages),
         { add_generation_prompt: true, tokenize: false },
@@ -312,7 +325,8 @@ async function createCpuEngine(
       const output = (await causalLm.generate({
         ...inputs,
         max_new_tokens: maxTokens,
-        do_sample: false,
+        do_sample: temperature > 0,
+        ...(temperature > 0 ? { temperature } : {}),
         repetition_penalty: REPETITION_PENALTY,
         stopping_criteria: stopping,
       })) as unknown as {

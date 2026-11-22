@@ -144,22 +144,40 @@ export function ModuleView({ moduleId }: { readonly moduleId: ModuleId }) {
     return (
       <div className="flex flex-col gap-3">
         <h1 className="font-display text-2xl">{t('common:error.notFound')}</h1>
-        <TextLink to="/lessons">{t('lessons:path.backToPath')}</TextLink>
+        <TextLink variant="button" to="/lessons">
+          {t('lessons:path.backToPath')}
+        </TextLink>
       </div>
     )
   }
 
   const key = moduleKey(moduleId)
+  const moduleTitle = t(`lessons:${key}.title`)
   const unmet = missing(module.challengeRequires, capabilities)
   const previous = previousModule(moduleId)
 
   return (
     <article className="flex max-w-3xl flex-col gap-6">
       <header className="flex flex-col gap-2">
+        <nav aria-label={t('common:nav.breadcrumbs', { ns: 'common' })}>
+          <ol className="flex list-none flex-wrap items-center gap-2 p-0">
+            <li>
+              <TextLink variant="button" to="/lessons">
+                {t('lessons:path.backToPath')}
+              </TextLink>
+            </li>
+            <li aria-hidden="true" className="text-ink-muted">
+              /
+            </li>
+            <li aria-current="page" className="text-sm font-medium">
+              {moduleTitle}
+            </li>
+          </ol>
+        </nav>
         <p className="text-sm text-ink-muted">
           {t('lessons:path.moduleNumber', { number: module.order, total: 7 })}
         </p>
-        <h1 className="font-display text-2xl">{t(`lessons:${key}.title`)}</h1>
+        <h1 className="font-display text-2xl">{moduleTitle}</h1>
 
         {/* FR-034's first obligation, and it leads because a learner who does not
             know what she is about to learn is following instructions rather than
@@ -295,14 +313,13 @@ export function ModuleView({ moduleId }: { readonly moduleId: ModuleId }) {
         ))}
       </section>
 
-      <nav aria-label={t('lessons:path.moduleNav')} className="flex flex-wrap gap-3">
-        <TextLink to="/lessons">{t('lessons:path.backToPath')}</TextLink>
-        {previous ? (
-          <TextLink to={`/lessons/${previous.id}`}>
+      {previous ? (
+        <nav aria-label={t('lessons:path.moduleNav')} className="flex flex-wrap gap-3">
+          <TextLink variant="button" to={`/lessons/${previous.id}`}>
             {t('lessons:path.previous', { module: t(`lessons:${moduleKey(previous.id)}.title`) })}
           </TextLink>
-        ) : null}
-      </nav>
+        </nav>
+      ) : null}
     </article>
   )
 }

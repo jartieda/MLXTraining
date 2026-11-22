@@ -19,7 +19,8 @@
     "duplicate": "You already have a class called \"{{name}}\". Capital letters do not make it different.",
     "tooLong": "That name is too long — 40 characters at most.",
     "tooShort": "Give the class a name.",
-    "selected": "Capturing into {{name}}",
+    "selected": "Selected class: {{name}}",
+    "capturing": "Capturing into {{name}}",
     "selectFirst": "Choose a class first, so the computer knows what it is looking at."
   },
   "camera": {

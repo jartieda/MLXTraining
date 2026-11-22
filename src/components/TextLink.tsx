@@ -23,11 +23,13 @@ export function TextLink({
   variant = 'standalone',
   className = '',
   ...props
-}: LinkProps & { readonly variant?: 'standalone' | 'inline' }) {
+}: LinkProps & { readonly variant?: 'standalone' | 'inline' | 'button' }) {
   const base =
     variant === 'inline'
       ? 'font-medium text-blue-ink underline'
-      : 'inline-flex min-h-touch items-center gap-1 font-medium text-blue-ink'
+      : variant === 'button'
+        ? 'inline-flex min-h-touch items-center justify-center gap-1 rounded border border-border-subtle bg-surface px-4 py-2 font-medium text-blue-ink no-underline hover:bg-surface-sunken focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue'
+        : 'inline-flex min-h-touch items-center gap-1 font-medium text-blue-ink'
 
   return <Link {...props} className={`${base} ${className}`.trim()} />
 }

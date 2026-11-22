@@ -40,5 +40,12 @@ subida por el alumnado. Con 15–30 fotos por clase basta.
 | Carpeta | Clases | Trampa que deben tener las fotos | Fotos de prueba |
 |---|---|---|---|
 | `huskyWolf` | `husky`, `wolf` | Todos los lobos sobre nieve; los huskies sobre hierba, en casa o en la calle. | Un husky en la nieve; un lobo sin nieve. |
-| `fewCats` | `dog`, `cat` | Muchos perros (unos 30) y pocos gatos (unos 5). | Algunos gatos que no estén en el entrenamiento. |
+| `concrete_crack` | `negative`, `positive` | 20 fotos de hormigón sin grietas y 5 con grietas. | 5 fotos de cada clase. |
 | `dogChicken` | `dog`, `chicken` | Fotos de perros y pollo preparado; el contexto y las texturas pueden servir de atajo. | 5 fotos de prueba por clase. |
+| `pneumonia` | `normal`, `pneumonia` | Entrenamiento equilibrado: 20 radiografías de cada clase; solo las de neumonía tienen la marca del hospital. | 6 normales (una también con la marca) y 4 con neumonía. |
+
+Las imágenes preparadas del reto `pneumonia` están recortadas en cuadrado desde la esquina
+inferior derecha para que la marca del hospital sobreviva al preprocesamiento del modelo.
+La radiografía normal con la misma marca es un control de prueba para observar si el modelo
+la usa como atajo. Al desplegar, conserva estas copias preparadas en lugar de reemplazarlas
+por los originales sin recortar.

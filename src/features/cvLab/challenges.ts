@@ -21,8 +21,9 @@ export interface CvChallenge {
 
 export const CV_CHALLENGES: readonly CvChallenge[] = [
   { id: 'huskyWolf', classes: ['husky', 'wolf'] },
-  { id: 'fewCats', classes: ['dog', 'cat'] },
+  { id: 'concrete_crack', classes: ['negative', 'positive'] },
   { id: 'dogChicken', classes: ['dog', 'chicken'] },
+  { id: 'pneumonia', classes: ['normal', 'pneumonia'] },
 ]
 
 export interface ChallengeManifest {
