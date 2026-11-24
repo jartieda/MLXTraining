@@ -4,7 +4,7 @@ import { Button } from '@/components/Button'
 import { downloadText } from './quiz'
 
 /**
- * «Tu proyecto y la XAI»: six open questions that tie the theory to whatever the
+ * The project questionnaire: six open questions that tie the theory to whatever the
  * learner is building. Kept on this device (localStorage) and downloadable as text.
  */
 

@@ -4,7 +4,7 @@
   "xaiTitle": "Why does Explainable AI (XAI) matter?",
   "xaiQuote": "Don't trust AI blindly: learn to see how it works inside.",
   "xaiWhy": "Explainable AI (XAI) helps you understand why a model decides something. That way you can spot errors, bias, or hallucinations before trusting an answer and make transparent, responsible decisions.",
-  "tracksTitle": "Choose your learning path",
+  "tracksTitle": "Choose a section",
   "tracks": {
     "cv": {
       "title": "Lab CV",
@@ -17,6 +17,12 @@
       "subtitle": "Language models",
       "body": "Next-word probabilities, prompt comparator, word lens, biases and hallucinations.",
       "cta": "Go to Lab LLM"
+    },
+    "questionnaires": {
+      "title": "Questionnaires",
+      "subtitle": "Initial, final and your project",
+      "body": "Reflect on XAI and apply what you have learned to your project. Project answers stay on this device and can be downloaded.",
+      "cta": "Go to questionnaires"
     }
   },
   "storageLocation": "Stored locally in your browser's IndexedDB database on this device. It is not synced to an account or uploaded anywhere.",

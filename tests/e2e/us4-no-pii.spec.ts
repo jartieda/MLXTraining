@@ -24,7 +24,18 @@ import {
  */
 
 /** Every route reachable by a signed-in learner. */
-const LEARNER_ROUTES = ['/', '/projects', '/lab', '/lessons', '/login', '/redeem', '/reset'] as const
+const LEARNER_ROUTES = [
+  '/',
+  '/projects',
+  '/lab',
+  '/lab-llm',
+  '/questionnaires',
+  '/project-xai',
+  '/lessons',
+  '/login',
+  '/redeem',
+  '/reset',
+] as const
 
 /**
  * The identifiers that must never be rendered to a learner.

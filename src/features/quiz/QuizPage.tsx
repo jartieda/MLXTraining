@@ -153,7 +153,7 @@ export function QuizPage() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <TextLink variant="button" to="/">
+        <TextLink variant="button" to="/questionnaires">
           {t('quiz.back')}
         </TextLink>
         <h1 className="font-display text-3xl">{t(`quiz.title.${phase}`)}</h1>

@@ -21,11 +21,11 @@
       },
       "project": {
         "title": "Your project",
-        "body": "Answer the “Your project and XAI” questions thinking about what you are building."
+        "body": "Complete your project questionnaire in “Questionnaires”."
       },
       "quizAfter": {
         "title": "Final quiz",
-        "body": "When you finish, take the final quiz (basic or advanced), answer the open question again, and download your result."
+        "body": "When you finish, open “Questionnaires”, take the final quiz (basic or advanced), and download your result."
       }
     },
     "tabsTitle": "The three tabs of each lab",
@@ -40,6 +40,10 @@
     "body": "The initial quiz asks what you know about explainable AI and records how you see yourself. After the labs, take the final test and answer the open question again to compare.",
     "initialCta": "Initial quiz",
     "finalCta": "Final quiz"
+  },
+  "questionnaires": {
+    "title": "Questionnaires",
+    "intro": "Complete the initial quiz, the final quiz and your project questionnaire. Project answers stay on this device and can be downloaded."
   },
   "theory": {
     "title": "Explainable AI theory",
@@ -88,7 +92,7 @@
     }
   },
   "project": {
-    "title": "Your project and XAI",
+    "title": "Your project questionnaire",
     "intro": "Think about the app or project you are building and answer. Your answers are kept on this device only and you can download them.",
     "questions": {
       "technology": {
@@ -124,7 +128,7 @@
     "empty": "Not answered"
   },
   "quiz": {
-    "back": "Back to home",
+    "back": "Back to questionnaires",
     "title": {
       "pre": "Initial quiz",
       "post": "Final quiz: what have I learned?"

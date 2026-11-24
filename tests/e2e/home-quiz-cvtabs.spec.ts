@@ -4,16 +4,18 @@ async function consentToQuizSubmission(page: Page): Promise<void> {
   await page
     .getByLabel(/Acepto enviar el cuestionario anónimo|I agree to send the anonymous quiz/i)
     .check()
-  await page.getByLabel(/^(País|Country)$/i).selectOption('ES')
+  await page
+    .getByRole('combobox', { name: /Selecciona tu país|Select your country/i })
+    .selectOption('ES')
 }
 
 /**
- * The home page (how the site works, theory, «Tu proyecto y la XAI»), the learning
+ * The home page (how the site works and theory), the project questions, the learning
  * questionnaire with its downloadable result, and the Lab CV's three tabs.
  */
 
 test.describe('home page', () => {
-  test('explains the site, holds the theory and keeps the project answers', async ({ page }) => {
+  test('offers the three sections and keeps project answers in Questionnaires', async ({ page }) => {
     await page.goto('/')
     await expect(
       page.getByRole('heading', { name: /cómo funciona esta web|how this site works/i }),
@@ -23,6 +25,17 @@ test.describe('home page', () => {
       .first()
       .click()
     await expect(page.getByText(/tendencia sistemática|systematic tendency/i).first()).toBeVisible()
+
+    await expect(page.getByLabel(/qué tipo de tecnología usas|what kind of technology/i)).toHaveCount(0)
+    const sections = page.getByRole('region', { name: /elige una sección|choose a section/i })
+    await expect(sections.getByRole('link')).toHaveCount(3)
+    const questionnairesLink = sections.getByRole('link', { name: /ir a cuestionarios|go to questionnaires/i })
+    await expect(questionnairesLink).toHaveAttribute('href', '/questionnaires')
+    await questionnairesLink.click()
+    await expect(page.getByRole('heading', { level: 1, name: /cuestionarios|questionnaires/i })).toBeVisible()
+    await expect(page.locator('main img[src="/icons/exam-list.png"]')).toBeVisible()
+    await expect(page.getByRole('link', { name: /cuestionario inicial|initial quiz/i })).toHaveAttribute('href', '/quiz?phase=pre')
+    await expect(page.getByRole('link', { name: /cuestionario final|final quiz/i })).toHaveAttribute('href', '/quiz?phase=post')
 
     const technology = page.getByLabel(/qué tipo de tecnología usas|what kind of technology/i)
     await technology.fill('Un modelo que reconoce residuos')
@@ -43,7 +56,7 @@ test.describe('learning questionnaire', () => {
   test('initial open answer compares with the final basic test; both download a CSV', async ({
     page,
   }) => {
-    await page.goto('/')
+    await page.goto('/questionnaires')
     const initialQuiz = page.getByRole('link', { name: /cuestionario inicial|initial quiz/i })
     const finalQuiz = page.getByRole('link', { name: /cuestionario final|final quiz/i })
     await expect(initialQuiz).toHaveAttribute('href', '/quiz?phase=pre')
@@ -123,7 +136,9 @@ test.describe('learning questionnaire', () => {
       .getByText(/atajo|shortcut/i)
       .click()
     await page
-      .getByLabel(/explica con tus palabras qué es XAI|explain in your own words what XAI is/i)
+      .getByLabel(
+        /Explica con tus palabras qué es la IA explicable y para qué sirve|Explain in your own words what explainable AI is and what it is for/i,
+      )
       .fill('Explica las decisiones del modelo.')
     await expect(page.getByText(/cuánta confianza|how confident/i)).toHaveCount(0)
     const finish = page.getByRole('button', { name: /terminar|finish/i })

@@ -31,6 +31,9 @@ const LlmLab = lazy(() =>
   import('@/features/llmLab/LlmLabPage').then((m) => ({ default: m.LlmLabPage })),
 )
 const Quiz = lazy(() => import('@/features/quiz/QuizPage').then((m) => ({ default: m.QuizPage })))
+const Questionnaires = lazy(() =>
+  import('@/features/quiz/QuestionnairesPage').then((m) => ({ default: m.QuestionnairesPage })),
+)
 const Lessons = lazy(() =>
   import('@/features/lessons/LessonsPage').then((m) => ({ default: m.LessonsPage })),
 )
@@ -66,6 +69,8 @@ export const router = createBrowserRouter([
       { path: 'lab/:projectId', element: <LearnerRoute>{<Lab />}</LearnerRoute> },
       { path: 'lab', element: <LearnerRoute>{<Lab />}</LearnerRoute> },
       { path: 'lab-llm', element: <LearnerRoute>{<LlmLab />}</LearnerRoute> },
+      { path: 'questionnaires', element: <LearnerRoute>{<Questionnaires />}</LearnerRoute> },
+      { path: 'project-xai', element: <LearnerRoute>{<Questionnaires />}</LearnerRoute> },
       // Initial and final questionnaires. No account: the downloaded file is the result.
       { path: 'quiz', element: <LearnerRoute>{<Quiz />}</LearnerRoute> },
 

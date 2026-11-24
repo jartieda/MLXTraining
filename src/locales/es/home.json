@@ -21,11 +21,11 @@
       },
       "project": {
         "title": "Tu proyecto",
-        "body": "Responde las preguntas de «Tu proyecto y la XAI» pensando en lo que estás construyendo."
+        "body": "Completa el cuestionario de tu proyecto en «Cuestionarios»."
       },
       "quizAfter": {
         "title": "Cuestionario final",
-        "body": "Al terminar, contesta el cuestionario final (básico o avanzado), responde de nuevo la pregunta abierta y descarga el resultado."
+        "body": "Al terminar, abre «Cuestionarios», completa el cuestionario final (básico o avanzado) y descarga el resultado."
       }
     },
     "tabsTitle": "Las tres pestañas de cada laboratorio",
@@ -40,6 +40,10 @@
     "body": "El inicial pregunta qué sabes sobre la IA explicable y recoge cómo te ves. Al terminar los laboratorios, completa el test final y vuelve a responder la pregunta para comparar.",
     "initialCta": "Cuestionario inicial",
     "finalCta": "Cuestionario final"
+  },
+  "questionnaires": {
+    "title": "Cuestionarios",
+    "intro": "Completa el cuestionario inicial, el final y el de tu proyecto. Las respuestas de tu proyecto se guardan en este dispositivo y puedes descargarlas."
   },
   "theory": {
     "title": "Teoría de la IA explicable",
@@ -88,7 +92,7 @@
     }
   },
   "project": {
-    "title": "Tu proyecto y la XAI",
+    "title": "Cuestionario de tu proyecto",
     "intro": "Piensa en la app o el proyecto que estás construyendo y responde. Tus respuestas se guardan solo en este dispositivo y puedes descargarlas.",
     "questions": {
       "technology": {
@@ -124,7 +128,7 @@
     "empty": "Sin responder"
   },
   "quiz": {
-    "back": "Volver al inicio",
+    "back": "Volver a Cuestionarios",
     "title": {
       "pre": "Cuestionario inicial",
       "post": "Cuestionario final: ¿qué he aprendido?"

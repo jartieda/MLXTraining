@@ -32,6 +32,7 @@ const NAV: readonly NavItem[] = [
   { to: '/', labelKey: 'nav.home', roles: null },
   { to: '/lab', labelKey: 'nav.labCv', roles: null },
   { to: '/lab-llm', labelKey: 'nav.labLlm', roles: null },
+  { to: '/questionnaires', labelKey: 'nav.questionnaires', roles: null },
   { to: '/lessons', labelKey: 'nav.lessons', roles: ['learner', 'educator'] },
   { to: '/classroom', labelKey: 'nav.classroom', roles: ['educator'] },
   { to: '/admin', labelKey: 'nav.admin', roles: ['administrator'] },

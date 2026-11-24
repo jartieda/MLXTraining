@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
 import { Meter } from '@/components/Meter'
 import type * as dbTypes from '@/lib/db'
-import { ProjectQuestions } from '@/features/quiz/ProjectQuestions'
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${String(bytes)} B`
@@ -24,8 +23,7 @@ const THEORY = ['whatIsAi', 'whatIsXai', 'whatIsBias', 'howToExplain', 'limits']
  * T034 — the landing page.
  *
  * It also explains how the site works (the two labs share three tabs: tools,
- * challenges, missions), holds the XAI theory, the «Tu proyecto y la XAI» questions
- * and separate links to the initial and final questionnaires.
+ * challenges, missions), holds the XAI theory, and links to the labs and questionnaires.
  *
  * Its most important job is to send a visitor straight into the lab. FR-023 gives
  * an unauthenticated visitor the complete local experience, so a landing page
@@ -83,44 +81,11 @@ export function Landing() {
         </div>
       </section>
 
-      <section
-        aria-labelledby="quiz-callout"
-        className="flex flex-col gap-2 rounded-lg border-l-4 border-blue bg-surface-sunken p-4"
-      >
-        <div className="flex items-center gap-3">
-          <img src="/icons/exam-list.png" alt="" aria-hidden="true" className="size-16 shrink-0 object-contain" />
-          <h2 id="quiz-callout" className="font-display text-xl">
-            {t('home:quizCallout.title')}
-          </h2>
-        </div>
-        <p className="max-w-prose text-sm text-ink-muted">{t('home:quizCallout.body')}</p>
-        <div className="flex flex-wrap gap-3">
-          <Link
-            to="/quiz?phase=pre"
-            className="flex min-h-touch w-fit items-center rounded bg-blue px-4 text-sm font-medium text-ink-inverse no-underline"
-          >
-            <span className="inline-flex items-center gap-2">
-              <img src="/icons/exam-list.png" alt="" aria-hidden="true" className="size-5 object-contain" />
-              {t('home:quizCallout.initialCta')}
-            </span>
-          </Link>
-          <Link
-            to="/quiz?phase=post"
-            className="flex min-h-touch w-fit items-center rounded bg-magenta px-4 text-sm font-medium text-ink-inverse no-underline"
-          >
-            <span className="inline-flex items-center gap-2">
-              <img src="/icons/exam-list.png" alt="" aria-hidden="true" className="size-5 object-contain" />
-              {t('home:quizCallout.finalCta')}
-            </span>
-          </Link>
-        </div>
-      </section>
-
       <section aria-labelledby="xai-tracks" className="flex flex-col gap-3">
         <h2 id="xai-tracks" className="font-display text-xl">
           {t('projects:tracksTitle')}
         </h2>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <article className="flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-4">
             <div className="flex items-center gap-3">
               <img src="/icons/lab-cv-search.png" alt="" aria-hidden="true" className="size-16 shrink-0 object-contain" />
@@ -158,6 +123,25 @@ export function Landing() {
               </Link>
             </div>
           </article>
+
+          <article className="flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-4">
+            <div className="flex items-center gap-3">
+              <img src="/icons/exam-list.png" alt="" aria-hidden="true" className="size-16 shrink-0 object-contain" />
+              <h3 className="font-display text-lg">{t('projects:tracks.questionnaires.title')}</h3>
+            </div>
+            <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">
+              {t('projects:tracks.questionnaires.subtitle')}
+            </p>
+            <p className="max-w-prose text-sm text-ink-muted">{t('projects:tracks.questionnaires.body')}</p>
+            <div className="mt-auto pt-2">
+              <Link
+                to="/questionnaires"
+                className="flex min-h-touch w-fit items-center rounded bg-blue px-4 text-sm font-medium text-ink-inverse no-underline"
+              >
+                {t('projects:tracks.questionnaires.cta')}
+              </Link>
+            </div>
+          </article>
         </div>
       </section>
 
@@ -183,8 +167,6 @@ export function Landing() {
           </details>
         ))}
       </section>
-
-      <ProjectQuestions />
 
       <section className="rounded-lg border-l-4 border-magenta bg-surface-sunken p-4">
         <h2 className="font-display text-xl">{t('storage.label')}</h2>
