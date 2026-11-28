@@ -110,12 +110,12 @@ test.describe('Lab LLM — compare two prompts', () => {
   test('keeps the model loaded when navigating away and back within the site', async ({ page }) => {
     await withFakeEngine(page)
     await page.goto('/lab-llm')
-    await expect(page.getByRole('button', { name: /enviar al modelo|send to model/i })).toBeEnabled()
+    await expect(page.getByText(/modelo listo en la GPU|model ready on the GPU/i)).toBeVisible()
 
     await page.getByRole('link', { name: /lab cv/i }).click()
     await page.getByRole('link', { name: /lab llm/i }).click()
 
-    await expect(page.getByRole('button', { name: /enviar al modelo|send to model/i })).toBeEnabled()
+    await expect(page.getByText(/modelo listo en la GPU|model ready on the GPU/i)).toBeVisible()
     await expect.poll(() =>
       page.evaluate(
         () =>
@@ -263,6 +263,31 @@ test.describe('Lab LLM — compare two prompts', () => {
             .__ML4G_FAKE_LLM_REPEAT_CALLS__ ?? 0,
       ),
     ).toBe(4)
+  })
+
+  test('adapts the model grid and keeps long prompts inside the viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 740 })
+    await openComparator(page)
+    const gemma = page.getByRole('button', { name: 'Gemma', exact: true })
+    const gemma4 = page.getByRole('button', { name: 'Gemma 4 E2B', exact: true })
+
+    const first = await gemma.boundingBox()
+    const second = await gemma4.boundingBox()
+    expect(second?.x).toBe(first?.x)
+    expect(second?.y).toBeGreaterThan(first?.y ?? 0)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
+
+    const nextWord = page.locator('#llm-next-word')
+    const prompt = 'longword'.repeat(40)
+    await nextWord.getByRole('textbox').fill(prompt)
+    await nextWord.getByRole('button', { name: /enviar al modelo|send to model/i }).click()
+    const message = nextWord.getByRole('article').getByText(prompt, { exact: true })
+    await expect(message).toBeVisible()
+    expect(await message.evaluate(element => element.scrollWidth - element.clientWidth)).toBeLessThanOrEqual(0)
+
+    await page.setViewportSize({ width: 390, height: 740 })
+    expect((await gemma4.boundingBox())?.y).toBe((await gemma.boundingBox())?.y)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390)
   })
 
   test('fits a 360 px screen without horizontal scrolling', async ({ page }) => {

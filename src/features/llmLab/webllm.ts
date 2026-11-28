@@ -1,5 +1,8 @@
 export type WebLlmModelId = 'gemma' | 'llama' | 'qwen'
 
+export type LabModelId = WebLlmModelId | 'gemma4'
+export const GEMMA4_ONNX_ID = 'onnx-community/gemma-4-E2B-it-ONNX'
+
 export const WEBLLM_MODEL_MAP: Record<WebLlmModelId, string> = {
   gemma: 'gemma-2-2b-it-q4f32_1-MLC',
   llama: 'Llama-3.2-3B-Instruct-q4f16_1-MLC',
@@ -43,12 +46,16 @@ export const MODEL_DISPLAY_NAME: Record<'gpu' | 'cpu', Record<WebLlmModelId, str
   },
 }
 
+export function modelDisplayName(backend: 'gpu' | 'cpu', model: LabModelId): string {
+  return model === 'gemma4' ? 'Gemma 4 E2B' : MODEL_DISPLAY_NAME[backend][model]
+}
+
 /**
  * Control tokens of the three chat templates. A learner who types one of them would
  * otherwise close the user turn and write into the assistant's, so they are removed
  * from anything she writes before it reaches a template or a tokenizer.
  */
-const CONTROL_TOKEN = /<\|[^|<>\s]{1,40}\|>|<\/?(?:bos|eos|pad|s|start_of_turn|end_of_turn)>/giu
+const CONTROL_TOKEN = /<\|[^|<>\s]{1,40}\|>|<(?:\|(?:turn|channel|tool(?:_call|_response)?|image|audio)|(?:turn|channel|tool(?:_call|_response)?|image|audio)\|)>|<\/?(?:bos|eos|pad|s|start_of_turn|end_of_turn)>/giu
 
 export function stripControlTokens(text: string): string {
   return text.replace(CONTROL_TOKEN, '')

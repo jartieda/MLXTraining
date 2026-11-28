@@ -109,6 +109,30 @@ describe('word lens: impact', () => {
     expect(topSupporting(result.impacts)).toHaveLength(1)
   })
 
+  it('retries a free-text reply with a prefilled parenthesis and uses it for every word', async () => {
+    const prefixes: (string | undefined)[] = []
+    const result = await runWordLens(
+      {
+        nextTokenAlternatives: async (prompt, prefix) => {
+          prefixes.push(prefix)
+          if (!prefix) return [{ token: 'La', logprob: Math.log(0.9) }]
+          return [{ token: ' A)', logprob: Math.log(prompt.includes('contenta') ? 0.8 : 0.3) }]
+        },
+      },
+      'Estoy contenta',
+      (variant) => variant,
+      OPTIONS,
+      'Responde con una letra.',
+      () => undefined,
+      undefined,
+      'Responde con una letra entre paréntesis.',
+    )
+    expect(prefixes).toEqual(['', '(', '(', '('])
+    expect(result.usedPrefill).toBe(true)
+    expect(result.baseline).toBeCloseTo(0.8)
+    expect(result.impacts[1]?.impact).toBeCloseTo(0.5)
+  })
+
   it('refuses to measure when the whole text gets no option letter', async () => {
     await expect(
       runWordLens(

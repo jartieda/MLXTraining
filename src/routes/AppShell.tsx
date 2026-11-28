@@ -72,8 +72,8 @@ export function AppShell() {
 
       <header className="border-b border-border-subtle bg-surface">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-3 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center justify-between gap-3">
-            <NavLink to="/" className="flex items-center gap-2 font-display text-lg font-bold text-ink no-underline">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+            <NavLink to="/" className="flex min-w-0 items-center gap-2 font-display text-lg font-bold text-ink no-underline">
               <img src="/favicon.png" alt="" aria-hidden="true" className="size-8 shrink-0" />
               <span>{t('app.name')}</span>
             </NavLink>

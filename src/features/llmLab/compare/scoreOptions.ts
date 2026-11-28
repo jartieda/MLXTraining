@@ -77,8 +77,9 @@ export async function scoreOptions(
   options: readonly AnswerOption[],
   instruction: string,
   signal?: AbortSignal,
+  assistantPrefix = '',
 ): Promise<OptionScores> {
-  const alternatives = await engine.nextTokenAlternatives(buildOptionsPrompt(text, options, instruction), '', signal)
+  const alternatives = await engine.nextTokenAlternatives(buildOptionsPrompt(text, options, instruction), assistantPrefix, signal)
   return scoreFromAlternatives(alternatives, options)
 }
 

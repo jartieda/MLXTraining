@@ -278,13 +278,13 @@ function TurnView({
 
   return (
     <>
-      <article className="ml-auto max-w-3xl rounded-2xl bg-blue px-4 py-3 text-ink-inverse shadow-sm">
+      <article className="ml-auto max-w-[min(100%,48rem)] rounded-2xl bg-blue px-4 py-3 text-ink-inverse shadow-sm">
         <p className="text-xs uppercase tracking-wide opacity-80">{t('chat.userLabel')}</p>
         <p className="mt-1 whitespace-pre-wrap text-sm leading-6">{entry.question}</p>
       </article>
 
       <article className="max-w-4xl rounded-2xl border border-border-subtle bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between">
           <div className="min-w-0 flex-1">
             <p className="text-xs uppercase tracking-wide text-ink-muted">{t(isTutor ? 'tutor.answerLabel' : 'reasoning.answerLabel')}</p>
             <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-ink">

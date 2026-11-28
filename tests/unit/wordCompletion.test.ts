@@ -35,6 +35,14 @@ describe('word completion prompt', () => {
 })
 
 describe('word candidate search', () => {
+  it('closes a Gemma 4 word at the turn delimiter and skips channel markers', async () => {
+    const words = await findWordCandidates(async (prefix) => prefix === ''
+      ? [{ token: 'París', logprob: Math.log(0.9) }, { token: '<|channel>', logprob: Math.log(0.1) }]
+      : [{ token: '<turn|>', logprob: 0 }])
+    expect(words.map(word => word.word)).toEqual(['París'])
+    expect(words[0]?.probability).toBeCloseTo(0.9)
+  })
+
   it('multiplies token probabilities and sums distinct paths for the same word', async () => {
     const predictions: Record<string, readonly ModelTokenAlternative[]> = {
       '': [

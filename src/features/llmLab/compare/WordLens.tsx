@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/Button'
 import { ProgressBar } from '@/components/ProgressBar'
 import { LlmAbortedError, type LlmEngine } from '../llmEngine'
-import type { AnswerOption } from './scoreOptions'
+import { OFF_FORMAT_THRESHOLD, type AnswerOption } from './scoreOptions'
 import {
   checkSelfReport,
   LensOffFormatError,
@@ -115,6 +115,7 @@ export function WordLens({
           setProgress({ done, total })
         },
         signal,
+        t('lens.prefillInstruction'),
       )
       setLens({ ...result, modelName, text })
     }, 'lens')
@@ -251,7 +252,13 @@ function LensView({ lens }: { readonly lens: LensResult & { modelName: string } 
 
   return (
     <div className="flex flex-col gap-3" data-testid="lens-result">
-      <p className="text-xs text-ink-muted">{t('compare.conditions', { model: lens.modelName })}</p>
+      <p className="text-xs text-ink-muted">{t('lens.conditions', { model: lens.modelName })}</p>
+      {lens.usedPrefill ? <p className="text-xs text-ink-muted">{t('lens.prefillUsed')}</p> : null}
+      {lens.baselineOther > OFF_FORMAT_THRESHOLD ? (
+        <p className="rounded border border-amber-300 bg-amber-50 p-2 text-sm text-amber-900">
+          {t('lens.lowCoverage')}
+        </p>
+      ) : null}
       <p className="text-sm">
         {t('lens.baseline', { answer: lens.answer.text, percent: percent(lens.baseline) })}
       </p>

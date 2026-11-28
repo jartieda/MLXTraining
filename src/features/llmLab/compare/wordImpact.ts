@@ -1,11 +1,11 @@
 import type { LlmEngine } from '../llmEngine'
-import { scoreOptions, type AnswerOption, type OptionScores } from './scoreOptions'
+import { OFF_FORMAT_THRESHOLD, scoreOptions, type AnswerOption, type OptionScores } from './scoreOptions'
 
 /**
  * The word lens: occlusion for text. The closed question is asked once with the whole
  * text and once more for each word with that word removed; how much the probability of
- * the original answer drops is that word's impact. Same idea as covering patches of an
- * image in the Lab CV, built only on `scoreOptions`, so the engine is not modified.
+ * the original answer drops is that word's impact, similar to covering patches of
+ * an image in the Lab CV.
  */
 
 /** A piece of the text: a word the lens can remove, or the spaces and punctuation around it. */
@@ -56,7 +56,7 @@ export interface WordImpact {
   readonly impact: number
   /**
    * The answer dropped out of the reported tokens, so its probability is only known to be
-   * below the smallest one reported: the impact is a lower bound, «at least».
+   * within the probability mass left by the reported tokens, so any reported drop is a lower bound.
    */
   readonly atLeast: boolean
 }
@@ -67,6 +67,7 @@ export interface LensResult {
   readonly answer: AnswerOption
   readonly baseline: number
   readonly baselineOther: number
+  readonly usedPrefill: boolean
   readonly impacts: readonly WordImpact[]
 }
 
@@ -81,18 +82,16 @@ export function topOption(scores: OptionScores): { option: AnswerOption; probabi
 }
 
 /**
- * Impact of removing one word on the original answer. When the answer is no longer among
- * the reported tokens its probability is at most that of the least likely one reported
- * and at most whatever probability the reported tokens leave over, so the drop is at least `baseline - that`.
+ * Impact of removing one word on the original answer. When the letter is absent,
+ * all of its spellings together can have at most the probability mass left over
+ * from the reported tokens.
  */
 export function impactOf(baseline: number, letter: string, scores: OptionScores): Omit<WordImpact, 'wordIndex' | 'word'> {
   const option = scores.options.find((item) => item.letter === letter)
   const without = option?.probability ?? null
   if (without !== null) return { without, impact: baseline - without, atLeast: false }
-  const reported = scores.tokens.map((token) => token.probability)
-  const leftOver = Math.max(0, 1 - reported.reduce((sum, value) => sum + value, 0))
-  const ceiling = Math.min(leftOver, ...reported)
-  return { without: null, impact: Math.max(0, baseline - ceiling), atLeast: true }
+  const leftOver = Math.max(0, 1 - scores.tokens.reduce((sum, token) => sum + token.probability, 0))
+  return { without: null, impact: Math.max(0, baseline - leftOver), atLeast: true }
 }
 
 export class LensOffFormatError extends Error {
@@ -103,8 +102,9 @@ export class LensOffFormatError extends Error {
 }
 
 /**
- * Run the lens: one query for the whole text, then one per word. `onProgress` reports
- * how many words have been measured. A stopped run throws whatever the engine throws.
+ * Run the lens with the same answer format for the full text and every deletion.
+ * When a free reply mostly starts outside the choices, also try an opening parenthesis
+ * and keep the format that captures more probability mass in the option letters.
  */
 export async function runWordLens(
   engine: Pick<LlmEngine, 'nextTokenAlternatives'>,
@@ -114,10 +114,23 @@ export async function runWordLens(
   instruction: string,
   onProgress: (done: number, total: number) => void,
   signal?: AbortSignal,
+  prefillInstruction?: string,
 ): Promise<LensResult> {
   const pieces = splitWords(text)
   const words = pieces.filter((piece) => piece.wordIndex !== null)
-  const full = await scoreOptions(engine, buildText(text), options, instruction, signal)
+  let answerInstruction = instruction
+  let assistantPrefix = ''
+  let full = await scoreOptions(engine, buildText(text), options, instruction, signal)
+  if (prefillInstruction && full.other > OFF_FORMAT_THRESHOLD) {
+    signal?.throwIfAborted()
+    const prefilled = await scoreOptions(engine, buildText(text), options, prefillInstruction, signal, '(')
+    if (prefilled.other < full.other) {
+      full = prefilled
+      answerInstruction = prefillInstruction
+      assistantPrefix = '('
+    }
+  }
+  signal?.throwIfAborted()
   const top = topOption(full)
   if (top === null) throw new LensOffFormatError()
 
@@ -126,11 +139,11 @@ export async function runWordLens(
   for (const piece of words) {
     signal?.throwIfAborted()
     const index = piece.wordIndex!
-    const scores = await scoreOptions(engine, buildText(withoutWord(pieces, index)), options, instruction, signal)
+    const scores = await scoreOptions(engine, buildText(withoutWord(pieces, index)), options, answerInstruction, signal, assistantPrefix)
     impacts.push({ wordIndex: index, word: piece.text, ...impactOf(top.probability, top.option.letter, scores) })
     onProgress(impacts.length, words.length)
   }
-  return { pieces, answer: top.option, baseline: top.probability, baselineOther: full.other, impacts }
+  return { pieces, answer: top.option, baseline: top.probability, baselineOther: full.other, usedPrefill: assistantPrefix !== '', impacts }
 }
 
 /** Words that most support the answer: largest positive impact first. */

@@ -1,11 +1,10 @@
-import { CreateMLCEngine } from '@mlc-ai/web-llm'
+import { createOnnxWorkerEngine } from './onnxWorkerEngine'
+import { cleanTurns, REPETITION_PENALTY, TOP_K } from './generation'
 import {
   buildRawChatPrompt,
-  CPU_DTYPE_MAP,
-  getCpuModelId,
   getWebLlmModelId,
-  stripControlTokens,
   type WebLlmModelId,
+  type LabModelId,
 } from './webllm'
 import type { ModelTokenAlternative } from './wordCompletion'
 
@@ -64,21 +63,6 @@ export interface RawLlmEngine {
   unload(): Promise<void>
 }
 
-/** Learner-written text never reaches a template or tokenizer with control tokens in it. */
-function cleanTurns(messages: readonly ChatTurn[]): { role: ChatTurn['role']; content: string }[] {
-  return messages.map((turn) => ({ role: turn.role, content: stripControlTokens(turn.content) }))
-}
-
-/**
- * Generation settings shared by both engines, so one exercise behaves the same whichever
- * engine runs it: greedy decoding (reproducible in a classroom, where two learners
- * comparing answers should see the same one) with a light repetition penalty, which
- * small models need to avoid looping.
- */
-const REPETITION_PENALTY = 1.1
-
-const TOP_K = 3
-
 interface GpuNavigator {
   readonly gpu?: {
     requestAdapter(options?: { powerPreference?: 'low-power' | 'high-performance' }): Promise<unknown>
@@ -120,13 +104,17 @@ export class WebGpuUnavailableError extends Error {
  * the user can switch backend explicitly.
  */
 export async function createLlmEngine(
-  model: WebLlmModelId,
+  model: LabModelId,
   backend: LlmBackend,
   onProgress: (progress: number) => void,
 ): Promise<LlmEngine> {
-  if (backend === 'cpu') return serialize(await createCpuEngine(model, onProgress))
+  if (backend === 'cpu') {
+    if (model === 'gemma4') throw new Error('Gemma 4 E2B requires WebGPU')
+    return serialize(await createOnnxWorkerEngine(model, onProgress))
+  }
   const problem = await findWebGpuProblem()
   if (problem) throw new WebGpuUnavailableError(problem)
+  if (model === 'gemma4') return serialize(await createOnnxWorkerEngine(model, onProgress))
   return serialize(await createGpuEngine(model, onProgress))
 }
 
@@ -173,6 +161,7 @@ async function createGpuEngine(
   model: WebLlmModelId,
   onProgress: (progress: number) => void,
 ): Promise<RawLlmEngine> {
+  const { CreateMLCEngine } = await import('@mlc-ai/web-llm')
   const engine = await CreateMLCEngine(getWebLlmModelId(model), {
     initProgressCallback: (report) => {
       onProgress(report.progress)
@@ -212,134 +201,6 @@ async function createGpuEngine(
     },
     async unload() {
       await engine.unload()
-    },
-  }
-}
-
-async function createCpuEngine(
-  model: WebLlmModelId,
-  onProgress: (progress: number) => void,
-): Promise<RawLlmEngine> {
-  const { AutoTokenizer, AutoModelForCausalLM, InterruptableStoppingCriteria, env } = await import(
-    '@huggingface/transformers'
-  )
-
-  // The ONNX Runtime WebAssembly files are served from this origin. The default is a CDN,
-  // which the Content-Security-Policy (`script-src 'self'`) would block.
-  const onnx = env.backends.onnx as { wasm?: { wasmPaths?: unknown } }
-  if (onnx.wasm) {
-    onnx.wasm.wasmPaths = {
-      mjs: new URL(
-        '../../../node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.mjs',
-        import.meta.url,
-      ).href,
-      wasm: new URL(
-        '../../../node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm',
-        import.meta.url,
-      ).href,
-    }
-  }
-
-  const modelId = getCpuModelId(model)
-  const files = new Map<string, { loaded: number; total: number }>()
-  const progressCallback = (info: { status?: string; file?: string; loaded?: number; total?: number }) => {
-    if (info.status !== 'progress' || !info.file || !info.total) return
-    files.set(info.file, { loaded: info.loaded ?? 0, total: info.total })
-    let loaded = 0
-    let total = 0
-    for (const file of files.values()) {
-      loaded += file.loaded
-      total += file.total
-    }
-    onProgress(total > 0 ? loaded / total : 0)
-  }
-
-  const tokenizer = await AutoTokenizer.from_pretrained(modelId, { progress_callback: progressCallback })
-  // See CPU_DTYPE_MAP: q4 builds (and Gemma's q8) use GatherBlockQuantized, which the
-  // onnxruntime-web WebAssembly backend does not implement.
-  const causalLm = await AutoModelForCausalLM.from_pretrained(modelId, {
-    dtype: CPU_DTYPE_MAP[model],
-    device: 'wasm',
-    progress_callback: progressCallback,
-  })
-  onProgress(1)
-
-  // One criterion for the engine's lifetime: requests are serialised, so at most one
-  // generation reads it at a time, and it is reset before each one.
-  const stopping = new InterruptableStoppingCriteria()
-
-  return {
-    backend: 'cpu',
-    async nextTokenAlternatives(userMessage, assistantPrefix = '') {
-      const prompt = tokenizer.apply_chat_template(
-        [{ role: 'user', content: stripControlTokens(userMessage) }],
-        { add_generation_prompt: true, tokenize: false },
-      )
-      const inputs = tokenizer(`${prompt}${assistantPrefix}`, { add_special_tokens: false })
-      const { logits } = (await causalLm(inputs)) as {
-        logits: { dims: number[]; data: ArrayLike<number>; dispose(): void }
-      }
-
-      try {
-        const sequenceLength = logits.dims[1] ?? 1
-        const vocabularySize = logits.dims[2] ?? 0
-        const offset = (sequenceLength - 1) * vocabularySize
-
-        let max = -Infinity
-        for (let i = 0; i < vocabularySize; i++) {
-          const value = logits.data[offset + i] ?? -Infinity
-          if (value > max) max = value
-        }
-        let sum = 0
-        const best: { id: number; value: number }[] = []
-        for (let i = 0; i < vocabularySize; i++) {
-          const value = logits.data[offset + i] ?? -Infinity
-          sum += Math.exp(value - max)
-          if (best.length < TOP_K || value > (best[best.length - 1]?.value ?? -Infinity)) {
-            best.push({ id: i, value })
-            best.sort((a, b) => b.value - a.value)
-            if (best.length > TOP_K) best.pop()
-          }
-        }
-        const logSum = Math.log(sum)
-
-        return best.map(({ id, value }) => ({
-          token: tokenizer.decode([id], { clean_up_tokenization_spaces: false }),
-          logprob: value - max - logSum,
-        }))
-      } finally {
-        logits.dispose()
-      }
-    },
-    async generate(messages, maxTokens, options) {
-      const temperature = options?.temperature ?? 0
-      const prompt = tokenizer.apply_chat_template(
-        cleanTurns(messages),
-        { add_generation_prompt: true, tokenize: false },
-      )
-      const inputs = tokenizer(prompt, { add_special_tokens: false }) as {
-        input_ids: { dims: number[] }
-      }
-      const promptLength = inputs.input_ids.dims[1] ?? 0
-      stopping.reset()
-      const output = (await causalLm.generate({
-        ...inputs,
-        max_new_tokens: maxTokens,
-        do_sample: temperature > 0,
-        ...(temperature > 0 ? { temperature } : {}),
-        repetition_penalty: REPETITION_PENALTY,
-        stopping_criteria: stopping,
-      })) as unknown as {
-        tolist(): (number | bigint)[][]
-      }
-      const generated = (output.tolist()[0] ?? []).slice(promptLength).map(Number)
-      return tokenizer.decode(generated, { skip_special_tokens: true }).trim()
-    },
-    interrupt() {
-      stopping.interrupt()
-    },
-    async unload() {
-      await causalLm.dispose()
     },
   }
 }
