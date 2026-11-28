@@ -1,3 +1,5 @@
+import { stripControlTokens } from './webllm'
+
 export interface ModelTokenAlternative {
   readonly token: string
   readonly logprob: number
@@ -151,6 +153,8 @@ export async function findWordCandidates(
           continue
         }
 
+        if (stripControlTokens(tokenText) !== tokenText) continue
+
         let piece = tokenText
         if (atStart) {
           // Leading whitespace/quotes are tokenizer or formatting noise, not part of the word.
@@ -244,5 +248,6 @@ function findWordBoundary(text: string): number {
 }
 
 function isEndToken(token: string): boolean {
+  if (token.trim() === '<turn|>') return true
   return /^<\|?\/?[a-z_]*(?:end|eos|eot)[a-z_]*\|?>$|^<\/s>$|^\[eos\]$/iu.test(token.trim())
 }

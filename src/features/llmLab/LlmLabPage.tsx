@@ -5,7 +5,6 @@ import { Button } from '@/components/Button'
 import {
   createLlmEngine,
   LlmAbortedError,
-  WebGpuUnavailableError,
   type LlmBackend,
   type LlmEngine,
 } from './llmEngine'
@@ -15,7 +14,7 @@ import { WordLens } from './compare/WordLens'
 import { RepeatPanel } from './compare/RepeatPanel'
 import { LlmMissions } from './missions/LlmMissions'
 import type { MissionTarget } from './missions/missions'
-import { MODEL_DISPLAY_NAME } from './webllm'
+import { modelDisplayName, type LabModelId } from './webllm'
 import {
   buildWordCompletionPrompt,
   findWordCandidates,
@@ -25,7 +24,7 @@ import {
   type WordTokenScore,
 } from './wordCompletion'
 
-type ModelId = 'gemma' | 'llama' | 'qwen'
+type ModelId = LabModelId
 
 type ChatRole = 'user' | 'assistant'
 
@@ -40,15 +39,11 @@ interface ChatMessage {
   readonly open: boolean
 }
 
-const MODEL_ORDER: readonly ModelId[] = ['gemma', 'llama', 'qwen']
-const BACKEND_ORDER: readonly LlmBackend[] = ['gpu', 'cpu']
+const MODEL_ORDER: readonly ModelId[] = ['gemma', 'gemma4', 'llama', 'qwen']
 const LOADING_INSIGHT_ORDER = ['tokens', 'explanation', 'probability', 'prompt', 'bias'] as const
 const INSIGHT_ROTATION_MS = 5_000
 /** The same three tabs as the Lab CV: tools, challenges and missions. */
 const LAB_TABS = ['tools', 'challenges', 'missions'] as const
-
-/** Sentinel stored in `engineError` so the message is translated when rendered. */
-const WEBGPU_UNAVAILABLE = 'webgpu-unavailable:'
 
 function LoadingInsight({ loading }: { readonly loading: boolean }) {
   const { t } = useTranslation('llm')
@@ -140,8 +135,13 @@ export function LlmLabPage() {
     }
   }
 
-  const [selectedModel, setSelectedModel] = useState<ModelId>('gemma')
-  const [selectedBackend, setSelectedBackend] = useState<LlmBackend>('gpu')
+  const [{ model: selectedModel, backend: selectedBackend }, setModelSelection] = useState<{
+    model: ModelId
+    backend: LlmBackend
+  }>(() => ({
+    model: retainedEngine?.model ?? 'gemma',
+    backend: retainedEngine?.backend ?? 'gpu',
+  }))
   const [loadingModel, setLoadingModel] = useState(false)
   const [engine, setEngine] = useState<LlmEngine | null>(null)
   const [engineError, setEngineError] = useState<string | null>(null)
@@ -186,16 +186,15 @@ export function LlmLabPage() {
         retainedEngine ??= { model: selectedModel, backend: selectedBackend, engine: nextEngine }
         if (active) setEngine(nextEngine)
       } catch (error) {
-        console.warn('WebLLM engine could not start:', error)
         if (active) {
           setEngine(null)
-          setEngineError(
-            error instanceof WebGpuUnavailableError
-              ? `${WEBGPU_UNAVAILABLE}${error.reason}`
-              : error instanceof Error
-                ? error.message
-                : 'WebLLM failed to initialize',
-          )
+          if (selectedBackend === 'gpu' || selectedModel !== 'qwen') {
+            // Qwen is the lightweight fallback when the selected model fails to load.
+            setModelSelection({ model: 'qwen', backend: 'cpu' })
+            return
+          }
+          console.warn('Local model could not start:', error)
+          setEngineError(error instanceof Error ? error.message : String(error))
         }
       } finally {
         if (active) {
@@ -278,126 +277,77 @@ export function LlmLabPage() {
   }
 
   const modelStatus = loadingModel
-    ? {
-        label: t('chat.status.loading'),
-        tone: 'bg-amber-500',
-        text: t('chat.loadingProgressLine1'),
-      }
+    ? { label: t('chat.status.loading'), tone: 'bg-amber-500' }
     : engineError
-      ? { label: t('chat.status.error'), tone: 'bg-red-500', text: engineError.startsWith(WEBGPU_UNAVAILABLE) ? t(`chat.webGpuUnavailable.${engineError.slice(WEBGPU_UNAVAILABLE.length)}`) : t('chat.modelError', { error: engineError }) }
+      ? { label: t('chat.status.error'), tone: 'bg-red-500' }
       : engine
-        ? { label: t('chat.status.ready'), tone: 'bg-emerald-500', text: t(engine.backend === 'cpu' ? 'chat.modelReadyCpu' : 'chat.modelReady', { model: MODEL_DISPLAY_NAME[engine.backend][selectedModel] }) }
-        : { label: t('chat.status.waiting'), tone: 'bg-slate-400', text: t('chat.loading') }
+        ? { label: t('chat.status.ready'), tone: 'bg-emerald-500' }
+        : { label: t('chat.status.waiting'), tone: 'bg-slate-400' }
 
   return (
-    <div className="flex flex-col gap-8">
-      <header className="flex items-center gap-3">
+    <div className="flex flex-col gap-5 wrap-anywhere sm:gap-8">
+      <header className="flex items-start gap-3 sm:items-center">
         <img
           src="/icons/lab-llm-chat.png"
           alt=""
           aria-hidden="true"
-          className="size-16 shrink-0 object-contain"
+          className="size-10 shrink-0 object-contain sm:size-16"
         />
         <div className="flex flex-col gap-1">
-          <h1 className="font-display text-3xl">{t('title')}</h1>
+          <h1 className="font-display text-2xl sm:text-3xl">{t('title')}</h1>
           <p className="max-w-prose text-ink-muted">{t('intro')}</p>
         </div>
       </header>
 
-      <section aria-label={t('chat.modelLabel')} className="rounded-2xl border border-border-subtle bg-surface p-4 sm:p-5">
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.8fr)_minmax(17rem,1fr)]">
-          <div className="flex min-w-0 flex-col gap-5">
-            <fieldset>
-              <legend className="text-sm font-semibold text-ink">{t('chat.modelLabel')}</legend>
-              <div role="group" aria-label={t('chat.modelLabel')} className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                {MODEL_ORDER.map((modelId) => {
-                  const selected = selectedModel === modelId
-                  const descriptionId = `llm-model-description-${modelId}`
-                  return (
-                    <button
-                      key={modelId}
-                      type="button"
-                      aria-label={t(`chat.models.${modelId}`)}
-                      aria-describedby={descriptionId}
-                      aria-pressed={selected}
-                      disabled={isProcessingPrompt || compareRunning || lensRunning || repeatRunning}
-                      onClick={() => setSelectedModel(modelId)}
-                      className={[
-                        'flex min-h-32 flex-col items-start gap-3 rounded-xl border p-3 text-left transition-colors',
-                        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue',
-                        'disabled:cursor-not-allowed disabled:opacity-50',
-                        selected
-                          ? 'border-blue bg-sky-100 shadow-sm'
-                          : 'border-border-subtle bg-surface hover:border-blue hover:bg-surface-sunken',
-                      ].join(' ')}
-                    >
-                      <span className="flex w-full items-center justify-between gap-2">
-                        <span className="flex size-9 items-center justify-center rounded-lg bg-navy font-display text-lg font-bold text-ink-inverse">
-                          {modelId[0]?.toUpperCase()}
-                        </span>
-                        {selected ? (
-                          <span className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-blue-ink">
-                            {t('chat.selected')}
-                          </span>
-                        ) : null}
+      <section aria-label={t('chat.modelLabel')} className="@container rounded-2xl border border-border-subtle bg-surface p-4 sm:p-5">
+        <div className="grid items-start gap-4 @min-[56rem]:grid-cols-[minmax(0,1fr)_16rem]">
+          <fieldset className="@container min-w-0">
+            <legend className="text-sm font-semibold text-ink">{t('chat.modelLabel')}</legend>
+            <div role="group" aria-label={t('chat.modelLabel')} className="mt-2 grid grid-cols-1 gap-2 @min-[18rem]:grid-cols-2 @min-[37.5rem]:grid-cols-4">
+              {MODEL_ORDER.map((modelId) => {
+                const selected = selectedModel === modelId
+                const descriptionId = `llm-model-description-${modelId}`
+                return (
+                  <button
+                    key={modelId}
+                    type="button"
+                    aria-label={t(`chat.models.${modelId}`)}
+                    aria-describedby={descriptionId}
+                    aria-pressed={selected}
+                    disabled={isProcessingPrompt || compareRunning || lensRunning || repeatRunning}
+                    onClick={() => setModelSelection({
+                      model: modelId,
+                      backend: modelId === 'gemma4' ? 'gpu' : selectedBackend,
+                    })}
+                    className={[
+                      'flex min-h-touch min-w-0 items-start rounded-lg border px-2.5 py-2 text-left transition-colors',
+                      'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue',
+                      'disabled:cursor-not-allowed disabled:opacity-50',
+                      selected
+                        ? 'border-blue bg-sky-100 shadow-sm'
+                        : 'border-border-subtle bg-surface hover:border-blue hover:bg-surface-sunken',
+                    ].join(' ')}
+                  >
+                    <span id={descriptionId} className="flex flex-col items-start gap-0.5 leading-tight">
+                      <span className="text-sm font-semibold text-ink">{t(`chat.models.${modelId}`)}</span>
+                      <span className="text-xs text-ink-muted">
+                        {t(`chat.modelDetails.${modelId}`)}
                       </span>
-                      <span id={descriptionId} className="flex flex-col items-start gap-1">
-                        <span className="font-semibold text-ink">{t(`chat.models.${modelId}`)}</span>
-                        <span className="text-xs leading-5 text-ink-muted">
-                          {t(`chat.modelDetails.${modelId}`)}
-                        </span>
-                        <span className="text-xs font-medium text-blue-ink">
-                          {MODEL_DISPLAY_NAME[selectedBackend][modelId]}
-                        </span>
+                      <span className="text-xs font-medium text-blue-ink">
+                        GPU · {modelDisplayName('gpu', modelId)}
                       </span>
-                    </button>
-                  )
-                })}
-              </div>
-            </fieldset>
-
-            <fieldset>
-              <legend className="text-sm font-semibold text-ink">{t('chat.backendLabel')}</legend>
-              <div role="group" aria-label={t('chat.backendLabel')} className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {BACKEND_ORDER.map((backendId) => {
-                  const selected = selectedBackend === backendId
-                  const descriptionId = `llm-backend-description-${backendId}`
-                  return (
-                    <button
-                      key={backendId}
-                      type="button"
-                      aria-label={t(`chat.backends.${backendId}`)}
-                      aria-describedby={descriptionId}
-                      aria-pressed={selected}
-                      disabled={isProcessingPrompt || compareRunning || lensRunning || repeatRunning}
-                      onClick={() => setSelectedBackend(backendId)}
-                      className={[
-                        'flex min-h-24 items-start gap-3 rounded-xl border p-3 text-left transition-colors',
-                        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue',
-                        'disabled:cursor-not-allowed disabled:opacity-50',
-                        selected
-                          ? 'border-blue bg-sky-100 shadow-sm'
-                          : 'border-border-subtle bg-surface hover:border-blue hover:bg-surface-sunken',
-                      ].join(' ')}
-                    >
-                      <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-navy text-xs font-bold tracking-wide text-ink-inverse">
-                        {backendId.toUpperCase()}
+                      <span className="text-xs font-medium text-blue-ink">
+                        CPU · {modelId === 'gemma4' ? t('chat.noCpuVariant') : modelDisplayName('cpu', modelId)}
                       </span>
-                      <span id={descriptionId} className="flex min-w-0 flex-col gap-1">
-                        <span className="font-semibold text-ink">{t(`chat.backends.${backendId}`)}</span>
-                        <span className="text-xs leading-5 text-ink-muted">
-                          {t(`chat.backendHint.${backendId}`)}
-                        </span>
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
-            </fieldset>
-          </div>
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </fieldset>
 
           <aside className="flex min-w-0 flex-col gap-3 rounded-xl bg-surface-sunken p-4" aria-label={t('chat.status.label')}>
-            <div role="status" aria-live="polite" className="flex items-center gap-2">
+            <div role="status" aria-live="polite" className="flex flex-wrap items-center gap-x-2 gap-y-1">
               {loadingModel ? (
                 <span
                   aria-hidden="true"
@@ -411,23 +361,22 @@ export function LlmLabPage() {
               </span>
               <span className="text-sm font-medium text-ink">{modelStatus.label}</span>
             </div>
-            <p className="text-sm leading-6 text-ink-muted">
+            <div className="text-sm leading-6 text-ink-muted" aria-live="polite">
               {loadingModel ? (
-                <>
-                  <span className="block whitespace-nowrap">{modelStatus.text}</span>
-                  <span className="block whitespace-nowrap">
-                    {t('chat.loadingProgressLine2')}
-                    <span className="inline-block min-w-[5ch] text-right tabular-nums">
-                      {t('chat.loadingProgressPercent', {
-                        percent: Math.round((loadProgress ?? 0) * 100),
-                      })}
-                    </span>
+                <p>
+                  {t('chat.loadingModel', { model: modelDisplayName(selectedBackend, selectedModel) })}
+                  <span className="ml-2 tabular-nums" aria-hidden="true">
+                    {t('chat.loadingProgressPercent', { percent: Math.round((loadProgress ?? 0) * 100) })}
                   </span>
-                </>
-              ) : (
-                modelStatus.text
-              )}
-            </p>
+                </p>
+              ) : engineError ? (
+                <p>{t('chat.modelError', { error: engineError })}</p>
+              ) : engine ? (
+                <p>{t(engine.backend === 'cpu' ? 'chat.modelReadyCpu' : 'chat.modelReady', {
+                  model: modelDisplayName(engine.backend, selectedModel),
+                })}</p>
+              ) : null}
+            </div>
             {engineError && !loadingModel ? (
               <Button
                 type="button"
@@ -541,7 +490,7 @@ export function LlmLabPage() {
                 message.role === 'user' ? (
                   <article
                     key={message.id}
-                    className="ml-auto max-w-3xl rounded-2xl bg-blue px-4 py-3 text-ink-inverse shadow-sm"
+                    className="ml-auto max-w-[min(100%,48rem)] rounded-2xl bg-blue px-4 py-3 text-ink-inverse shadow-sm"
                   >
                     <p className="text-xs uppercase tracking-wide opacity-80">{t('chat.userLabel')}</p>
                     <p className="mt-1 text-sm leading-6">{message.prompt}</p>
@@ -564,14 +513,14 @@ export function LlmLabPage() {
             <ComparePanel
               engine={engine}
               loadingModel={loadingModel}
-              modelName={engine ? MODEL_DISPLAY_NAME[engine.backend][selectedModel] : t(`chat.models.${selectedModel}`)}
+              modelName={engine ? modelDisplayName(engine.backend, selectedModel) : t(`chat.models.${selectedModel}`)}
               onRunningChange={setCompareRunning}
               presetRequest={presetRequest}
             />
             <WordLens
               engine={engine}
               loadingModel={loadingModel}
-              modelName={engine ? MODEL_DISPLAY_NAME[engine.backend][selectedModel] : t(`chat.models.${selectedModel}`)}
+              modelName={engine ? modelDisplayName(engine.backend, selectedModel) : t(`chat.models.${selectedModel}`)}
               onRunningChange={setLensRunning}
             />
             <RepeatPanel
@@ -640,7 +589,7 @@ function AssistantCard({
       </div>
 
       {message.open ? (
-        <div className="mt-4 flex flex-col gap-2 rounded-xl bg-surface p-4">
+        <div className="mt-4 flex flex-col gap-2 rounded-xl bg-surface p-3 sm:p-4">
           <h3 className="text-sm font-medium text-ink">{t('chat.wordOptionsTitle')}</h3>
           <p className="text-sm text-ink-muted">{t('chat.wordAnalysisDescription')}</p>
           {message.candidates.length === 0 ? (
@@ -649,8 +598,8 @@ function AssistantCard({
           {message.candidates.map((candidate) => (
             <article key={candidate.word} className="rounded-lg border border-border-subtle bg-white p-3">
               <div className="flex items-center justify-between gap-3">
-                <h4 className="text-lg font-semibold text-ink">{candidate.word}</h4>
-                <span className="tabular-nums text-sm font-medium text-ink-muted">
+                <h4 className="min-w-0 text-lg font-semibold text-ink">{candidate.word}</h4>
+                <span className="shrink-0 tabular-nums text-sm font-medium text-ink-muted">
                   {simplePercent(candidate.probability)}
                 </span>
               </div>

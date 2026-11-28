@@ -33,6 +33,8 @@ or redesigned. That is Principle II, and it is why the project can be free to ru
 ```bash
 npm install
 npm run fetch:backbone   # ~11 MB of MobileNet weights into public/models/
+npm run fetch:llm        # optional: host Qwen 0.5B locally (~512 MB of weights)
+npm run fetch:llm -- --gemma4  # optional: also host Gemma 4 E2B for WebGPU (3.65 GB more)
 npm run dev
 ```
 

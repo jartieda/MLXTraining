@@ -5,23 +5,6 @@
     "title": "¿Qué palabra viene después?",
     "intro": "Elige un modelo local, escribe el principio de una frase y mira qué palabras cree el modelo que vienen después y con qué probabilidad.",
     "modelLabel": "Modelo",
-    "backendLabel": "Motor de ejecución",
-    "backends": {
-      "gpu": "GPU (WebGPU)",
-      "cpu": "CPU (WebAssembly)"
-    },
-    "backendHint": {
-      "gpu": "Más rápido y con el modelo más grande. Necesita un navegador con WebGPU.",
-      "cpu": "Funciona en cualquier navegador, pero es más lento y usa un modelo distinto y mucho más pequeño que el de GPU, así que sus respuestas y probabilidades no son comparables."
-    },
-    "webGpuUnavailable": {
-      "insecure": "WebGPU solo funciona en páginas seguras (con https:// o en localhost). Abre el laboratorio con https:// o elige el motor CPU.",
-      "unsupported": "Este navegador no expone WebGPU. Actualízalo o elige el motor CPU.",
-      "noAdapter": "El navegador soporta WebGPU pero no devolvió ningún adaptador de GPU. Revisa chrome://gpu o elige el motor CPU."
-    },
-    "loading": "Cargando el modelo local en tu navegador…",
-    "loadingProgressLine1": "Cargando el modelo local",
-    "loadingProgressLine2": "en tu navegador…",
     "loadingProgressPercent": "{{percent}} %",
     "loadingActivity": {
       "title": "¿Sabías que…?",
@@ -49,11 +32,11 @@
       }
     },
     "modelUnavailable": "El modelo local todavía no está listo.",
-    "modelError": "WebLLM no pudo cargar el modelo: {{error}}",
+    "modelError": "El motor local no pudo cargar el modelo: {{error}}",
     "retry": "Reintentar",
-    "modelReady": "Modelo listo en la GPU: {{model}}",
-    "modelReadyCpu": "Modelo listo en la CPU: {{model}}. Es más pequeño que el de GPU de la misma familia, así que responderá distinto y más despacio.",
-    "generationFailed": "WebLLM no pudo generar una respuesta. Inténtalo de nuevo.",
+    "modelReady": "Modelo listo en la GPU: {{model}}.",
+    "modelReadyCpu": "Modelo listo en la CPU: {{model}}.",
+    "generationFailed": "El motor local no pudo generar una respuesta. Inténtalo de nuevo.",
     "processing": "Procesando prompt…",
     "status": {
       "label": "Estado del modelo",
@@ -83,16 +66,19 @@
     "models": {
       "gemma": "Gemma",
       "llama": "Llama",
-      "qwen": "Qwen (Alibaba)"
+      "qwen": "Qwen",
+      "gemma4": "Gemma 4 E2B"
     },
     "modelDetails": {
-      "gemma": "Familia de modelos abiertos de Google",
-      "llama": "Familia de modelos abiertos de Meta",
-      "qwen": "Familia multilingüe de Alibaba"
+      "gemma": "Google",
+      "gemma4": "Google",
+      "llama": "Meta",
+      "qwen": "Alibaba"
     },
-    "selected": "Seleccionado",
     "stop": "Parar",
-    "stopped": "Parado. Puedes volver a preguntar cuando quieras."
+    "stopped": "Parado. Puedes volver a preguntar cuando quieras.",
+    "loadingModel": "Cargando {{model}}…",
+    "noCpuVariant": "Sin variante disponible"
   },
   "reasoning": {
     "title": "Pregunta al modelo y pídele que se explique",
@@ -360,7 +346,7 @@
     "intro": "La lupa quita las palabras del texto de una en una y vuelve a preguntar al modelo qué sentimiento expresa. Si al quitar una palabra la respuesta cambia mucho, esa palabra pesaba mucho. Es la misma idea que tapar trozos de una foto en el Lab CV.",
     "textLabel": "Texto que se analiza",
     "cost_one": "Hará {{count}} consulta al modelo.",
-    "cost_other": "Hará {{count}} consultas al modelo: una con el texto completo y una por cada palabra.",
+    "cost_other": "Hará {{count}} consultas al modelo. Puede hacer una más para ajustar el formato de respuesta.",
     "run": "Pasar la lupa",
     "progressLabel": "Quitando palabras de una en una",
     "progressStart": "Preguntando con el texto completo…",
@@ -370,10 +356,10 @@
     "baseline": "Con el texto completo, el modelo elige «{{answer}}» con un {{percent}} %. Cada palabra se mide por cuánto baja ese porcentaje al quitarla.",
     "legendLow": "Pesa poco",
     "legendHigh": "Sostiene «{{answer}}»",
-    "legendCaption": "Los colores comparan las palabras entre sí, no son una cantidad exacta. Sin color: quitarla casi no cambia nada. Las palabras subrayadas con rayas empujan hacia otra respuesta: al quitarlas, «{{answer}}» sube.",
+    "legendCaption": "Los colores comparan el tamaño de las caídas medidas. El color marca caídas medidas de al menos 2 puntos. Las palabras subrayadas con rayas empujan hacia otra respuesta: al quitarlas, «{{answer}}» sube.",
     "strongest": "La palabra que más pesa es «{{word}}»: sin ella, «{{answer}}» baja {{points}} puntos.",
     "strongestAtLeast": "La palabra que más pesa es «{{word}}»: sin ella, «{{answer}}» baja al menos {{points}} puntos (deja de estar entre las 3 primeras).",
-    "noneMatters": "Ninguna palabra, por sí sola, cambia mucho la respuesta. El modelo se apoya en el texto completo.",
+    "noneMatters": "La mayor caída medida fue inferior a 2 puntos.",
     "topList": "Las que más pesan: {{words}}.",
     "against": "Estas palabras empujan en contra de «{{answer}}»: {{words}}.",
     "caveat": "Quitar una palabra puede dejar una frase rara. La lupa mide lo que hace el modelo con esa frase, no lo que «piensa».",
@@ -407,7 +393,11 @@
         "noQuotes": "El modelo no ha citado palabras del texto entre comillas, así que no hay nada que comparar. Vuelve a preguntarle o prueba con otro modelo."
       },
       "lesson": "Lo que el modelo dice que le influyó es una explicación escrita por él, no una medida. La lupa sí mide. Cuando no coinciden, fíate más de la medida."
-    }
+    },
+    "prefillInstruction": "Responde con una sola letra entre paréntesis: (A), (B) o (C).",
+    "prefillUsed": "Para medir la letra, todas las respuestas se iniciaron con un paréntesis.",
+    "conditions": "Todas las consultas usan {{model}} y el mismo formato de respuesta.",
+    "lowCoverage": "La mayor parte de la probabilidad queda fuera de las letras medidas. Interpreta los cambios con cautela."
   },
   "missions": {
     "title": "Misiones",

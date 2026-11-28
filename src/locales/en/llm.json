@@ -5,23 +5,6 @@
     "title": "Which word comes next?",
     "intro": "Choose a local model, write the start of a sentence and see which words the model thinks come next, and how likely each one is.",
     "modelLabel": "Model",
-    "backendLabel": "Execution engine",
-    "backends": {
-      "gpu": "GPU (WebGPU)",
-      "cpu": "CPU (WebAssembly)"
-    },
-    "backendHint": {
-      "gpu": "Faster, with the larger model. Needs a browser with WebGPU.",
-      "cpu": "Works in any browser, but it is slower and runs a different, much smaller model than the GPU engine, so its answers and probabilities are not comparable."
-    },
-    "webGpuUnavailable": {
-      "insecure": "WebGPU only works on secure pages (https:// or localhost). Open the lab over https:// or choose the CPU engine.",
-      "unsupported": "This browser does not expose WebGPU. Update it or choose the CPU engine.",
-      "noAdapter": "The browser supports WebGPU but returned no GPU adapter. Check chrome://gpu or choose the CPU engine."
-    },
-    "loading": "Loading the local model in your browser…",
-    "loadingProgressLine1": "Loading the local model",
-    "loadingProgressLine2": "in your browser…",
     "loadingProgressPercent": "{{percent}}%",
     "loadingActivity": {
       "title": "Did you know…?",
@@ -49,11 +32,11 @@
       }
     },
     "modelUnavailable": "The local model is not ready yet.",
-    "modelError": "WebLLM could not load the model: {{error}}",
+    "modelError": "The local engine could not load the model: {{error}}",
     "retry": "Retry",
-    "modelReady": "Model ready on the GPU: {{model}}",
-    "modelReadyCpu": "Model ready on the CPU: {{model}}. It is smaller than the GPU model of the same family, so it will answer differently and more slowly.",
-    "generationFailed": "WebLLM could not generate a response. Try again.",
+    "modelReady": "Model ready on the GPU: {{model}}.",
+    "modelReadyCpu": "Model ready on the CPU: {{model}}.",
+    "generationFailed": "The local engine could not generate a response. Try again.",
     "processing": "Processing prompt…",
     "status": {
       "label": "Model status",
@@ -83,16 +66,19 @@
     "models": {
       "gemma": "Gemma",
       "llama": "Llama",
-      "qwen": "Qwen (Alibaba)"
+      "qwen": "Qwen",
+      "gemma4": "Gemma 4 E2B"
     },
     "modelDetails": {
-      "gemma": "Google's family of open models",
-      "llama": "Meta's family of open models",
-      "qwen": "Alibaba's multilingual model family"
+      "gemma": "Google",
+      "gemma4": "Google",
+      "llama": "Meta",
+      "qwen": "Alibaba"
     },
-    "selected": "Selected",
     "stop": "Stop",
-    "stopped": "Stopped. You can ask again whenever you like."
+    "stopped": "Stopped. You can ask again whenever you like.",
+    "loadingModel": "Loading {{model}}…",
+    "noCpuVariant": "No variant available"
   },
   "reasoning": {
     "title": "Ask the model and have it explain itself",
@@ -360,7 +346,7 @@
     "intro": "The lens removes the words of the text one at a time and asks the model again what sentiment it expresses. If removing a word changes the answer a lot, that word mattered a lot. It's the same idea as covering parts of a photo in the CV Lab.",
     "textLabel": "Text to analyse",
     "cost_one": "It will ask the model {{count}} time.",
-    "cost_other": "It will ask the model {{count}} times: once with the whole text and once per word.",
+    "cost_other": "It will query the model {{count}} times. It may run one extra query to adjust the answer format.",
     "run": "Use the lens",
     "progressLabel": "Removing words one at a time",
     "progressStart": "Asking with the whole text…",
@@ -370,10 +356,10 @@
     "baseline": "With the whole text, the model picks “{{answer}}” at {{percent}} %. Each word is measured by how much that percentage drops when it is removed.",
     "legendLow": "Matters little",
     "legendHigh": "Holds up “{{answer}}”",
-    "legendCaption": "The colours compare the words with each other; they aren't an exact amount. No colour: removing it barely changes anything. Words with a dashed underline push towards another answer: removing them makes “{{answer}}” go up.",
+    "legendCaption": "The colours compare the size of the measured drops. Colour marks drops of at least 2 points. Words with a dashed underline push towards another answer: removing them makes “{{answer}}” go up.",
     "strongest": "The word that matters most is “{{word}}”: without it, “{{answer}}” drops {{points}} points.",
     "strongestAtLeast": "The word that matters most is “{{word}}”: without it, “{{answer}}” drops at least {{points}} points (it falls out of the top 3).",
-    "noneMatters": "No single word changes the answer much. The model relies on the whole text.",
+    "noneMatters": "The largest measured drop was under 2 points.",
     "topList": "The ones that matter most: {{words}}.",
     "against": "These words push against “{{answer}}”: {{words}}.",
     "caveat": "Removing a word can leave an odd sentence. The lens measures what the model does with that sentence, not what it “thinks”.",
@@ -407,7 +393,11 @@
         "noQuotes": "The model didn't quote any words from the text, so there's nothing to compare. Ask again or try another model."
       },
       "lesson": "What the model says influenced it is an explanation it wrote, not a measurement. The lens does measure. When they don't match, trust the measurement more."
-    }
+    },
+    "prefillInstruction": "Reply with one letter in parentheses: (A), (B), or (C).",
+    "prefillUsed": "Every reply started with an opening parenthesis so the lens could measure the letter.",
+    "conditions": "Every query uses {{model}} and the same answer format.",
+    "lowCoverage": "Most of the probability lies outside the measured letters. Interpret the changes with caution."
   },
   "missions": {
     "title": "Missions",
